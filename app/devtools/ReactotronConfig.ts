@@ -5,6 +5,7 @@
  */
 import { Platform, NativeModules } from "react-native"
 import { ArgType } from "reactotron-core-client"
+import { mst } from "reactotron-mst"
 import { ReactotronReactNative } from "reactotron-react-native"
 import mmkvPlugin from "reactotron-react-native-mmkv"
 
@@ -22,6 +23,12 @@ const reactotron = Reactotron.configure({
 })
 
 reactotron.use(mmkvPlugin<ReactotronReactNative>({ storage }))
+reactotron.use(
+  mst({
+    /** ignore some chatty `mobx-state-tree` actions  */
+    filter: (event) => /postProcessSnapshot|@APPLY_SNAPSHOT/.test(event.name) === false,
+  }),
+)
 
 if (Platform.OS !== "web") {
   reactotron.useReactNative({
