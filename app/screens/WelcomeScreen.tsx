@@ -1,11 +1,12 @@
 import { FC } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+import { observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { useAuth } from "@/context/AuthContext"
 import { isRTL } from "@/i18n"
+import { useStores } from "@/models"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
@@ -18,11 +19,11 @@ const welcomeFace = require("@assets/images/welcome-face.png")
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
-export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_props) {
+export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(_props) {
   const { themed, theme } = useAppTheme()
 
   const { navigation } = _props
-  const { logout } = useAuth()
+  const { authenticationStore } = useStores()
 
   function goNext() {
     navigation.navigate("Demo", { screen: "DemoShowroom", params: {} })
@@ -31,9 +32,9 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_pro
   useHeader(
     {
       rightTx: "common:logOut",
-      onRightPress: logout,
+      onRightPress: authenticationStore.logout,
     },
-    [logout],
+    [authenticationStore.logout],
   )
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
@@ -69,7 +70,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = function WelcomeScreen(_pro
       </View>
     </Screen>
   )
-}
+})
 
 const $topContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexShrink: 1,

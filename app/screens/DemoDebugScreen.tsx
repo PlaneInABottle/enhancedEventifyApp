@@ -14,8 +14,8 @@ import { Button } from "@/components/Button"
 import { ListItem } from "@/components/ListItem"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { useAuth } from "@/context/AuthContext"
 import { isRTL } from "@/i18n"
+import { useStores } from "@/models"
 import { DemoTabScreenProps } from "@/navigators/DemoNavigator"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
@@ -35,7 +35,9 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
   _props,
 ) {
   const { setThemeContextOverride, themeContext, themed } = useAppTheme()
-  const { logout } = useAuth()
+  const {
+    authenticationStore: { logout },
+  } = useStores()
 
   // @ts-expect-error
   const usingFabric = global.nativeFabricUIManager != null
