@@ -13,10 +13,10 @@ import Config from "@/config"
 import { useStores } from "@/models"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { LoginScreen } from "@/screens/LoginScreen"
-import { WelcomeScreen } from "@/screens/WelcomeScreen"
+import { EnhancedEventifyWelcomeScreen } from "@/screens/EnhancedEventifyWelcomeScreen"
 import { useAppTheme } from "@/theme/context"
 
-import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"
+import { EnhancedEventifyNavigator, EnhancedEventifyTabParamList } from "./EnhancedEventifyNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
 /**
@@ -29,9 +29,8 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Welcome: undefined
   Login: undefined
-  Demo: NavigatorScreenParams<DemoTabParamList>
+  EnhancedEventify: NavigatorScreenParams<EnhancedEventifyTabParamList>
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -68,13 +67,11 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "Welcome" : "Login"}
+      initialRouteName={isAuthenticated ? "EnhancedEventify" : "Login"}
     >
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-
-          <Stack.Screen name="Demo" component={DemoNavigator} />
+          <Stack.Screen name="EnhancedEventify" component={EnhancedEventifyNavigator} />
         </>
       ) : (
         <>
