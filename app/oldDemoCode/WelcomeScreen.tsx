@@ -26,7 +26,8 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   const { authenticationStore } = useStores()
 
   function goNext() {
-    navigation.navigate("Demo", { screen: "DemoShowroom", params: {} })
+    // This is the old demo welcome screen - functionality disabled
+    console.log("Demo navigation disabled - this is archived demo code")
   }
 
   useHeader(

@@ -5,14 +5,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { Icon } from "@/components/Icon"
 import { translate } from "@/i18n/translate"
-import { DemoCommunityScreen } from "@/screens/DemoCommunityScreen"
-import { DemoDebugScreen } from "@/screens/DemoDebugScreen"
-import { DemoPodcastListScreen } from "@/screens/DemoPodcastListScreen"
-import { DemoShowroomScreen } from "@/screens/DemoShowroomScreen/DemoShowroomScreen"
+import { DemoCommunityScreen } from "./DemoCommunityScreen"
+import { DemoDebugScreen } from "./DemoDebugScreen"
+import { DemoPodcastListScreen } from "./DemoPodcastListScreen"
+import { DemoShowroomScreen } from "./DemoShowroomScreen/DemoShowroomScreen"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
-import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
+import { AppStackParamList, AppStackScreenProps } from "@/navigators/AppNavigator"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
