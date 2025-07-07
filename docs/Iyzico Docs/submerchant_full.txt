@@ -1,0 +1,591 @@
+Submerchant | iyzico
+
+1 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+GitHub
+
+Feedback Form
+
+After the approval of the marketplace transaction, submerchants are required
+to have records at iyzico APIs to facilitate the money transfer. Since the
+merchant already has access to the submerchant details such like, email,
+address, name, taxoffice, it can be seamlessly transmitted to the iyzico
+Onboarding API for submerchant account creation and updates.
+
+• Submerchant Creation
+• Submerchant Update
+• Submerchant Details
+• Submerchant Price / Item Update
+
+Possible submerchants can be one of the following 3 types:
+1. Individual
+2. Sole Proprietorship
+3. Limited/Incorporated Company.
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+2 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+The parameters sent during the sub-merchant registration process may vary
+depending on the specific transaction type. Upon the completion of a submerchant registration, the response will include a unique
+assigned to that particular seller. It is
+
+to securely store this value
+
+within your system, as you will need to provide the subMerchantKey when
+identifying the seller during the payment process.
+
+When transmitting parameters to iyzico, it is crucial to ensure that all values are
+genuine and accurately reflect the required information. Please refrain from
+sending random, test, or non-authentic data.
+
+POST
+
+https://api.iyzipay.com/onboarding/submerchant
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+3 of 12
+
+locale
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+String
+
+Language (default: tr)
+
+conversationId
+
+String
+
+If set, conversation ID to
+match request and
+response
+
+subMerchantExternalId*
+
+String
+
+Merchant identification
+number on your system
+
+subMerchantType*
+
+String
+
+The
+value
+must be sent for the
+individual type of
+submerchants .
+
+address*
+
+String
+
+Address of submerchant
+
+contactName*
+
+String
+
+Contact name of
+submerchant
+
+contactSurname*
+
+String
+
+Surname of submerchant
+
+email*
+
+String
+
+Email of submerchant
+
+gsmNumber
+
+String
+
+GSM of submerchant
+
+name
+
+String
+
+Name of submerchant
+IBAN of submerchant. Its
+expected that
+and
+matches with IBAN. Even
+if it left blank while
+creating the
+submerchant, it must be
+filled before approving
+the payment.
+
+iban
+
+String
+
+identityNumber
+
+String
+
+ID of submerchant
+
+String
+
+Default is TL.
+Alternatives; USD, EUR,
+GBP, CHF and NOK
+
+currency
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+4 of 12
+
+POST
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+https://api.iyzipay.com/onboarding/submerchant
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+5 of 12
+
+locale
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+String
+
+Language (default: tr)
+
+conversationId
+
+String
+
+If set, conversation ID to
+match request and
+response
+
+subMerchantExternalId*
+
+String
+
+Merchant identification
+number on your system
+
+subMerchantType*
+
+String
+
+The
+value must be sent for
+the sole proprietorshop
+type of submerchants .
+
+address*
+
+String
+
+Address of submerchant
+
+contactName*
+
+String
+
+Contact name of
+submerchant
+
+contactSurname*
+
+String
+
+Surname of submerchant
+
+email*
+
+String
+
+Email of submerchant
+
+gsmNumber
+
+String
+
+GSM of submerchant
+
+name
+
+String
+
+Name of submerchant
+IBAN of submerchant. Its
+expected that
+and
+matches with IBAN. Even
+if it left blank while
+creating the
+submerchant, it must be
+filled before approving
+the payment.
+
+iban
+
+String
+
+identityNumber
+
+String
+
+ID of submerchant
+
+currency
+
+String
+
+Default is TL.
+Alternatives; USD, EUR,
+GBP, CHF and NOK
+
+taxOffice
+
+String
+
+Tax office of
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+6 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+taxOffice
+
+String
+
+legalCompanyTitle
+
+String
+
+POST
+
+submerchant
+Legal Company Title of
+submerchant
+
+https://api.iyzipay.com/onboarding/submerchant
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+7 of 12
+
+locale
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+String
+
+Language (default: tr)
+
+conversationId
+
+String
+
+If set, conversation ID to
+match request and
+response
+
+subMerchantExternalId*
+
+String
+
+Merchant identification
+number on your system
+The
+value
+must be sent for the sole
+proprietorshop type of
+submerchants .
+
+subMerchantType*
+
+String
+
+address*
+
+String
+
+Address of submerchant
+
+contactName*
+
+String
+
+Contact name of
+submerchant
+
+contactSurname*
+
+String
+
+Surname of submerchant
+
+email*
+
+String
+
+Email of submerchant
+
+gsmNumber
+
+String
+
+GSM of submerchant
+
+name
+
+String
+
+Name of submerchant
+IBAN of submerchant. Its
+expected that
+and
+matches with IBAN. Even
+if it left blank while
+creating the
+submerchant, it must be
+filled before approving
+the payment.
+
+iban
+
+String
+
+identityNumber
+
+String
+
+ID of submerchant
+
+String
+
+Default is TL.
+Alternatives; USD, EUR,
+GBP, CHF and NOK
+
+currency
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+8 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+legalCompanyTitle
+
+String
+
+Legal Company Title of
+submerchant
+
+taxNumber*
+
+String
+
+Tax number of
+submerchant
+
+taxOffice*
+
+String
+
+Tax office of
+submerchant
+
+String
+
+Key of submerchant
+
+String
+
+Service response result
+(success / failure)
+
+String
+
+Error code if service
+response status is failure
+
+String
+
+Error message if service
+response status is failure
+
+String
+
+Error group if service
+response status is failure
+
+String
+
+Language (default: tr)
+
+Integer
+
+Response system
+timestamp value
+
+String
+
+If set, conversation ID to
+match request and
+response
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+9 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+iyzipay.subMerchant.create({
+locale: Iyzipay.LOCALE.TR,
+conversationId: '123456789',
+subMerchantExternalId: 'S49222',
+subMerchantType: Iyzipay.SUB_MERCHANT_TYPE.PERSONAL,
+address: 'Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1',
+ContactName: 'John',
+ContactSurname: 'Doe',
+email: 'email@submerchantemail.com',
+gsmNumber: '+905350000000',
+name: 'John\'s market',
+iban: 'TR180006200119000006672315',
+identityNumber: '31300864726',
+currency: Iyzipay.CURRENCY.TRY
+}, function (err, result) {
+console.log(err, result);
+done();
+});
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+10 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+iyzipay.subMerchant.create({
+locale: Iyzipay.LOCALE.TR,
+conversationId: '123456789',
+subMerchantExternalId: 'S49222',
+subMerchantType: Iyzipay.SUB_MERCHANT_TYPE.PRIVATE_COMPANY,
+address: 'Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1',
+taxOffice: 'Tax office',
+legalCompanyTitle: 'John Doe inc',
+email: 'email@submerchantemail.com',
+gsmNumber: '+905350000000',
+name: 'John\'s market',
+iban: 'TR180006200119000006672315',
+identityNumber: '31300864726',
+currency: Iyzipay.CURRENCY.TRY
+}, function (err, result) {
+console.log(err, result);
+done();
+});
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+11 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+iyzipay.subMerchant.create({
+locale: Iyzipay.LOCALE.TR,
+conversationId: '123456789',
+subMerchantExternalId: 'S49222',
+subMerchantType: Iyzipay.SUB_MERCHANT_TYPE.LIMITED_OR_JOINT_STOCK_COMPANY,
+address: 'Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1',
+taxOffice: 'Tax office',
+taxNumber: '31300864726',
+legalCompanyTitle: 'John Doe inc',
+email: 'email@submerchantemail.com',
+gsmNumber: '+905350000000',
+name: 'John\'s market',
+iban: 'TR180006200119000006672315',
+currency: Iyzipay.CURRENCY.TRY
+}, function (err, result) {
+console.log(err, result);
+done();
+});
+
+Previous
+
+Marketplace Implementation
+Next
+
+Submerchant Update
+
+Last updated 11 months ago
+
+4/17/25, 22:40
+
+Submerchant | iyzico
+
+12 of 12
+
+https://docs.iyzico.com/en/products/marketplace/marketpla...
+
+About
+
+Github
+
+Brand Guide
+
+Contact Us
+
+Career
+
+Medium
+
+Solution Partners
+
+Support Center
+
+Social
+
+Open Source
+
+Youtube
+
+4/17/25, 22:40
+
+
