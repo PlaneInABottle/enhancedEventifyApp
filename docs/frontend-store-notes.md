@@ -20,7 +20,7 @@ Implementation notes for the MobX-State-Tree store architecture with complete us
 ### 3. Performance Optimization
 - **Spatial Queries**: Optimized for bounding box queries and map-based discovery
 - **Mobile-First**: Single operations instead of nested transformations
-- **Efficient Caching**: Store-level caching for frequently accessed data
+- **Server-Side Filtering**: Complete and accurate results without client-side complexity
 
 ## Store Responsibilities
 
@@ -58,15 +58,14 @@ Implementation notes for the MobX-State-Tree store architecture with complete us
 #### UserEventStore
 **Purpose**: Event discovery and browsing
 **Responsibilities**:
-- Spatial event queries using bounding box
-- Event filtering and search functionality
+- Spatial event queries using bounding box with server-side filtering
 - Event instance selection and detail management
-- Cache management for discovered instances
+- Filter management and application
 
 **Key Features**:
-- Bounding box spatial queries to Supabase
-- Client-side filtering on fetched results
-- Search functionality across event titles/descriptions
+- Bounding box spatial queries to Supabase with filters
+- Server-side filtering for complete and accurate results
+- Simple state management without caching complexity
 - Event clustering for map display (future)
 
 #### UserProfileStore
@@ -153,9 +152,9 @@ Implementation notes for the MobX-State-Tree store architecture with complete us
 ### User Discovery Flow
 1. User opens app → AuthStore authenticates → RootStore initializes UserStores
 2. UserLocationStore gets location → triggers bounding box query
-3. UserEventStore queries events within bounds → caches results
-4. User pans map → UserLocationStore updates bounds → triggers new query
-5. User applies filters → UserEventStore filters cached results client-side
+3. UserEventStore queries events within bounds with current filters
+4. User pans map → UserLocationStore updates bounds → triggers new query with filters
+5. User applies filters → UserEventStore re-queries with new filters (server-side)
 
 ### Business Management Flow
 1. Business user logs in → AuthStore determines business type → RootStore initializes BusinessStores
@@ -192,18 +191,18 @@ AuthStore (shared)
 
 ### Spatial Query Optimization
 - **Debounced Queries**: Map movements trigger debounced bounding box queries
-- **Spatial Caching**: Cache results by geographic tiles for efficiency
+- **Server-Side Filtering**: All filters applied on server for complete results
 - **Single Queries**: Use Supabase joins to fetch event + venue + business data in single query
 
 ### Mobile Performance
 - **Lazy Loading**: Only initialize stores for current user type
-- **Memory Management**: Clear unused data when switching contexts
+- **Simple State**: No complex cache management reduces memory usage
 - **Efficient Updates**: Use MobX computed values to minimize re-renders
 
-### Caching Strategy
-- **Event Caching**: UserEventStore caches events by geographic region
-- **Profile Caching**: Profile stores cache user/business data locally
-- **Image Caching**: Future Phase 2 media caching considerations
+### Query Strategy
+- **Fresh Data**: Always get current event information from server
+- **Profile Persistence**: Profile stores persist user/business data locally
+- **Media Optimization**: Future Phase 2 media optimization considerations
 
 ## Security Considerations
 

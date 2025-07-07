@@ -60,16 +60,14 @@ classDiagram
     }
 
     class UserEventStore {
-        -discoveredInstances: Map~string, EventInstance~
+        -currentInstances: EventInstance[]
         -searchFilters: SearchFilters
         -isLoading: boolean
         -selectedInstance: EventInstance?
-        -lastQueryBounds: BoundingBox?
-        +queryEventsByBounds(bounds: BoundingBox): Promise~void~
-        +searchEvents(query: string): void
-        +applyFilters(filters: SearchFilters): void
+        -currentBounds: BoundingBox?
+        +fetchEventsByBounds(bounds: BoundingBox, filters: SearchFilters): Promise~void~
+        +applyFilters(filters: SearchFilters): Promise~void~
         +selectInstance(instanceId: string): void
-        +filteredInstances: EventInstance[]
         +hasActiveFilters: boolean
     }
 
