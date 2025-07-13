@@ -32,26 +32,27 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
     // and pre-fill the form fields.
-    authenticationStore.setAuthEmail("ignite@infinite.red")
+    // authenticationStore.setAuthEmail("ignite@infinite.red")
     setAuthPassword("ign1teIsAwes0m3")
   }, [authenticationStore])
 
-  const error = isSubmitted ? authenticationStore.validationError : ""
+  // const error = isSubmitted ? authenticationStore.validationError : ""
+  const error = ""
 
   function login() {
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 
-    if (authenticationStore.validationError) return
+    // if (authenticationStore.validationError) return
 
     // Make a request to your server to get an authentication token.
     // If successful, reset the fields and set the token.
     setIsSubmitted(false)
     setAuthPassword("")
-    authenticationStore.setAuthEmail("")
+    // authenticationStore.setAuthEmail("")
 
     // We'll mock this with a fake token.
-    authenticationStore.setAuthToken(String(Date.now()))
+    // authenticationStore.setAuthToken(String(Date.now()))
   }
 
   const PasswordRightAccessory: ComponentType<TextFieldAccessoryProps> = useMemo(
@@ -83,8 +84,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       )}
 
       <TextField
-        value={authenticationStore.authEmail}
-        onChangeText={authenticationStore.setAuthEmail}
+        // value={authenticationStore.authEmail}
+        // onChangeText={authenticationStore.setAuthEmail}
+        value=""
+        onChangeText={() => {}}
         containerStyle={themed($textField)}
         autoCapitalize="none"
         autoComplete="email"

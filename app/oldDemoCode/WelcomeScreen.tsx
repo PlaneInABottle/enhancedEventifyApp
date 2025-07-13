@@ -37,9 +37,11 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   useHeader(
     {
       rightTx: "common:logOut",
-      onRightPress: authenticationStore.logout,
+      // onRightPress: authenticationStore.logout,
+      onRightPress: () => {},
     },
-    [authenticationStore.logout],
+    // [authenticationStore.logout],
+    [authenticationStore],
   )
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
