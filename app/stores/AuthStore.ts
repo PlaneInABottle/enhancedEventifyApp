@@ -1,0 +1,182 @@
+import { types, flow, Instance } from "mobx-state-tree"
+import { withSetPropAction } from "@/models/helpers/withSetPropAction"
+import { supabase } from "@/clients/supabase/SupabaseClient"
+import { signIn } from "@/services/auth"
+import type { AuthUser, SignInCredentials } from "@/services/auth"
+
+/**
+ * Authentication Store
+ * 
+ * Manages reactive authentication state using MobX-State-Tree
+ */
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+const UserProfileModel = types.model("UserProfile", {
+  id: types.string,
+  display_name: types.maybeNull(types.string),
+  avatar_url: types.maybeNull(types.string),
+  bio: types.maybeNull(types.string),
+  location_city: types.maybeNull(types.string),
+  is_profile_complete: types.maybeNull(types.boolean),
+  created_at: types.string,
+  updated_at: types.string,
+})
+
+const BusinessProfileModel = types.model("BusinessProfile", {
+  id: types.string,
+  business_name: types.string,
+  business_types: types.array(types.string),
+  description: types.maybeNull(types.string),
+  phone: types.maybeNull(types.string),
+  website_url: types.maybeNull(types.string),
+  logo_url: types.maybeNull(types.string),
+  business_status: types.enumeration("BusinessStatus", ["pending", "verified", "suspended"]),
+  is_profile_complete: types.maybeNull(types.boolean),
+  created_at: types.string,
+  updated_at: types.string,
+})
+
+const AuthUserModel = types.model("AuthUser", {
+  id: types.string,
+  email: types.string,
+  userType: types.enumeration("UserType", ["user", "business"]),
+  profile: types.maybeNull(UserProfileModel),
+  businessProfile: types.maybeNull(BusinessProfileModel),
+})
+
+// ============================================================================
+// AUTH STORE
+// ============================================================================
+
+export const AuthStore = types
+  .model("AuthStore", {
+    user: types.maybeNull(AuthUserModel),
+    isLoading: types.optional(types.boolean, false),
+    isAuthenticated: types.optional(types.boolean, false),
+    lastError: types.maybeNull(types.string),
+  })
+  .actions(withSetPropAction)
+  .views((self) => ({
+    get userId() {
+      return self.user?.id ?? null
+    },
+    get userEmail() {
+      return self.user?.email ?? null
+    },
+    get userType() {
+      return self.user?.userType ?? null
+    },
+    get hasProfile() {
+      return Boolean(self.user?.profile)
+    },
+    get hasBusinessProfile() {
+      return Boolean(self.user?.businessProfile)
+    },
+    get isProfileComplete() {
+      if (self.user?.userType === "business") {
+        return self.user?.businessProfile?.is_profile_complete === true
+      }
+      return self.user?.profile?.is_profile_complete === true
+    },
+  }))
+  .actions((self) => ({
+    // ========================================================================
+    // AUTHENTICATION ACTIONS
+    // ========================================================================
+    
+    signIn: flow(function* (credentials: SignInCredentials) {
+      self.setProp("isLoading", true)
+      self.setProp("lastError", null)
+      
+      try {
+        const result = yield signIn(credentials)
+        
+        if (result.success && result.user) {
+          self.setProp("user", result.user)
+          self.setProp("isAuthenticated", true)
+        } else {
+          self.setProp("lastError", result.error || 'errors:unknownError')
+          self.setProp("isAuthenticated", false)
+          self.setProp("user", null)
+        }
+        
+        return result
+      } catch (error) {
+        console.error("AuthStore.signIn error:", error)
+        self.setProp("lastError", 'errors:unknownError')
+        self.setProp("isAuthenticated", false)
+        self.setProp("user", null)
+        return { success: false, error: 'errors:unknownError' }
+      } finally {
+        self.setProp("isLoading", false)
+      }
+    }),
+    
+    signOut: flow(function* () {
+      self.setProp("isLoading", true)
+      
+      try {
+        yield supabase.auth.signOut()
+        // onAuthStateChange will handle clearing user state
+      } catch (error) {
+        console.error("AuthStore.signOut error:", error)
+        self.setProp("lastError", 'errors:unknownError')
+      } finally {
+        self.setProp("isLoading", false)
+      }
+    }),
+    
+    // ========================================================================
+    // INTERNAL SESSION MANAGEMENT
+    // ========================================================================
+    
+    _handleAuthStateChange(event: string, session: any) {
+      switch (event) {
+        case "SIGNED_OUT":
+          self.setProp("user", null)
+          self.setProp("isAuthenticated", false)
+          self.setProp("lastError", null)
+          break
+          
+        case "SIGNED_IN":
+        case "TOKEN_REFRESHED":
+          if (session?.user) {
+            const authUser: AuthUser = {
+              id: session.user.id,
+              email: session.user.email || '',
+              userType: 'user', // Will be updated when profile is loaded
+              profile: null,
+              businessProfile: null
+            }
+            
+            self.setProp("user", authUser)
+            self.setProp("isAuthenticated", true)
+          }
+          break
+      }
+    },
+  }))
+  .actions((self) => ({
+    // ========================================================================
+    // LIFECYCLE
+    // ========================================================================
+    
+    afterCreate() {
+      // Set up Supabase auth state listener
+      supabase.auth.onAuthStateChange((event, session) => {
+        self._handleAuthStateChange(event, session)
+      })
+    },
+  }))
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export interface AuthStore extends Instance<typeof AuthStore> {}
+export interface AuthUserType extends Instance<typeof AuthUserModel> {}
+export interface UserProfileType extends Instance<typeof UserProfileModel> {}
+export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> {}
