@@ -68,15 +68,15 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "Welcome" : "Login"}
+      initialRouteName={isAuthenticated ? "EnhancedEventify" : "Welcome"}
     >
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="Welcome" component={EnhancedEventifyWelcomeScreen} />
           <Stack.Screen name="EnhancedEventify" component={EnhancedEventifyNavigator} />
         </>
       ) : (
         <>
+          <Stack.Screen name="Welcome" component={EnhancedEventifyWelcomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
         </>
       )}

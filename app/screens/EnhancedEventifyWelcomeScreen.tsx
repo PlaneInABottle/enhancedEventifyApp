@@ -6,12 +6,9 @@ import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { isRTL } from "@/i18n"
-import { useStores } from "@/models"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { useAppTheme } from "@/theme/context"
-import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
-import { useHeader } from "@/utils/useHeader"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 
 const welcomeLogo = require("@assets/images/logo.png")
@@ -22,19 +19,12 @@ export const EnhancedEventifyWelcomeScreen: FC<EnhancedEventifyWelcomeScreenProp
   const { themed, theme } = useAppTheme()
 
   const { navigation } = _props
-  const { authenticationStore } = useStores()
 
   function goNext() {
-    navigation.navigate("EnhancedEventify", { screen: "Map" })
+    navigation.navigate("Login")
   }
 
-  useHeader(
-    {
-      rightTx: "common:logOut",
-      onRightPress: authenticationStore.logout,
-    },
-    [authenticationStore],
-  )
+  // No header for unauthenticated welcome screen
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
 
