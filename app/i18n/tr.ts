@@ -31,6 +31,15 @@ const tr = {
 
   errors: {
     invalidEmail: "Geçersiz e-posta adresi.",
+    emailRequired: "E-posta gereklidir",
+    passwordRequired: "Şifre gereklidir",
+    passwordMinLength: "Şifre en az 6 karakter uzunluğunda olmalıdır",
+    invalidCredentials: "Geçersiz e-posta veya şifre",
+    emailNotConfirmed: "Lütfen e-posta adresinizi doğrulayın",
+    tooManyRequests: "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin",
+    networkError: "Ağ bağlantı hatası. Lütfen internet bağlantınızı kontrol edin",
+    serviceUnavailable: "Servis geçici olarak kullanılamıyor. Lütfen tekrar deneyin",
+    unknownError: "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin",
   },
   loginScreen: {
     logIn: "Giriş Yap",

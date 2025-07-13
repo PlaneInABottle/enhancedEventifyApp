@@ -31,6 +31,15 @@ const en = {
 
   errors: {
     invalidEmail: "Invalid email address.",
+    emailRequired: "Email is required",
+    passwordRequired: "Password is required", 
+    passwordMinLength: "Password must be at least 6 characters long",
+    invalidCredentials: "Invalid email or password",
+    emailNotConfirmed: "Please verify your email address",
+    tooManyRequests: "Too many login attempts. Please try again later",
+    networkError: "Network connection error. Please check your internet",
+    serviceUnavailable: "Service temporarily unavailable. Please try again",
+    unknownError: "An unexpected error occurred. Please try again",
   },
   loginScreen: {
     logIn: "Log In",
