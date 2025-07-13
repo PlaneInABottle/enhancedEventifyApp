@@ -41,12 +41,12 @@ Every feature follows the TDD cycle:
 #### Setup Requirements
 ```bash
 # Core testing dependencies
-npm install --save-dev jest @testing-library/react-native @testing-library/jest-native
-npm install --save-dev react-test-renderer jest-expo
-npm install --save-dev @types/jest
+bun add --dev jest @testing-library/react-native @testing-library/jest-native
+bun add --dev react-test-renderer jest-expo
+bun add --dev @types/jest
 
 # Supabase testing utilities
-npm install --save-dev msw @supabase/supabase-js
+bun add --dev msw @supabase/supabase-js
 ```
 
 #### Configuration Files
@@ -520,11 +520,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-      - run: npm run test:coverage
-      - run: npm run test:e2e
+      - run: bun install
+      - run: bun lint
+      - run: bun type-check
+      - run: bun test:coverage
+      - run: bun test:e2e
 ```
 
 ## 🎯 Success Criteria

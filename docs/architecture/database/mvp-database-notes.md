@@ -195,10 +195,11 @@ LIMIT 100;
 - PostGIS extension enabled
 
 ### Future Migrations
-- Phase 2: Add event_categories table
-- Phase 3: Add commerce tables (orders, payments)
-- Phase 4: Add social tables (chat, reviews)
-- Phase 5: Add analytics and advanced business tables
+The following are the planned schema additions for subsequent phases:
+- **Phase 2**: `event_categories`, `favorites`, `media`
+- **Phase 3**: `ticket_types`, `orders`, `payment_profiles`
+- **Phase 4**: `event_chats`, `reviews`, `notifications`
+- **Phase 5**: `campaigns`, `moderation_actions`
 
 ## Known Limitations
 

@@ -412,19 +412,19 @@ export const createMockUser = (overrides = {}) => ({
 ### Development Commands
 ```bash
 # Run all tests
-npm test
+bun test
 
 # Run tests in watch mode
-npm run test:watch
+bun test --watch
 
 # Run tests with coverage
-npm run test:coverage
+bun test --coverage
 
 # Run specific test file
-npm test -- Button.test.tsx
+bun test Button.test.tsx
 
 # Run tests matching pattern
-npm test -- --testNamePattern="should render"
+bun test --testNamePattern="should render"
 ```
 
 ### Test Coverage Goals
