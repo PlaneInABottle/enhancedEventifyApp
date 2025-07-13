@@ -30,6 +30,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  */
 export type AppStackParamList = {
   Login: undefined
+  Welcome: undefined
   EnhancedEventify: NavigatorScreenParams<EnhancedEventifyTabParamList>
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
@@ -67,10 +68,11 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "EnhancedEventify" : "Login"}
+      initialRouteName={isAuthenticated ? "Welcome" : "Login"}
     >
       {isAuthenticated ? (
         <>
+          <Stack.Screen name="Welcome" component={EnhancedEventifyWelcomeScreen} />
           <Stack.Screen name="EnhancedEventify" component={EnhancedEventifyNavigator} />
         </>
       ) : (

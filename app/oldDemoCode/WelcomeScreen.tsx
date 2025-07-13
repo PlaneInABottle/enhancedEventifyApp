@@ -7,7 +7,11 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { isRTL } from "@/i18n"
 import { useStores } from "@/models"
-import type { AppStackScreenProps } from "@/navigators/AppNavigator"
+// Archived demo code - using local type to avoid navigation conflicts
+type DemoWelcomeScreenProps = {
+  navigation: any
+  route: any
+}
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
@@ -17,7 +21,7 @@ import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 const welcomeLogo = require("@assets/images/logo.png")
 const welcomeFace = require("@assets/images/welcome-face.png")
 
-interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
+interface WelcomeScreenProps extends DemoWelcomeScreenProps {}
 
 export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(_props) {
   const { themed, theme } = useAppTheme()
