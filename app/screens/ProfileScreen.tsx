@@ -1,7 +1,8 @@
 import { FC } from "react"
 import { ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import type { EnhancedEventifyTabScreenProps } from "@/navigators/EnhancedEventifyNavigator"
+import type { UserTabScreenProps } from "@/navigators/UserNavigator"
+import type { BusinessTabScreenProps } from "@/navigators/BusinessNavigator"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { Button } from "@/components/Button"
@@ -9,7 +10,7 @@ import { useStores } from "@/models"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
-interface ProfileScreenProps extends EnhancedEventifyTabScreenProps<"Profile"> {}
+interface ProfileScreenProps extends UserTabScreenProps<"Profile"> {}
 
 export const ProfileScreen: FC<ProfileScreenProps> = observer(() => {
   const { authenticationStore } = useStores()
