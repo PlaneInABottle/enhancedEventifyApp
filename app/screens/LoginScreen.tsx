@@ -116,7 +116,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         onPress={handleLogin}
         disabled={authenticationStore.isLoading}
         RightAccessory={authenticationStore.isLoading ? 
-          (props) => <ActivityIndicator size="small" color={colors.background} style={themed($loadingIndicator)} /> : 
+          (props) => <ActivityIndicator size="small" color={colors.background} style={themed($loadingIndicator)} testID="loading-indicator" /> : 
           undefined
         }
       />

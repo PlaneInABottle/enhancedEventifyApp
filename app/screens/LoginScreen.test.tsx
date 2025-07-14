@@ -13,7 +13,7 @@ import { ThemeProvider } from '@/theme/context'
 const mockAuthenticationStore = {
   signIn: jest.fn(),
   isLoading: false,
-  lastError: null,
+  lastError: null as string | null,
 }
 
 jest.mock('@/models', () => ({
@@ -124,5 +124,107 @@ describe('LoginScreen', () => {
         password: 'password123'
       })
     })
+  })
+
+  it('should show loading indicator when authentication is in progress', () => {
+    // Set loading state to true
+    mockAuthenticationStore.isLoading = true
+
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <LoginScreen {...defaultProps} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    // Should show loading indicator
+    expect(screen.getByTestId('loading-indicator')).toBeOnTheScreen()
+    
+    // Login button should be disabled during loading
+    const loginButton = screen.getByTestId('login-button')
+    expect(loginButton.props.accessibilityState.disabled).toBe(true)
+  })
+
+  it('should display error message when authentication fails', () => {
+    // Set error state
+    mockAuthenticationStore.lastError = 'errors:invalidCredentials'
+
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <LoginScreen {...defaultProps} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    // Should show error message
+    expect(screen.getByText('errors:invalidCredentials')).toBeOnTheScreen()
+  })
+
+  it('should not display error message when no error exists', () => {
+    // Ensure no error state
+    mockAuthenticationStore.lastError = null
+
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <LoginScreen {...defaultProps} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    // Should not show any error message
+    expect(screen.queryByText('errors:invalidCredentials')).not.toBeOnTheScreen()
+  })
+
+  it('should have enabled button and fields when not loading', () => {
+    // Ensure not loading state
+    mockAuthenticationStore.isLoading = false
+
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <LoginScreen {...defaultProps} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    // Login button should be enabled
+    const loginButton = screen.getByTestId('login-button')
+    expect(loginButton.props.accessibilityState.disabled).toBe(false)
+    
+    // Form fields should be editable
+    const emailInput = screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')
+    const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
+    expect(emailInput.props.editable).toBe(true)
+    expect(passwordInput.props.editable).toBe(true)
+    
+    // Should show normal login text
+    expect(screen.getByText('loginScreen:tapToLogIn')).toBeOnTheScreen()
+  })
+
+  it('should have proper accessibility attributes', () => {
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <LoginScreen {...defaultProps} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    // Login button should have button role
+    const loginButton = screen.getByTestId('login-button')
+    expect(loginButton.props.accessibilityRole).toBe('button')
+    
+    // Password toggle should be accessible
+    const passwordToggle = screen.getByTestId('password-toggle')
+    expect(passwordToggle.props.accessible).toBe(true)
+    
+    // Form fields should be accessible
+    const emailInput = screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')
+    const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
+    expect(emailInput.props.accessible).not.toBe(false)
+    expect(passwordInput.props.accessible).not.toBe(false)
   })
 })
