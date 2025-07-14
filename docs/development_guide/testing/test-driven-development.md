@@ -2,30 +2,74 @@
 
 ## 🎯 Overview
 
-This project strictly follows Test-Driven Development (TDD) principles. Every line of code is written only after a failing test has been created. This approach ensures high code quality, comprehensive test coverage, and maintainable architecture.
+This project follows a modified Test-Driven Development (TDD) approach optimized for TypeScript development. We write functions first, ensure type safety, then create comprehensive tests. This approach ensures high code quality, type safety, and maintainable architecture while leveraging TypeScript's compile-time error checking.
 
-## 🔄 The TDD Cycle
+## 🔄 The Modified TDD Cycle
 
-### RED → GREEN → REFACTOR
+### IMPLEMENT → TYPECHECK → TEST → REFACTOR
 
-1. **🔴 RED**: Write a failing test
-2. **🟢 GREEN**: Write minimal code to make the test pass
-3. **🔵 REFACTOR**: Improve code while keeping tests green
+1. **🔧 IMPLEMENT**: Write the function implementation
+2. **🔍 TYPECHECK**: Run TypeScript compiler to catch type errors
+3. **🔴 TEST**: Write comprehensive tests for all scenarios
+4. **🔵 REFACTOR**: Improve code while keeping tests green
 
 ### Detailed Process
 
 ```mermaid
 graph LR
-    A[Write Failing Test] --> B[Run Test - Should Fail]
-    B --> C[Write Minimal Code]
-    C --> D[Run Test - Should Pass]
-    D --> E[Refactor Code]
-    E --> F[Run All Tests]
-    F --> G[All Tests Pass?]
-    G -->|Yes| H[Next Feature]
-    G -->|No| E
-    H --> A
+    A[Write Function Implementation] --> B[Run TypeScript Check]
+    B --> C[Fix Type Errors]
+    C --> D[TypeScript Clean?]
+    D -->|No| C
+    D -->|Yes| E[Write Test Scenarios]
+    E --> F[Write First Test]
+    F --> G[Run Test - Should Pass]
+    G --> H[Write Next Test Scenario]
+    H --> I[All Scenarios Tested?]
+    I -->|No| F
+    I -->|Yes| J[Run All Tests]
+    J --> K[Refactor Implementation]
+    K --> L[Run All Tests Again]
+    L --> M[Next Function]
+    M --> A
 ```
+
+## ⚡ Modified TDD Workflow
+
+### One Function at a Time Approach
+
+**Core Principle**: Implement and test one function completely before moving to the next.
+
+#### Step-by-Step Process:
+
+1. **🔧 IMPLEMENT**: Write the complete function implementation
+   - Focus on correct logic and edge case handling
+   - Use TypeScript types for compile-time safety
+   - Write clean, readable code from the start
+
+2. **🔍 TYPECHECK**: Run TypeScript compiler
+   ```bash
+   npx tsc --noEmit
+   ```
+   - Fix any type errors immediately
+   - Ensure type safety before proceeding
+
+3. **🔴 TEST**: Write comprehensive tests
+   - **First**: Identify all test scenarios (happy path, edge cases, error cases)
+   - **Then**: Write tests one by one for each scenario
+   - **Run**: Each test should pass immediately (since function is implemented)
+
+4. **🔵 REFACTOR**: Improve implementation if needed
+   - Tests act as safety net during refactoring
+   - Maintain test coverage throughout refactoring
+
+### Benefits of This Approach:
+
+- **✅ Type Safety First**: Catch type errors before testing
+- **✅ Complete Coverage**: Think through all scenarios upfront  
+- **✅ Faster Development**: No red-green cycle delays
+- **✅ Better Design**: Focus on implementation quality from start
+- **✅ TypeScript Optimized**: Leverages compile-time checking
 
 ## 🧪 TDD Implementation Strategy
 
@@ -103,68 +147,108 @@ jest.mock('@/models', () => ({
 ### Phase 2: Utility Function Testing (Week 3)
 **Objective**: Test all utility functions with TDD approach
 
-#### 2.1 Example: Email Validation TDD
+#### 2.1 Example: Email Validation Modified TDD
 ```typescript
-// app/utils/validation/emailValidation.test.ts
-import { validateEmail } from './emailValidation';
-
-describe('validateEmail', () => {
-  // RED: Write failing test first
-  it('should return true for valid email', () => {
-    expect(validateEmail('test@example.com')).toBe(true);
-  });
-
-  // Test doesn't exist yet, so it will fail
-  // Now write minimal implementation
-});
-```
-
-```typescript
+// STEP 1: IMPLEMENT - Write the function first
 // app/utils/validation/emailValidation.ts
-// GREEN: Write minimal code to make test pass
-export function validateEmail(email: string): boolean {
-  // Minimal implementation
-  return email === 'test@example.com';
-}
-```
-
-```typescript
-// app/utils/validation/emailValidation.test.ts
-describe('validateEmail', () => {
-  // RED: Add more test cases
-  it('should return true for valid email', () => {
-    expect(validateEmail('test@example.com')).toBe(true);
-  });
-
-  it('should return false for invalid email', () => {
-    expect(validateEmail('invalid-email')).toBe(false);
-  });
-
-  it('should return false for empty string', () => {
-    expect(validateEmail('')).toBe(false);
-  });
-});
-```
-
-```typescript
-// app/utils/validation/emailValidation.ts
-// GREEN: Expand implementation to make all tests pass
-export function validateEmail(email: string): boolean {
-  if (!email || email.trim() === '') return false;
-  
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-```
-
-```typescript
-// REFACTOR: Improve implementation
 export function validateEmail(email: string): boolean {
   if (!email?.trim()) return false;
   
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(email.trim());
 }
+```
+
+```bash
+# STEP 2: TYPECHECK - Run TypeScript compiler
+npx tsc --noEmit
+# ✅ No type errors found
+```
+
+```typescript
+// STEP 3: TEST - Identify test scenarios first
+/**
+ * Test scenarios for validateEmail:
+ * 1. Valid email formats
+ * 2. Invalid email formats  
+ * 3. Empty/null/undefined inputs
+ * 4. Whitespace handling
+ * 5. Edge cases (very long emails, special characters)
+ */
+
+// app/utils/validation/emailValidation.test.ts
+import { validateEmail } from './emailValidation';
+
+describe('validateEmail', () => {
+  describe('valid email formats', () => {
+    it('should return true for standard email', () => {
+      expect(validateEmail('test@example.com')).toBe(true);
+    });
+
+    it('should return true for email with subdomain', () => {
+      expect(validateEmail('user@mail.example.com')).toBe(true);
+    });
+
+    it('should return true for email with numbers', () => {
+      expect(validateEmail('user123@example123.com')).toBe(true);
+    });
+
+    it('should return true for email with dots and underscores', () => {
+      expect(validateEmail('user.name_test@example.co.uk')).toBe(true);
+    });
+  });
+
+  describe('invalid email formats', () => {
+    it('should return false for email without @', () => {
+      expect(validateEmail('testexample.com')).toBe(false);
+    });
+
+    it('should return false for email without domain', () => {
+      expect(validateEmail('test@')).toBe(false);
+    });
+
+    it('should return false for email without local part', () => {
+      expect(validateEmail('@example.com')).toBe(false);
+    });
+
+    it('should return false for email with spaces', () => {
+      expect(validateEmail('test @example.com')).toBe(false);
+    });
+  });
+
+  describe('empty/null/undefined inputs', () => {
+    it('should return false for empty string', () => {
+      expect(validateEmail('')).toBe(false);
+    });
+
+    it('should return false for undefined', () => {
+      expect(validateEmail(undefined as any)).toBe(false);
+    });
+
+    it('should return false for null', () => {
+      expect(validateEmail(null as any)).toBe(false);
+    });
+  });
+
+  describe('whitespace handling', () => {
+    it('should return true for email with leading/trailing spaces', () => {
+      expect(validateEmail('  test@example.com  ')).toBe(true);
+    });
+
+    it('should return false for only whitespace', () => {
+      expect(validateEmail('   ')).toBe(false);
+    });
+  });
+});
+```
+
+```bash
+# STEP 4: Run tests to verify implementation
+npm test emailValidation.test.ts
+# ✅ All tests pass
+
+# STEP 5: REFACTOR if needed (optional)
+# Implementation is already clean and efficient
 ```
 
 #### 2.2 Utility Functions to Test
@@ -461,36 +545,115 @@ bun test --testNamePattern="should render"
 - **Coverage Reports**: Visual coverage analysis
 - **Test Watchers**: Automatic test running
 
-## 🚫 Common TDD Anti-Patterns
+## 🚫 Common Anti-Patterns in Modified TDD
 
 ### ❌ Don't Do This
 ```typescript
-// Writing implementation first
+// Writing incomplete implementation
 export function calculateTotal(items: Item[]): number {
-  return items.reduce((sum, item) => sum + item.price, 0);
+  // TODO: implement later
+  return 0;
 }
 
-// Then writing tests
+// Then writing tests that fail
 it('should calculate total', () => {
-  expect(calculateTotal(items)).toBe(100);
+  expect(calculateTotal(items)).toBe(100); // This will fail
 });
 ```
 
-### ✅ Do This Instead
+### ❌ Also Don't Do This
 ```typescript
-// Write test first
-it('should calculate total price of items', () => {
-  const items = [
-    { id: '1', price: 25 },
-    { id: '2', price: 75 },
-  ];
-  expect(calculateTotal(items)).toBe(100);
-});
-
-// Then write minimal implementation
-export function calculateTotal(items: Item[]): number {
+// Skipping TypeScript check
+export function calculateTotal(items: any): number {
   return items.reduce((sum, item) => sum + item.price, 0);
 }
+
+// Missing proper typing leads to runtime errors
+```
+
+### ❌ Writing Tests Without Planning Scenarios
+```typescript
+// Random tests without thinking through scenarios
+it('should work', () => {
+  expect(calculateTotal([])).toBe(0);
+});
+
+it('should do something', () => {
+  expect(calculateTotal([{price: 10}])).toBe(10);
+});
+```
+
+### ✅ Do This Instead - Modified TDD Approach
+```typescript
+// STEP 1: Write complete, well-typed implementation
+interface Item {
+  id: string;
+  price: number;
+}
+
+export function calculateTotal(items: Item[]): number {
+  if (!items || items.length === 0) return 0;
+  return items.reduce((sum, item) => sum + (item?.price || 0), 0);
+}
+
+// STEP 2: Check TypeScript
+// npx tsc --noEmit ✅
+
+// STEP 3: Plan test scenarios first
+/**
+ * Test scenarios:
+ * 1. Empty array
+ * 2. Single item
+ * 3. Multiple items
+ * 4. Items with zero price
+ * 5. Invalid items (null/undefined price)
+ */
+
+// STEP 4: Write comprehensive tests
+describe('calculateTotal', () => {
+  describe('empty inputs', () => {
+    it('should return 0 for empty array', () => {
+      expect(calculateTotal([])).toBe(0);
+    });
+
+    it('should return 0 for null items', () => {
+      expect(calculateTotal(null as any)).toBe(0);
+    });
+  });
+
+  describe('valid calculations', () => {
+    it('should calculate total for single item', () => {
+      const items = [{ id: '1', price: 25 }];
+      expect(calculateTotal(items)).toBe(25);
+    });
+
+    it('should calculate total for multiple items', () => {
+      const items = [
+        { id: '1', price: 25 },
+        { id: '2', price: 75 },
+      ];
+      expect(calculateTotal(items)).toBe(100);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle items with zero price', () => {
+      const items = [
+        { id: '1', price: 0 },
+        { id: '2', price: 50 },
+      ];
+      expect(calculateTotal(items)).toBe(50);
+    });
+
+    it('should handle items with invalid price', () => {
+      const items = [
+        { id: '1', price: null as any },
+        { id: '2', price: 50 },
+      ];
+      expect(calculateTotal(items)).toBe(50);
+    });
+  });
+});
 ```
 
 ## 📈 TDD Success Metrics
@@ -551,6 +714,13 @@ export function calculateTotal(items: Item[]): number {
 
 ---
 
-**Remember**: In TDD, tests are written first, code is written second. This ensures every line of code serves a purpose and is properly tested.
+**Remember**: In our Modified TDD approach:
+1. **Implementation comes first** - write complete, well-typed functions
+2. **TypeScript checking is mandatory** - ensure type safety before testing  
+3. **Test scenarios are planned upfront** - think through all cases before writing tests
+4. **One function at a time** - complete implementation and testing before moving to next function
+5. **Tests validate implementation** - comprehensive coverage ensures correctness
 
-**Next Steps**: Start with [Testing Strategy](./testing-strategy.md) to understand the broader testing approach, then begin implementing TDD with utility functions.
+This approach leverages TypeScript's strengths while maintaining the quality benefits of TDD.
+
+**Next Steps**: Start with [Testing Strategy](./testing-strategy.md) to understand the broader testing approach, then begin implementing Modified TDD with utility functions.
