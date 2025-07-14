@@ -1,5 +1,6 @@
 import { types, flow, Instance } from "mobx-state-tree"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
+import { UserProfileModel, BusinessProfileModel } from "@/models/ProfileModels"
 import { supabase } from "@/clients/supabase/SupabaseClient"
 import { signIn, signUp, buildUserFromSession } from "@/services/auth"
 import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/auth"
@@ -9,35 +10,6 @@ import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/
  * 
  * Manages reactive authentication state using MobX-State-Tree
  */
-
-// ============================================================================
-// MODELS
-// ============================================================================
-
-const UserProfileModel = types.model("UserProfile", {
-  id: types.string,
-  display_name: types.maybeNull(types.string),
-  avatar_url: types.maybeNull(types.string),
-  bio: types.maybeNull(types.string),
-  location_city: types.maybeNull(types.string),
-  is_profile_complete: types.maybeNull(types.boolean),
-  created_at: types.string,
-  updated_at: types.string,
-})
-
-const BusinessProfileModel = types.model("BusinessProfile", {
-  id: types.string,
-  business_name: types.string,
-  business_types: types.array(types.string),
-  description: types.maybeNull(types.string),
-  phone: types.maybeNull(types.string),
-  website_url: types.maybeNull(types.string),
-  logo_url: types.maybeNull(types.string),
-  business_status: types.enumeration("BusinessStatus", ["pending", "verified", "suspended"]),
-  is_profile_complete: types.maybeNull(types.boolean),
-  created_at: types.string,
-  updated_at: types.string,
-})
 
 const AuthUserModel = types.model("AuthUser", {
   id: types.string,
