@@ -1,7 +1,7 @@
 import { types, flow, Instance } from "mobx-state-tree"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { supabase } from "@/clients/supabase/SupabaseClient"
-import { signIn, signUp } from "@/services/auth"
+import { signIn, signUp, buildUserFromSession } from "@/services/auth"
 import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/auth"
 
 /**
@@ -45,6 +45,11 @@ const AuthUserModel = types.model("AuthUser", {
   userType: types.enumeration("UserType", ["user", "business"]),
   profile: types.maybeNull(UserProfileModel),
   businessProfile: types.maybeNull(BusinessProfileModel),
+  // JWT Custom Claims (from custom_access_token_hook)
+  userRole: types.optional(types.string, "user"),
+  permissions: types.optional(types.array(types.string), []),
+  isBusinessUser: types.optional(types.boolean, false),
+  businessStatus: types.optional(types.string, "none"),
 })
 
 // ============================================================================
@@ -81,20 +86,65 @@ export const AuthStore = types
       }
       return self.user?.profile?.is_profile_complete === true
     },
+
+    // ========================================================================
+    // ROLE & PERMISSION VIEWS
+    // ========================================================================
+
+    get userRole() {
+      return self.user?.userRole ?? "user"
+    },
+    get permissions() {
+      return self.user?.permissions ?? []
+    },
+    get isBusinessUser() {
+      return self.user?.isBusinessUser ?? false
+    },
+    get businessStatus() {
+      return self.user?.businessStatus ?? "none"
+    },
+
+    // Role checking methods
+    get isUser() {
+      return self.user?.userRole === "user"
+    },
+    get isBusiness() {
+      return self.user?.userRole === "business"
+    },
+    get isModerator() {
+      return self.user?.userRole === "moderator"
+    },
+    get isAdmin() {
+      return self.user?.userRole === "admin"
+    },
+
+    // Permission checking method
+    hasPermission(permission: string) {
+      return self.user?.permissions?.includes(permission) ?? false
+    },
+
+    // Navigation flow determination
+    get shouldUseBusinessFlow() {
+      return self.user?.userType === "business"
+    },
+    get shouldUseUserFlow() {
+      return self.user?.userType === "user"
+    },
   }))
   .actions((self) => ({
     // ========================================================================
     // AUTHENTICATION ACTIONS
     // ========================================================================
-    
+
     signIn: flow(function* (credentials: SignInCredentials) {
       self.setProp("isLoading", true)
       self.setProp("lastError", null)
-      
+
       try {
         const result = yield signIn(credentials)
-        
+
         if (result.success && result.user) {
+          // Service now provides user with JWT claims
           self.setProp("user", result.user)
           self.setProp("isAuthenticated", true)
         } else {
@@ -102,7 +152,7 @@ export const AuthStore = types
           self.setProp("isAuthenticated", false)
           self.setProp("user", null)
         }
-        
+
         return result
       } catch (error) {
         console.error("AuthStore.signIn error:", error)
@@ -114,14 +164,14 @@ export const AuthStore = types
         self.setProp("isLoading", false)
       }
     }),
-    
+
     signUp: flow(function* (credentials: SignUpCredentials) {
       self.setProp("isLoading", true)
       self.setProp("lastError", null)
-      
+
       try {
         const result = yield signUp(credentials)
-        
+
         if (result.success) {
           if (result.requiresEmailVerification) {
             // Email verification required - user needs to verify email first
@@ -129,6 +179,7 @@ export const AuthStore = types
             self.setProp("isAuthenticated", false)
           } else if (result.user) {
             // User is signed in immediately (no email verification required)
+            // Service now provides user with JWT claims
             self.setProp("user", result.user)
             self.setProp("isAuthenticated", true)
           } else {
@@ -142,7 +193,7 @@ export const AuthStore = types
           self.setProp("isAuthenticated", false)
           self.setProp("user", null)
         }
-        
+
         return result
       } catch (error) {
         console.error("AuthStore.signUp error:", error)
@@ -154,10 +205,10 @@ export const AuthStore = types
         self.setProp("isLoading", false)
       }
     }),
-    
+
     signOut: flow(function* () {
       self.setProp("isLoading", true)
-      
+
       try {
         yield supabase.auth.signOut()
         // onAuthStateChange will handle clearing user state
@@ -168,15 +219,15 @@ export const AuthStore = types
         self.setProp("isLoading", false)
       }
     }),
-    
+
     clearError() {
       self.setProp("lastError", null)
     },
-    
+
     // ========================================================================
     // INTERNAL SESSION MANAGEMENT
     // ========================================================================
-    
+
     _handleAuthStateChange(event: string, session: any) {
       switch (event) {
         case "SIGNED_OUT":
@@ -184,18 +235,13 @@ export const AuthStore = types
           self.setProp("isAuthenticated", false)
           self.setProp("lastError", null)
           break
-          
+
+        case "INITIAL_SESSION":
         case "SIGNED_IN":
         case "TOKEN_REFRESHED":
-          if (session?.user) {
-            const authUser: AuthUser = {
-              id: session.user.id,
-              email: session.user.email || '',
-              userType: 'user', // Will be updated when profile is loaded
-              profile: null,
-              businessProfile: null
-            }
-            
+          console.log("Event: ", event);
+          const authUser = buildUserFromSession(session)
+          if (authUser) {
             self.setProp("user", authUser)
             self.setProp("isAuthenticated", true)
           }
@@ -207,7 +253,7 @@ export const AuthStore = types
     // ========================================================================
     // LIFECYCLE
     // ========================================================================
-    
+
     afterCreate() {
       // Set up Supabase auth state listener
       supabase.auth.onAuthStateChange((event, session) => {
@@ -220,7 +266,7 @@ export const AuthStore = types
 // TYPES
 // ============================================================================
 
-export interface AuthStore extends Instance<typeof AuthStore> {}
-export interface AuthUserType extends Instance<typeof AuthUserModel> {}
-export interface UserProfileType extends Instance<typeof UserProfileModel> {}
-export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> {}
+export interface AuthStore extends Instance<typeof AuthStore> { }
+export interface AuthUserType extends Instance<typeof AuthUserModel> { }
+export interface UserProfileType extends Instance<typeof UserProfileModel> { }
+export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> { }
