@@ -34,6 +34,8 @@ const en = {
     emailRequired: "Email is required",
     passwordRequired: "Password is required", 
     passwordMinLength: "Password must be at least 6 characters long",
+    confirmPasswordRequired: "Password confirmation is required",
+    passwordMismatch: "Passwords do not match",
     invalidCredentials: "Invalid email or password",
     emailNotConfirmed: "Please verify your email address",
     tooManyRequests: "Too many login attempts. Please try again later",

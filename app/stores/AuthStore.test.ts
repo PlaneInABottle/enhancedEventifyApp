@@ -17,6 +17,7 @@ jest.mock('@/clients/supabase/SupabaseClient', () => ({
 // Mock the auth service
 jest.mock('@/services/auth', () => ({
   signIn: jest.fn(),
+  signUp: jest.fn(),
 }))
 
 describe('AuthStore', () => {
@@ -123,6 +124,117 @@ describe('AuthStore', () => {
       expect(store.isAuthenticated).toBe(false)
       expect(store.user).toBeNull()
       expect(store.lastError).toBe('errors:invalidCredentials')
+      expect(result).toEqual(mockResult)
+    })
+  })
+
+  describe('signUp flow', () => {
+    const mockCredentials = {
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      userType: 'user' as const
+    }
+
+    it('should handle successful sign up without email verification', async () => {
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        userType: 'user',
+        profile: null,
+        businessProfile: null,
+      }
+
+      const mockResult = {
+        success: true,
+        user: mockUser,
+        session: { access_token: 'mock-token' },
+        requiresEmailVerification: false
+      }
+
+      const { signUp } = require('@/services/auth')
+      signUp.mockResolvedValue(mockResult)
+
+      const result = await store.signUp(mockCredentials)
+
+      expect(store.isLoading).toBe(false)
+      expect(store.isAuthenticated).toBe(true)
+      expect(store.user).toEqual(mockUser)
+      expect(store.lastError).toBeNull()
+      expect(result).toEqual(mockResult)
+    })
+
+    it('should handle successful sign up with email verification required', async () => {
+      const mockResult = {
+        success: true,
+        user: null,
+        session: null,
+        requiresEmailVerification: true
+      }
+
+      const { signUp } = require('@/services/auth')
+      signUp.mockResolvedValue(mockResult)
+
+      const result = await store.signUp(mockCredentials)
+
+      expect(store.isLoading).toBe(false)
+      expect(store.isAuthenticated).toBe(false)
+      expect(store.user).toBeNull()
+      expect(store.lastError).toBeNull()
+      expect(result).toEqual(mockResult)
+    })
+
+    it('should handle sign up failure', async () => {
+      const mockResult = {
+        success: false,
+        error: 'errors:emailAlreadyInUse'
+      }
+
+      const { signUp } = require('@/services/auth')
+      signUp.mockResolvedValue(mockResult)
+
+      const result = await store.signUp(mockCredentials)
+
+      expect(store.isLoading).toBe(false)
+      expect(store.isAuthenticated).toBe(false)
+      expect(store.user).toBeNull()
+      expect(store.lastError).toBe('errors:emailAlreadyInUse')
+      expect(result).toEqual(mockResult)
+    })
+
+    it('should handle business user sign up', async () => {
+      const businessCredentials = {
+        email: 'business@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+        userType: 'business' as const
+      }
+
+      const mockUser = {
+        id: 'business-123',
+        email: 'business@example.com',
+        userType: 'business',
+        profile: null,
+        businessProfile: null,
+      }
+
+      const mockResult = {
+        success: true,
+        user: mockUser,
+        session: { access_token: 'mock-token' },
+        requiresEmailVerification: false
+      }
+
+      const { signUp } = require('@/services/auth')
+      signUp.mockResolvedValue(mockResult)
+
+      const result = await store.signUp(businessCredentials)
+
+      expect(store.isLoading).toBe(false)
+      expect(store.isAuthenticated).toBe(true)
+      expect(store.user).toEqual(mockUser)
+      expect(store.user.userType).toBe('business')
+      expect(store.lastError).toBeNull()
       expect(result).toEqual(mockResult)
     })
   })

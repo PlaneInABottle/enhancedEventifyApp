@@ -1,4 +1,4 @@
-import { validateEmail, validatePassword, mapAuthError } from './authHelpers'
+import { validateEmail, validatePassword, validatePasswordConfirmation, mapAuthError } from './authHelpers'
 import type { AuthError } from '@supabase/supabase-js'
 
 /**
@@ -101,6 +101,42 @@ describe('authHelpers', () => {
 
     it('should accept passwords with spaces', () => {
       const result = validatePassword('my password')
+      expect(result.isValid).toBe(true)
+      expect(result.error).toBeUndefined()
+    })
+  })
+
+  // ========================================================================
+  // PASSWORD CONFIRMATION VALIDATION TESTS
+  // ========================================================================
+  
+  describe('validatePasswordConfirmation', () => {
+    it('should return valid when passwords match', () => {
+      const result = validatePasswordConfirmation('password123', 'password123')
+      expect(result.isValid).toBe(true)
+      expect(result.error).toBeUndefined()
+    })
+
+    it('should return invalid for empty confirm password', () => {
+      const result = validatePasswordConfirmation('password123', '')
+      expect(result.isValid).toBe(false)
+      expect(result.error).toBe('errors:confirmPasswordRequired')
+    })
+
+    it('should return invalid when passwords do not match', () => {
+      const result = validatePasswordConfirmation('password123', 'differentpassword')
+      expect(result.isValid).toBe(false)
+      expect(result.error).toBe('errors:passwordMismatch')
+    })
+
+    it('should return invalid when passwords differ by case', () => {
+      const result = validatePasswordConfirmation('Password123', 'password123')
+      expect(result.isValid).toBe(false)
+      expect(result.error).toBe('errors:passwordMismatch')
+    })
+
+    it('should handle special characters in matching passwords', () => {
+      const result = validatePasswordConfirmation('pass@123!', 'pass@123!')
       expect(result.isValid).toBe(true)
       expect(result.error).toBeUndefined()
     })

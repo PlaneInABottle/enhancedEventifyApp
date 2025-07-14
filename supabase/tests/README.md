@@ -167,7 +167,7 @@ The tests expect these key components based on the actual cloud database:
 - `public.has_role(text) → boolean` - Check if user has role
 - `public.is_business_owner(uuid) → boolean` - Check business ownership
 - `public.promote_to_business_role(uuid) → boolean` - Role promotion
-- `public.assign_default_user_role() → trigger` - Auto-assign default role
+- `public.handle_new_user_signup() → trigger` - Auto-create profiles and assign roles based on signup type
 
 ### RLS Policies
 - Events: 9 policies for comprehensive access control

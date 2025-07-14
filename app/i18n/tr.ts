@@ -34,6 +34,8 @@ const tr = {
     emailRequired: "E-posta gereklidir",
     passwordRequired: "Şifre gereklidir",
     passwordMinLength: "Şifre en az 6 karakter uzunluğunda olmalıdır",
+    confirmPasswordRequired: "Şifre onayı gereklidir",
+    passwordMismatch: "Şifreler eşleşmiyor",
     invalidCredentials: "Geçersiz e-posta veya şifre",
     emailNotConfirmed: "Lütfen e-posta adresinizi doğrulayın",
     tooManyRequests: "Çok fazla giriş denemesi. Lütfen daha sonra tekrar deneyin",

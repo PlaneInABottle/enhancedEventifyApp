@@ -1,4 +1,4 @@
-import { signIn } from './authService'
+import { signIn, signUp } from './authService'
 import { supabase } from '@/clients/supabase/SupabaseClient'
 import * as authHelpers from './authHelpers'
 import type { AuthError } from '@supabase/supabase-js'
@@ -12,6 +12,7 @@ jest.mock('@/clients/supabase/SupabaseClient', () => ({
   supabase: {
     auth: {
       signInWithPassword: jest.fn(),
+      signUp: jest.fn(),
     }
   }
 }))
@@ -20,6 +21,7 @@ jest.mock('@/clients/supabase/SupabaseClient', () => ({
 jest.mock('./authHelpers', () => ({
   validateEmail: jest.fn(),
   validatePassword: jest.fn(),
+  validatePasswordConfirmation: jest.fn(),
   mapAuthError: jest.fn(),
 }))
 
@@ -151,6 +153,178 @@ describe('authService', () => {
 
       expect(result.success).toBe(false)
       expect(result.error).toBe('errors:unknownError')
+    })
+  })
+
+  describe('signUp', () => {
+    const validCredentials = {
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+      userType: 'user' as const
+    }
+
+    it('should return error when email validation fails', async () => {
+      mockAuthHelpers.validateEmail.mockReturnValue({
+        isValid: false,
+        error: 'errors:invalidEmail'
+      })
+      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+
+      const result = await signUp(validCredentials)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('errors:invalidEmail')
+      expect(mockSupabase.auth.signUp).not.toHaveBeenCalled()
+    })
+
+    it('should return error when password validation fails', async () => {
+      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePassword.mockReturnValue({
+        isValid: false,
+        error: 'errors:passwordRequired'
+      })
+      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+
+      const result = await signUp(validCredentials)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('errors:passwordRequired')
+      expect(mockSupabase.auth.signUp).not.toHaveBeenCalled()
+    })
+
+    it('should return error when password confirmation validation fails', async () => {
+      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({
+        isValid: false,
+        error: 'errors:passwordMismatch'
+      })
+
+      const result = await signUp(validCredentials)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('errors:passwordMismatch')
+      expect(mockSupabase.auth.signUp).not.toHaveBeenCalled()
+    })
+
+    it('should return success when credentials are valid and email verification not required', async () => {
+      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com'
+      }
+      const mockSession = {
+        access_token: 'mock-token',
+        user: mockUser
+      }
+
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: mockUser, session: mockSession },
+        error: null
+      })
+
+      const result = await signUp(validCredentials)
+
+      expect(result.success).toBe(true)
+      expect(result.user).toEqual({
+        id: 'user-123',
+        email: 'test@example.com',
+        userType: 'user',
+        profile: null,
+        businessProfile: null
+      })
+      expect(result.session).toBe(mockSession)
+      expect(result.requiresEmailVerification).toBe(false)
+      expect(mockSupabase.auth.signUp).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+        options: {
+          data: {
+            user_type: 'user'
+          }
+        }
+      })
+    })
+
+    it('should return success when credentials are valid and email verification required', async () => {
+      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com'
+      }
+
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: mockUser, session: null }, // No session means email verification required
+        error: null
+      })
+
+      const result = await signUp(validCredentials)
+
+      expect(result.success).toBe(true)
+      expect(result.user).toEqual({
+        id: 'user-123',
+        email: 'test@example.com',
+        userType: 'user',
+        profile: null,
+        businessProfile: null
+      })
+      expect(result.session).toBe(null)
+      expect(result.requiresEmailVerification).toBe(true)
+    })
+
+    it('should handle business user type correctly', async () => {
+      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+
+      const businessCredentials = {
+        email: 'business@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+        userType: 'business' as const
+      }
+
+      const mockUser = {
+        id: 'business-123',
+        email: 'business@example.com'
+      }
+      const mockSession = {
+        access_token: 'mock-token',
+        user: mockUser
+      }
+
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: mockUser, session: mockSession },
+        error: null
+      })
+
+      const result = await signUp(businessCredentials)
+
+      expect(result.success).toBe(true)
+      expect(result.user).toEqual({
+        id: 'business-123',
+        email: 'business@example.com',
+        userType: 'business',
+        profile: null,
+        businessProfile: null
+      })
+      expect(mockSupabase.auth.signUp).toHaveBeenCalledWith({
+        email: 'business@example.com',
+        password: 'password123',
+        options: {
+          data: {
+            user_type: 'business'
+          }
+        }
+      })
     })
   })
 })

@@ -1,8 +1,8 @@
 import { types, flow, Instance } from "mobx-state-tree"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { supabase } from "@/clients/supabase/SupabaseClient"
-import { signIn } from "@/services/auth"
-import type { AuthUser, SignInCredentials } from "@/services/auth"
+import { signIn, signUp } from "@/services/auth"
+import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/auth"
 
 /**
  * Authentication Store
@@ -106,6 +106,42 @@ export const AuthStore = types
         return result
       } catch (error) {
         console.error("AuthStore.signIn error:", error)
+        self.setProp("lastError", 'errors:unknownError')
+        self.setProp("isAuthenticated", false)
+        self.setProp("user", null)
+        return { success: false, error: 'errors:unknownError' }
+      } finally {
+        self.setProp("isLoading", false)
+      }
+    }),
+    
+    signUp: flow(function* (credentials: SignUpCredentials) {
+      self.setProp("isLoading", true)
+      self.setProp("lastError", null)
+      
+      try {
+        const result = yield signUp(credentials)
+        
+        if (result.success) {
+          if (result.user) {
+            // User is signed in immediately (no email verification required)
+            self.setProp("user", result.user)
+            self.setProp("isAuthenticated", true)
+          } else {
+            // Email verification required - user needs to verify email first
+            self.setProp("user", null)
+            self.setProp("isAuthenticated", false)
+          }
+        } else {
+          // Sign up failed
+          self.setProp("lastError", result.error || 'errors:unknownError')
+          self.setProp("isAuthenticated", false)
+          self.setProp("user", null)
+        }
+        
+        return result
+      } catch (error) {
+        console.error("AuthStore.signUp error:", error)
         self.setProp("lastError", 'errors:unknownError')
         self.setProp("isAuthenticated", false)
         self.setProp("user", null)

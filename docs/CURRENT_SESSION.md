@@ -283,3 +283,217 @@ The project is now set up with:
 - Ready for MobX-State-Tree store implementation
 
 All infrastructure and navigation foundation is complete. Store architecture is designed and documented. Ready to begin implementing the authentication foundation and core Enhanced Eventify features.
+
+---
+
+## 🆕 **Sign Up Screen Implementation Plan (Current Session)**
+
+### **Current Authentication Architecture Analysis ✅**
+
+**Existing Infrastructure:**
+- **AuthService**: Well-structured with TDD tests, validates email/password, integrates with Supabase
+- **AuthStore**: MobX State Tree store with reactive state management 
+- **AuthTypes**: Complete TypeScript definitions for user/business profiles
+- **Database**: PostgreSQL with `auth_users`, `user_profiles`, `business_profiles` tables
+- **Backend**: Custom auth hook exists that injects JWT claims based on user type
+- **Testing**: Comprehensive TDD setup with Jest + React Native Testing Library
+- **Navigation**: Stack navigator with authenticated/unauthenticated flows
+- **i18n**: English/Turkish translation system in place
+
+**Missing Components:**
+- SignUp Service Function: Extend authService.ts with signUp functionality
+- SignUp Store Actions: Extend AuthStore with signUp flow
+- SignUpScreen Component: New React Native screen component  
+- Backend Profile Creation: Database trigger/function to auto-create profiles
+- Navigation Integration: Add SignUp to navigation stack
+- Translation Keys: Add signUp-specific i18n keys
+
+### **Implementation Plan (TDD Approach)**
+
+#### **Phase 1: Extend AuthService with SignUp (Week 1)**
+
+**1.1 Add SignUp Types to authTypes.ts**
+```typescript
+export interface SignUpCredentials {
+  email: string
+  password: string
+  confirmPassword: string
+  userType: 'user' | 'business'
+}
+
+export interface SignUpResult extends AuthResult {
+  requiresEmailVerification?: boolean
+}
+```
+
+**1.2 Add Password Confirmation Validation to authHelpers.ts**
+```typescript
+export function validatePasswordConfirmation(password: string, confirmPassword: string): ValidationResult
+```
+
+**1.3 Implement signUp Function in authService.ts (TDD)**
+```typescript
+export async function signUp(credentials: SignUpCredentials): Promise<SignUpResult>
+```
+
+Key Logic:
+- Validate email, password, password confirmation
+- Call Supabase `signUp` with metadata: `{ user_type: credentials.userType }`
+- Handle email verification requirements
+- Return appropriate success/error responses
+
+**1.4 Update authService Tests**
+- Test email validation
+- Test password validation  
+- Test password confirmation matching
+- Test successful signup flow
+- Test Supabase error handling
+- Test email verification scenarios
+
+#### **Phase 2: Backend Profile Auto-Creation (Week 1)**
+
+**2.1 Create Database Function for Profile Creation**
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  -- Check user_metadata.user_type and create appropriate profile
+  IF (NEW.raw_user_meta_data->>'user_type') = 'business' THEN
+    INSERT INTO public.business_profiles (id, business_name, is_profile_complete)
+    VALUES (NEW.id, '', false);
+  ELSE
+    INSERT INTO public.user_profiles (id, display_name, is_profile_complete) 
+    VALUES (NEW.id, '', false);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+**2.2 Create Database Trigger**
+```sql
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+```
+
+**2.3 Update Auth Hook to Handle New Users**
+Ensure the `custom_access_token_hook` properly handles new users and sets JWT claims based on profile type.
+
+#### **Phase 3: Extend AuthStore with SignUp (Week 1)**
+
+**3.1 Add SignUp Action to AuthStore.ts (TDD)**
+```typescript
+signUp: flow(function* (credentials: SignUpCredentials) {
+  self.setProp("isLoading", true)
+  self.setProp("lastError", null)
+  
+  try {
+    const result = yield signUp(credentials)
+    
+    if (result.success) {
+      if (result.requiresEmailVerification) {
+        // Handle email verification required state
+        self.setProp("pendingEmailVerification", result.user?.email)
+      } else {
+        // Auto sign in successful
+        self.setProp("user", result.user)
+        self.setProp("isAuthenticated", true)
+      }
+    } else {
+      self.setProp("lastError", result.error || 'errors:unknownError')
+    }
+    
+    return result
+  } catch (error) {
+    console.error("AuthStore.signUp error:", error)
+    self.setProp("lastError", 'errors:unknownError')
+    return { success: false, error: 'errors:unknownError' }
+  } finally {
+    self.setProp("isLoading", false)
+  }
+})
+```
+
+**3.2 Add Email Verification State**
+```typescript
+.model("AuthStore", {
+  // ... existing props
+  pendingEmailVerification: types.maybeNull(types.string),
+})
+```
+
+#### **Phase 4: Create SignUpScreen Component (Week 2)**
+
+**4.1 Create SignUpScreen.tsx (TDD)**
+UI Components:
+- Email TextField (reuse existing)
+- Password TextField with toggle (reuse existing pattern)  
+- Confirm Password TextField with toggle
+- User Type Selector (Radio buttons: "Individual User" vs "Business Account")
+- Terms & Conditions Checkbox
+- Sign Up Button with loading state
+- Link to Login Screen
+
+**4.2 Create Comprehensive SignUpScreen Tests (TDD)**
+- Form input handling tests
+- Password visibility toggle tests
+- Form validation tests (password mismatch, email validation)
+- Form submission tests
+- User type selection tests
+- Loading states and error handling
+
+#### **Phase 5: Navigation & i18n Integration (Week 2)**
+
+**5.1 Update AppNavigator.tsx**
+- Add SignUp route to AppStackParamList
+- Add SignUpScreen to unauthenticated navigation stack
+
+**5.2 Add Navigation Links**
+- Add "Sign Up" link to LoginScreen
+- Add "Already have an account? Log In" link to SignUpScreen
+
+**5.3 Update i18n Translations**
+Add comprehensive signUpScreen translations for both English and Turkish.
+
+### **Success Criteria**
+
+**Functional Requirements:**
+- User can create account with email/password
+- User can select account type (user vs business)  
+- Password confirmation validation works
+- Email verification flow (if required by Supabase settings)
+- Appropriate profile created in database based on user type
+- JWT claims updated with correct user role and permissions
+- Navigation between Login ↔ SignUp screens
+- Loading states and error handling throughout
+
+**Technical Requirements:**
+- Follow existing TDD patterns (85%+ test coverage)
+- Use existing component patterns (TextField, Button, etc.)
+- Integrate with MobX State Tree AuthStore
+- Follow existing TypeScript typing patterns
+- Use existing i18n translation system
+- Maintain existing code quality standards
+
+**Database Requirements:**
+- Auto-create `user_profiles` or `business_profiles` on signup
+- Update auth hook to set JWT claims for new users
+- Maintain referential integrity and RLS policies
+- Handle edge cases (failed profile creation, etc.)
+
+### **Implementation Timeline**
+
+**Week 1 (Backend + Service Layer):**
+- Day 1-2: Extend AuthService with signUp (TDD)
+- Day 3-4: Backend database function & trigger  
+- Day 5: Extend AuthStore with signUp action (TDD)
+
+**Week 2 (Frontend + Integration):**
+- Day 1-3: Create SignUpScreen component (TDD)
+- Day 4: Navigation integration & i18n updates
+- Day 5: Integration testing & refinements
+
+**Total Estimated Effort**: 10 days (2 weeks)
+
+This plan follows the established TDD methodology, leverages existing architecture patterns, and provides comprehensive user account creation with proper user/business type separation.

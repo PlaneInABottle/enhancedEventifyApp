@@ -23,6 +23,21 @@ export interface AuthResult {
 }
 
 // ============================================================================
+// SIGN UP TYPES
+// ============================================================================
+
+export interface SignUpCredentials {
+  email: string
+  password: string
+  confirmPassword: string
+  userType: 'user' | 'business'
+}
+
+export interface SignUpResult extends AuthResult {
+  requiresEmailVerification?: boolean
+}
+
+// ============================================================================
 // USER DATA TYPES
 // ============================================================================
 

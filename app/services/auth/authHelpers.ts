@@ -50,6 +50,21 @@ export function validatePassword(password: string): ValidationResult {
   return { isValid: true }
 }
 
+/**
+ * Validates password confirmation matches the original password
+ */
+export function validatePasswordConfirmation(password: string, confirmPassword: string): ValidationResult {
+  if (!confirmPassword) {
+    return { isValid: false, error: 'errors:confirmPasswordRequired' }
+  }
+  
+  if (password !== confirmPassword) {
+    return { isValid: false, error: 'errors:passwordMismatch' }
+  }
+  
+  return { isValid: true }
+}
+
 // ============================================================================
 // ERROR MAPPING FUNCTIONS
 // ============================================================================
