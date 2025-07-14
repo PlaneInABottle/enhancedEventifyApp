@@ -31,9 +31,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen({
 
   useEffect(() => {
     // Clear any previous errors when component mounts
-    if (authenticationStore.lastError) {
-      // Could clear error here if needed
-    }
+    authenticationStore.clearError()
   }, [])
 
   const handleLogin = async () => {

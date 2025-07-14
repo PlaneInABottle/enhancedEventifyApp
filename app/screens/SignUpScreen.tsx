@@ -36,9 +36,7 @@ export const SignUpScreen: FC<SignUpScreenProps> = observer(function SignUpScree
 
   useEffect(() => {
     // Clear any previous errors when component mounts
-    if (authenticationStore.lastError) {
-      // Could clear error here if needed
-    }
+    authenticationStore.clearError()
   }, [])
 
   const handleSignUp = async () => {

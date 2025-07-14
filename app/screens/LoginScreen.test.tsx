@@ -12,6 +12,7 @@ import { ThemeProvider } from '@/theme/context'
 // Mock the stores
 const mockAuthenticationStore = {
   signIn: jest.fn(),
+  clearError: jest.fn(),
   isLoading: false,
   lastError: null as string | null,
 }

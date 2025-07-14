@@ -165,6 +165,10 @@ export const AuthStore = types
       }
     }),
     
+    clearError() {
+      self.setProp("lastError", null)
+    },
+    
     // ========================================================================
     // INTERNAL SESSION MANAGEMENT
     // ========================================================================

@@ -305,4 +305,25 @@ describe('AuthStore', () => {
       expect(store.isAuthenticated).toBe(true)
     })
   })
+
+  describe('clearError', () => {
+    it('should clear the lastError state', () => {
+      // Set an error first
+      store.setProp('lastError', 'errors:someError')
+      expect(store.lastError).toBe('errors:someError')
+
+      // Clear the error
+      store.clearError()
+      expect(store.lastError).toBeNull()
+    })
+
+    it('should handle clearing when no error exists', () => {
+      // Ensure no error exists
+      expect(store.lastError).toBeNull()
+
+      // Should not throw when clearing
+      expect(() => store.clearError()).not.toThrow()
+      expect(store.lastError).toBeNull()
+    })
+  })
 })
