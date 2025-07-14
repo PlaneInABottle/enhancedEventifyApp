@@ -54,6 +54,7 @@ const tr = {
     tapToLogIn: "Giriş yapmak için dokunun!",
     signingIn: "Giriş yapılıyor...",
     hint: "İpucu: herhangi bir e-posta adresi ve favori şifrenizi kullanabilirsiniz :)",
+    dontHaveAccount: "Hesabınız yok mu? Kayıt Ol",
   },
   demoNavigator: {
     componentsTab: "Bileşenler",

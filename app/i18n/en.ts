@@ -54,6 +54,7 @@ const en = {
     tapToLogIn: "Tap to log in!",
     signingIn: "Signing in...",
     hint: "Hint: you can use any email address and your favorite password :)",
+    dontHaveAccount: "Don't have an account? Sign Up",
   },
   demoNavigator: {
     componentsTab: "Components",
