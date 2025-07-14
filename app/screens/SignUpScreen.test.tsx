@@ -188,4 +188,27 @@ describe('SignUpScreen', () => {
     const emailInput = screen.getByPlaceholderText('signUpScreen:emailFieldPlaceholder')
     expect(emailInput.props.editable).toBe(false)
   })
+
+  it('should navigate to login screen when login link is pressed', () => {
+    const mockNavigate = jest.fn()
+    const propsWithMockNav = {
+      ...defaultProps,
+      navigation: { navigate: mockNavigate } as any
+    }
+
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <SignUpScreen {...propsWithMockNav} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    const loginLink = screen.getByTestId('login-link')
+    expect(loginLink).toBeTruthy()
+
+    fireEvent.press(loginLink)
+
+    expect(mockNavigate).toHaveBeenCalledWith('Login')
+  })
 })
