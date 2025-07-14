@@ -276,7 +276,7 @@ describe('authService', () => {
         profile: null,
         businessProfile: null
       })
-      expect(result.session).toBe(null)
+      expect(result.session).toBe(undefined)
       expect(result.requiresEmailVerification).toBe(true)
     })
 

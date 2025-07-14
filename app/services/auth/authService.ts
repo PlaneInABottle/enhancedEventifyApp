@@ -169,7 +169,7 @@ export async function signUp(credentials: SignUpCredentials): Promise<SignUpResu
     return {
       success: true,
       user: authUser,
-      session: data.session ?? undefined,
+      session: data.session || undefined,
       requiresEmailVerification
     }
     
