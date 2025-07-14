@@ -7,6 +7,8 @@
 // Types
 export type {
   SignInCredentials,
+  SignUpCredentials,
+  SignUpResult,
   AuthResult,
   AuthUser,
   UserProfile,
@@ -22,10 +24,12 @@ export type {
 export {
   validateEmail,
   validatePassword,
+  validatePasswordConfirmation,
   mapAuthError
 } from './authHelpers'
 
 // Service functions
 export {
-  signIn
+  signIn,
+  signUp
 } from './authService'

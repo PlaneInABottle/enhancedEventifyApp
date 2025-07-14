@@ -133,6 +133,21 @@ const tr = {
         "Henüz favori eklenmedi. Favorilerinize eklemek için bir bölümün kalbine dokunun!",
     },
   },
+  signUpScreen: {
+    signUp: "Kayıt Ol",
+    createAccount: "Başlamak için yeni bir hesap oluşturun",
+    emailFieldLabel: "E-posta",
+    emailFieldPlaceholder: "E-posta adresinizi girin",
+    passwordFieldLabel: "Şifre",
+    passwordFieldPlaceholder: "Bir şifre oluşturun",
+    confirmPasswordFieldLabel: "Şifreyi Onayla",
+    confirmPasswordFieldPlaceholder: "Şifrenizi tekrar girin",
+    businessAccount: "İşletme hesabı oluşturuyorum",
+    createAccountButton: "Hesap Oluştur",
+    signingUp: "Hesap Oluşturuluyor...",
+    alreadyHaveAccount: "Zaten hesabınız var mı? Giriş Yap",
+    emailVerificationRequired: "Hesabınızı doğrulamak için lütfen e-postanızı kontrol edin",
+  },
 
   ...demoTr,
 }

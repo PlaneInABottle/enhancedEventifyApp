@@ -133,6 +133,21 @@ const en = {
         "No favorites have been added yet. Tap the heart on an episode to add it to your favorites!",
     },
   },
+  signUpScreen: {
+    signUp: "Sign Up",
+    createAccount: "Create a new account to get started",
+    emailFieldLabel: "Email",
+    emailFieldPlaceholder: "Enter your email",
+    passwordFieldLabel: "Password",
+    passwordFieldPlaceholder: "Create a password",
+    confirmPasswordFieldLabel: "Confirm Password",
+    confirmPasswordFieldPlaceholder: "Re-enter your password",
+    businessAccount: "I'm creating a business account",
+    createAccountButton: "Create Account",
+    signingUp: "Creating Account...",
+    alreadyHaveAccount: "Already have an account? Log In",
+    emailVerificationRequired: "Please check your email to verify your account",
+  },
 
   ...demoEn,
 }

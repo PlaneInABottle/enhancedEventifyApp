@@ -30,6 +30,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  */
 export type AppStackParamList = {
   Login: undefined
+  SignUp: undefined
   Welcome: undefined
   EnhancedEventify: NavigatorScreenParams<EnhancedEventifyTabParamList>
   // 🔥 Your screens go here
