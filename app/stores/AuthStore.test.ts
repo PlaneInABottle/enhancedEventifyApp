@@ -18,6 +18,7 @@ jest.mock('@/clients/supabase/SupabaseClient', () => ({
 jest.mock('@/services/auth', () => ({
   signIn: jest.fn(),
   signUp: jest.fn(),
+  buildUserFromSession: jest.fn(),
 }))
 
 describe('AuthStore', () => {
@@ -88,6 +89,10 @@ describe('AuthStore', () => {
         userType: 'user',
         profile: null,
         businessProfile: null,
+        userRole: 'user',
+        permissions: [],
+        isBusinessUser: false,
+        businessStatus: 'none'
       }
 
       const mockResult = {
@@ -143,6 +148,10 @@ describe('AuthStore', () => {
         userType: 'user',
         profile: null,
         businessProfile: null,
+        userRole: 'user',
+        permissions: [],
+        isBusinessUser: false,
+        businessStatus: 'none'
       }
 
       const mockResult = {
@@ -224,6 +233,10 @@ describe('AuthStore', () => {
         userType: 'business',
         profile: null,
         businessProfile: null,
+        userRole: 'business',
+        permissions: [],
+        isBusinessUser: true,
+        businessStatus: 'pending'
       }
 
       const mockResult = {
@@ -298,18 +311,28 @@ describe('AuthStore', () => {
         user: {
           id: 'user-123',
           email: 'test@example.com'
-        }
+        },
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6W10sImlzX2J1c2luZXNzX3VzZXIiOmZhbHNlLCJidXNpbmVzc19zdGF0dXMiOiJub25lIn0.mock-signature'
       }
 
-      store._handleAuthStateChange('SIGNED_IN', mockSession)
-
-      expect(store.user).toEqual({
+      const expectedUser = {
         id: 'user-123',
         email: 'test@example.com',
         userType: 'user',
         profile: null,
-        businessProfile: null
-      })
+        businessProfile: null,
+        userRole: 'user',
+        permissions: [],
+        isBusinessUser: false,
+        businessStatus: 'none'
+      }
+
+      const { buildUserFromSession } = require('@/services/auth')
+      buildUserFromSession.mockReturnValue(expectedUser)
+
+      store._handleAuthStateChange('SIGNED_IN', mockSession)
+
+      expect(store.user).toEqual(expectedUser)
       expect(store.isAuthenticated).toBe(true)
     })
   })

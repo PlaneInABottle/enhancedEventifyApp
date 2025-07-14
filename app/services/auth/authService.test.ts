@@ -76,7 +76,7 @@ describe('authService', () => {
         email: 'test@example.com'
       }
       const mockSession = {
-        access_token: 'mock-token',
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6W10sImlzX2J1c2luZXNzX3VzZXIiOmZhbHNlLCJidXNpbmVzc19zdGF0dXMiOiJub25lIn0.mock-signature',
         user: mockUser
       }
 
@@ -93,7 +93,11 @@ describe('authService', () => {
         email: 'test@example.com',
         userType: 'user',
         profile: null,
-        businessProfile: null
+        businessProfile: null,
+        userRole: 'user',
+        permissions: [],
+        isBusinessUser: false,
+        businessStatus: 'none'
       })
       expect(result.session).toBe(mockSession)
       expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith(validCredentials)
@@ -219,7 +223,7 @@ describe('authService', () => {
         email: 'test@example.com'
       }
       const mockSession = {
-        access_token: 'mock-token',
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6W10sImlzX2J1c2luZXNzX3VzZXIiOmZhbHNlLCJidXNpbmVzc19zdGF0dXMiOiJub25lIn0.mock-signature',
         user: mockUser
       }
 
@@ -236,7 +240,11 @@ describe('authService', () => {
         email: 'test@example.com',
         userType: 'user',
         profile: null,
-        businessProfile: null
+        businessProfile: null,
+        userRole: 'user',
+        permissions: [],
+        isBusinessUser: false,
+        businessStatus: 'none'
       })
       expect(result.session).toBe(mockSession)
       expect(result.requiresEmailVerification).toBe(false)
@@ -274,7 +282,11 @@ describe('authService', () => {
         email: 'test@example.com',
         userType: 'user',
         profile: null,
-        businessProfile: null
+        businessProfile: null,
+        userRole: 'user',
+        permissions: [],
+        isBusinessUser: false,
+        businessStatus: 'none'
       })
       expect(result.session).toBe(undefined)
       expect(result.requiresEmailVerification).toBe(true)
@@ -297,7 +309,7 @@ describe('authService', () => {
         email: 'business@example.com'
       }
       const mockSession = {
-        access_token: 'mock-token',
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJidXNpbmVzcy0xMjMiLCJ1c2VyX3JvbGUiOiJidXNpbmVzcyIsInBlcm1pc3Npb25zIjpbXSwiaXNfYnVzaW5lc3NfdXNlciI6dHJ1ZSwiYnVzaW5lc3Nfc3RhdHVzIjoicGVuZGluZyJ9.mock-signature',
         user: mockUser
       }
 
@@ -314,7 +326,11 @@ describe('authService', () => {
         email: 'business@example.com',
         userType: 'business',
         profile: null,
-        businessProfile: null
+        businessProfile: null,
+        userRole: 'business',
+        permissions: [],
+        isBusinessUser: true,
+        businessStatus: 'pending'
       })
       expect(mockSupabase.auth.signUp).toHaveBeenCalledWith({
         email: 'business@example.com',
