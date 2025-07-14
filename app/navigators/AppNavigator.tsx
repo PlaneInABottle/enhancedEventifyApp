@@ -17,7 +17,8 @@ import { SignUpScreen } from "@/screens/SignUpScreen"
 import { EnhancedEventifyWelcomeScreen } from "@/screens/EnhancedEventifyWelcomeScreen"
 import { useAppTheme } from "@/theme/context"
 
-import { EnhancedEventifyNavigator, EnhancedEventifyTabParamList } from "./EnhancedEventifyNavigator"
+import { UserNavigator, UserTabParamList } from "./UserNavigator"
+import { BusinessNavigator, BusinessTabParamList } from "./BusinessNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
 /**
@@ -33,7 +34,8 @@ export type AppStackParamList = {
   Login: undefined
   SignUp: undefined
   Welcome: undefined
-  EnhancedEventify: NavigatorScreenParams<EnhancedEventifyTabParamList>
+  User: NavigatorScreenParams<UserTabParamList>
+  Business: NavigatorScreenParams<BusinessTabParamList>
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -54,12 +56,22 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStack = observer(function AppStack() {
   const {
-    authenticationStore: { isAuthenticated },
+    authenticationStore: { isAuthenticated, shouldUseBusinessFlow, shouldUseUserFlow },
   } = useStores()
 
   const {
     theme: { colors },
   } = useAppTheme()
+
+  // Determine which navigator to use based on user type
+  const getMainNavigator = () => {
+    if (shouldUseBusinessFlow) {
+      return <Stack.Screen name="Business" component={BusinessNavigator} />
+    } else {
+      // Default to user flow for all other cases
+      return <Stack.Screen name="User" component={UserNavigator} />
+    }
+  }
 
   return (
     <Stack.Navigator
@@ -70,11 +82,11 @@ const AppStack = observer(function AppStack() {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "EnhancedEventify" : "Welcome"}
+      initialRouteName={isAuthenticated ? (shouldUseBusinessFlow ? "Business" : "User") : "Welcome"}
     >
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="EnhancedEventify" component={EnhancedEventifyNavigator} />
+          {getMainNavigator()}
         </>
       ) : (
         <>
