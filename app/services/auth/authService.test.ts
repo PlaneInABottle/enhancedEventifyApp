@@ -1,6 +1,7 @@
 import { signIn } from './authService'
 import { supabase } from '@/clients/supabase/SupabaseClient'
 import * as authHelpers from './authHelpers'
+import type { AuthError } from '@supabase/supabase-js'
 
 /**
  * Unit tests for authentication service
@@ -22,7 +23,7 @@ jest.mock('./authHelpers', () => ({
   mapAuthError: jest.fn(),
 }))
 
-const mockSupabase = supabase as jest.Mocked<typeof supabase>
+const mockSupabase = supabase as any
 const mockAuthHelpers = authHelpers as jest.Mocked<typeof authHelpers>
 
 describe('authService', () => {
@@ -102,8 +103,11 @@ describe('authService', () => {
 
       const mockError = {
         status: 400,
-        message: 'Invalid login credentials'
-      }
+        message: 'Invalid login credentials',
+        code: 'invalid_credentials',
+        __isAuthError: true,
+        name: 'AuthError'
+      } as any
       mockSupabase.auth.signInWithPassword.mockResolvedValue({
         data: { user: null, session: null },
         error: mockError

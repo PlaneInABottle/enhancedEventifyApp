@@ -12,16 +12,16 @@ import { useStores } from "@/models"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+import { translate } from "@/i18n/translate"
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
-  const authPasswordInput = useRef<TextInput>(null)
+  const passwordInput = useRef<TextInput>(null)
 
-  const [authPassword, setAuthPassword] = useState("")
-  const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [attemptsCount, setAttemptsCount] = useState(0)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true)
   const { authenticationStore } = useStores()
 
   const {
@@ -30,29 +30,17 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   } = useAppTheme()
 
   useEffect(() => {
-    // Here is where you could fetch credentials from keychain or storage
-    // and pre-fill the form fields.
-    // authenticationStore.setAuthEmail("ignite@infinite.red")
-    setAuthPassword("ign1teIsAwes0m3")
-  }, [authenticationStore])
+    // Clear any previous errors when component mounts
+    if (authenticationStore.lastError) {
+      // Could clear error here if needed
+    }
+  }, [])
 
-  // const error = isSubmitted ? authenticationStore.validationError : ""
-  const error = ""
-
-  function login() {
-    setIsSubmitted(true)
-    setAttemptsCount(attemptsCount + 1)
-
-    // if (authenticationStore.validationError) return
-
-    // Make a request to your server to get an authentication token.
-    // If successful, reset the fields and set the token.
-    setIsSubmitted(false)
-    setAuthPassword("")
-    // authenticationStore.setAuthEmail("")
-
-    // We'll mock this with a fake token.
-    // authenticationStore.setAuthToken(String(Date.now()))
+  const handleLogin = async () => {
+    await authenticationStore.signIn({
+      email: email.trim(),
+      password
+    })
   }
 
   const PasswordRightAccessory: ComponentType<TextFieldAccessoryProps> = useMemo(
@@ -60,15 +48,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       function PasswordRightAccessory(props: TextFieldAccessoryProps) {
         return (
           <PressableIcon
-            icon={isAuthPasswordHidden ? "view" : "hidden"}
+            icon={isPasswordHidden ? "view" : "hidden"}
             color={colors.palette.neutral800}
             containerStyle={props.style}
             size={20}
-            onPress={() => setIsAuthPasswordHidden(!isAuthPasswordHidden)}
+            onPress={() => setIsPasswordHidden(!isPasswordHidden)}
           />
         )
       },
-    [isAuthPasswordHidden, colors.palette.neutral800],
+    [isPasswordHidden, colors.palette.neutral800],
   )
 
   return (
@@ -79,15 +67,19 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     >
       <Text testID="login-heading" tx="loginScreen:logIn" preset="heading" style={themed($logIn)} />
       <Text tx="loginScreen:enterDetails" preset="subheading" style={themed($enterDetails)} />
-      {attemptsCount > 2 && (
-        <Text tx="loginScreen:hint" size="sm" weight="light" style={themed($hint)} />
+      
+      {authenticationStore.lastError && (
+        <Text 
+          text={translate(authenticationStore.lastError as any)} 
+          size="sm" 
+          weight="light" 
+          style={themed($errorText)} 
+        />
       )}
 
       <TextField
-        // value={authenticationStore.authEmail}
-        // onChangeText={authenticationStore.setAuthEmail}
-        value=""
-        onChangeText={() => {}}
+        value={email}
+        onChangeText={setEmail}
         containerStyle={themed($textField)}
         autoCapitalize="none"
         autoComplete="email"
@@ -95,23 +87,21 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         keyboardType="email-address"
         labelTx="loginScreen:emailFieldLabel"
         placeholderTx="loginScreen:emailFieldPlaceholder"
-        helper={error}
-        status={error ? "error" : undefined}
-        onSubmitEditing={() => authPasswordInput.current?.focus()}
+        onSubmitEditing={() => passwordInput.current?.focus()}
       />
 
       <TextField
-        ref={authPasswordInput}
-        value={authPassword}
-        onChangeText={setAuthPassword}
+        ref={passwordInput}
+        value={password}
+        onChangeText={setPassword}
         containerStyle={themed($textField)}
         autoCapitalize="none"
         autoComplete="password"
         autoCorrect={false}
-        secureTextEntry={isAuthPasswordHidden}
+        secureTextEntry={isPasswordHidden}
         labelTx="loginScreen:passwordFieldLabel"
         placeholderTx="loginScreen:passwordFieldPlaceholder"
-        onSubmitEditing={login}
+        onSubmitEditing={handleLogin}
         RightAccessory={PasswordRightAccessory}
       />
 
@@ -120,7 +110,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         tx="loginScreen:tapToLogIn"
         style={themed($tapButton)}
         preset="reversed"
-        onPress={login}
+        onPress={handleLogin}
+        disabled={authenticationStore.isLoading}
       />
     </Screen>
   )
@@ -139,8 +130,8 @@ const $enterDetails: ThemedStyle<TextStyle> = ({ spacing }) => ({
   marginBottom: spacing.lg,
 })
 
-const $hint: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
-  color: colors.tint,
+const $errorText: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
+  color: colors.error,
   marginBottom: spacing.md,
 })
 
