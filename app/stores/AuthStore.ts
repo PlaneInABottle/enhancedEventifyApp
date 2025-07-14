@@ -123,12 +123,16 @@ export const AuthStore = types
         const result = yield signUp(credentials)
         
         if (result.success) {
-          if (result.user) {
+          if (result.requiresEmailVerification) {
+            // Email verification required - user needs to verify email first
+            self.setProp("user", null)
+            self.setProp("isAuthenticated", false)
+          } else if (result.user) {
             // User is signed in immediately (no email verification required)
             self.setProp("user", result.user)
             self.setProp("isAuthenticated", true)
           } else {
-            // Email verification required - user needs to verify email first
+            // Unexpected case: success but no user and no email verification
             self.setProp("user", null)
             self.setProp("isAuthenticated", false)
           }

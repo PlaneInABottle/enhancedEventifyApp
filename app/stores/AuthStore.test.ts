@@ -165,10 +165,18 @@ describe('AuthStore', () => {
     })
 
     it('should handle successful sign up with email verification required', async () => {
+      const mockUser = {
+        id: 'user-123',
+        email: 'test@example.com',
+        userType: 'user',
+        profile: null,
+        businessProfile: null,
+      }
+
       const mockResult = {
         success: true,
-        user: null,
-        session: null,
+        user: mockUser,
+        session: undefined,
         requiresEmailVerification: true
       }
 
