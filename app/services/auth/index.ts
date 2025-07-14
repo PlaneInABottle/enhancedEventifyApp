@@ -31,5 +31,6 @@ export {
 // Service functions
 export {
   signIn,
-  signUp
+  signUp,
+  buildUserFromSession
 } from './authService'

@@ -1,5 +1,6 @@
 import { supabase } from '@/clients/supabase/SupabaseClient'
 import { validateEmail, validatePassword, validatePasswordConfirmation, mapAuthError } from './authHelpers'
+import { jwtDecode } from 'jwt-decode'
 import type { 
   SignInCredentials, 
   SignUpCredentials,
@@ -14,6 +15,59 @@ import type {
  * 
  * Handles user authentication operations using Supabase
  */
+
+// ============================================================================
+// JWT UTILITIES
+// ============================================================================
+
+/**
+ * Builds an AuthUser object from a Supabase session with JWT claims
+ */
+export function buildUserFromSession(session: any): AuthUser | null {
+  if (!session?.user || !session?.access_token) {
+    return null
+  }
+  
+  try {
+    // Extract custom claims from JWT token
+    const claims = jwtDecode(session.access_token) as any
+    const customClaims = {
+      userRole: claims.user_role || "user",
+      permissions: claims.permissions || [],
+      isBusinessUser: claims.is_business_user || false,
+      businessStatus: claims.business_status || "none"
+    }
+    
+    // Determine userType based on business status
+    const userType: "user" | "business" = customClaims.isBusinessUser ? "business" : "user"
+    
+    return {
+      id: session.user.id,
+      email: session.user.email || '',
+      userType: userType,
+      profile: null,
+      businessProfile: null,
+      userRole: customClaims.userRole,
+      permissions: customClaims.permissions,
+      isBusinessUser: customClaims.isBusinessUser,
+      businessStatus: customClaims.businessStatus
+    }
+  } catch (error) {
+    console.error("Error parsing JWT token in buildUserFromSession:", error)
+    // Fallback to basic user without custom claims
+    return {
+      id: session.user.id,
+      email: session.user.email || '',
+      userType: 'user',
+      profile: null,
+      businessProfile: null,
+      userRole: "user",
+      permissions: [],
+      isBusinessUser: false,
+      businessStatus: "none"
+    }
+  }
+}
 
 // ============================================================================
 // SIGN IN FUNCTIONALITY
@@ -64,13 +118,13 @@ export async function signIn(credentials: SignInCredentials): Promise<AuthResult
       }
     }
     
-    // Build our AuthUser object
-    const authUser: AuthUser = {
-      id: data.user.id,
-      email: data.user.email || '',
-      userType: 'user', // Default, will be updated when we fetch profile
-      profile: null,
-      businessProfile: null
+    // Build our AuthUser object with JWT claims
+    const authUser = buildUserFromSession(data.session)
+    if (!authUser) {
+      return {
+        success: false,
+        error: 'errors:unknownError'
+      }
     }
     
     return {
@@ -157,13 +211,34 @@ export async function signUp(credentials: SignUpCredentials): Promise<SignUpResu
     // Check if email confirmation is required
     const requiresEmailVerification = !data.session
     
-    // Build our AuthUser object
-    const authUser: AuthUser = {
-      id: data.user.id,
-      email: data.user.email || '',
-      userType: credentials.userType,
-      profile: null,
-      businessProfile: null
+    // Build our AuthUser object with JWT claims if session available
+    let authUser: AuthUser
+    if (data.session?.access_token) {
+      // User signed in immediately - extract JWT claims
+      authUser = buildUserFromSession(data.session) || {
+        id: data.user.id,
+        email: data.user.email || '',
+        userType: credentials.userType,
+        profile: null,
+        businessProfile: null,
+        userRole: credentials.userType,
+        permissions: [],
+        isBusinessUser: credentials.userType === 'business',
+        businessStatus: credentials.userType === 'business' ? 'pending' : 'none'
+      }
+    } else {
+      // Email verification required - basic user object
+      authUser = {
+        id: data.user.id,
+        email: data.user.email || '',
+        userType: credentials.userType,
+        profile: null,
+        businessProfile: null,
+        userRole: credentials.userType,
+        permissions: [],
+        isBusinessUser: credentials.userType === 'business',
+        businessStatus: credentials.userType === 'business' ? 'pending' : 'none'
+      }
     }
     
     return {

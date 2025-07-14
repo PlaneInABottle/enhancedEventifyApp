@@ -47,6 +47,11 @@ export interface AuthUser {
   userType: 'user' | 'business'
   profile: UserProfile | null
   businessProfile: BusinessProfile | null
+  // JWT Custom Claims (from custom_access_token_hook)
+  userRole: string
+  permissions: string[]
+  isBusinessUser: boolean
+  businessStatus: string
 }
 
 export interface UserProfile {
