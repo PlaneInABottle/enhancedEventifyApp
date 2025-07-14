@@ -6,6 +6,10 @@ const en = {
     cancel: "Cancel",
     back: "Back",
     logOut: "Log Out",
+    map: "Map",
+    events: "Events",
+    profile: "Profile",
+    venues: "Venues",
   },
   welcomeScreen: {
     postscript:
@@ -148,6 +152,9 @@ const en = {
     signingUp: "Creating Account...",
     alreadyHaveAccount: "Already have an account? Log In",
     emailVerificationRequired: "Please check your email to verify your account",
+  },
+  userNavigator: {
+    moderate: "Moderate",
   },
 
   ...demoEn,

@@ -6,6 +6,10 @@ const tr = {
     cancel: "İptal",
     back: "Geri",
     logOut: "Çıkış Yap",
+    map: "Harita",
+    events: "Etkinlikler",
+    profile: "Profil",
+    venues: "Mekanlar",
   },
   welcomeScreen: {
     postscript:
@@ -148,6 +152,9 @@ const tr = {
     signingUp: "Hesap Oluşturuluyor...",
     alreadyHaveAccount: "Zaten hesabınız var mı? Giriş Yap",
     emailVerificationRequired: "Hesabınızı doğrulamak için lütfen e-postanızı kontrol edin",
+  },
+  userNavigator: {
+    moderate: "Modere Et",
   },
 
   ...demoTr,
