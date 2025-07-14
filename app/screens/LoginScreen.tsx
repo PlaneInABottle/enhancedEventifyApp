@@ -1,6 +1,6 @@
 import { ComponentType, FC, useEffect, useMemo, useRef, useState } from "react"
 // eslint-disable-next-line no-restricted-imports
-import { TextInput, TextStyle, ViewStyle } from "react-native"
+import { TextInput, TextStyle, ViewStyle, ActivityIndicator } from "react-native"
 import { observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
@@ -88,6 +88,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         labelTx="loginScreen:emailFieldLabel"
         placeholderTx="loginScreen:emailFieldPlaceholder"
         onSubmitEditing={() => passwordInput.current?.focus()}
+        editable={!authenticationStore.isLoading}
       />
 
       <TextField
@@ -103,15 +104,20 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         placeholderTx="loginScreen:passwordFieldPlaceholder"
         onSubmitEditing={handleLogin}
         RightAccessory={PasswordRightAccessory}
+        editable={!authenticationStore.isLoading}
       />
 
       <Button
         testID="login-button"
-        tx="loginScreen:tapToLogIn"
+        tx={authenticationStore.isLoading ? "loginScreen:signingIn" : "loginScreen:tapToLogIn"}
         style={themed($tapButton)}
         preset="reversed"
         onPress={handleLogin}
         disabled={authenticationStore.isLoading}
+        RightAccessory={authenticationStore.isLoading ? 
+          (props) => <ActivityIndicator size="small" color={colors.background} style={themed($loadingIndicator)} /> : 
+          undefined
+        }
       />
     </Screen>
   )
@@ -141,4 +147,8 @@ const $textField: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 
 const $tapButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginTop: spacing.xs,
+})
+
+const $loadingIndicator: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginLeft: spacing.xs,
 })

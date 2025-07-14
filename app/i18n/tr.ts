@@ -50,6 +50,7 @@ const tr = {
     emailFieldPlaceholder: "E-posta adresinizi girin",
     passwordFieldPlaceholder: "Süper gizli şifre buraya",
     tapToLogIn: "Giriş yapmak için dokunun!",
+    signingIn: "Giriş yapılıyor...",
     hint: "İpucu: herhangi bir e-posta adresi ve favori şifrenizi kullanabilirsiniz :)",
   },
   demoNavigator: {
