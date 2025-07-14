@@ -13,6 +13,7 @@ import Config from "@/config"
 import { useStores } from "@/models"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { LoginScreen } from "@/screens/LoginScreen"
+import { SignUpScreen } from "@/screens/SignUpScreen"
 import { EnhancedEventifyWelcomeScreen } from "@/screens/EnhancedEventifyWelcomeScreen"
 import { useAppTheme } from "@/theme/context"
 
@@ -79,6 +80,7 @@ const AppStack = observer(function AppStack() {
         <>
           <Stack.Screen name="Welcome" component={EnhancedEventifyWelcomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
         </>
       )}
 

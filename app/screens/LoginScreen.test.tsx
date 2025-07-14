@@ -30,7 +30,7 @@ const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 
 describe('LoginScreen', () => {
   const defaultProps = {
-    navigation: {} as any,
+    navigation: { navigate: jest.fn() } as any,
     route: { key: 'Login', name: 'Login' as const },
   }
 
@@ -226,5 +226,29 @@ describe('LoginScreen', () => {
     const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
     expect(emailInput.props.accessible).not.toBe(false)
     expect(passwordInput.props.accessible).not.toBe(false)
+  })
+
+  it('should navigate to SignUp screen when sign up link is pressed', () => {
+    const mockNavigate = jest.fn()
+    const propsWithMockNav = {
+      ...defaultProps,
+      navigation: { navigate: mockNavigate } as any
+    }
+
+    render(
+      <ThemeProvider>
+        <NavigationContainer>
+          <LoginScreen {...propsWithMockNav} />
+        </NavigationContainer>
+      </ThemeProvider>
+    )
+
+    const signUpLink = screen.getByTestId('signup-link')
+    expect(signUpLink).toBeOnTheScreen()
+    expect(screen.getByText('loginScreen:dontHaveAccount')).toBeOnTheScreen()
+
+    fireEvent.press(signUpLink)
+
+    expect(mockNavigate).toHaveBeenCalledWith('SignUp')
   })
 })

@@ -16,7 +16,7 @@ import { translate } from "@/i18n/translate"
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
-export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
+export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen({ navigation }) {
   const passwordInput = useRef<TextInput>(null)
 
   const [email, setEmail] = useState("")
@@ -120,6 +120,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           undefined
         }
       />
+
+      <Button
+        testID="signup-link"
+        tx="loginScreen:dontHaveAccount"
+        style={themed($signUpLink)}
+        preset="default"
+        onPress={() => navigation.navigate("SignUp")}
+        disabled={authenticationStore.isLoading}
+      />
     </Screen>
   )
 })
@@ -152,4 +161,8 @@ const $tapButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 
 const $loadingIndicator: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginLeft: spacing.xs,
+})
+
+const $signUpLink: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginTop: spacing.md,
 })
