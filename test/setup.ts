@@ -77,6 +77,28 @@ jest.mock('@supabase/supabase-js', () => ({
   })),
 }));
 
+// Mock react-native-keyboard-controller
+jest.mock('react-native-keyboard-controller', () => ({
+  KeyboardAwareScrollView: ({ children }: any) => children,
+  useKeyboardHandler: jest.fn(),
+  useReanimatedKeyboardAnimation: jest.fn(() => ({
+    height: { value: 0 },
+    progress: { value: 0 },
+  })),
+}));
+
+// Mock react-navigation hooks
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useScrollToTop: jest.fn(),
+}));
+
+// Mock react-native-edge-to-edge
+jest.mock('react-native-edge-to-edge', () => ({
+  SystemBars: ({ children }: any) => children,
+  SystemBarStyle: {},
+}));
+
 declare global {
   let __TEST__: boolean
 }

@@ -53,6 +53,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
             containerStyle={props.style}
             size={20}
             onPress={() => setIsPasswordHidden(!isPasswordHidden)}
+            testID="password-toggle"
           />
         )
       },
