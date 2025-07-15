@@ -112,6 +112,7 @@ export function Icon(props: IconProps) {
         source={iconRegistry[icon]} 
         resizeMode="contain"
         tintColor={color ?? theme.colors.text}
+        testID={`icon-${icon}`}
       />
     </View>
   )
