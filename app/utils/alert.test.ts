@@ -1,6 +1,18 @@
 import { Platform } from 'react-native'
 import { Alert } from './alert'
 
+// Mock translate function
+jest.mock('@/i18n/translate', () => ({
+  translate: jest.fn((key: string) => {
+    const translations: Record<string, string> = {
+      'common:ok': 'OK',
+      'common:cancel': 'Cancel',
+      'common:chooseOption': 'Choose an option'
+    }
+    return translations[key] || key
+  })
+}))
+
 // Mock React Native Alert
 jest.mock('react-native', () => ({
   Platform: {
@@ -123,7 +135,7 @@ describe('Alert utility', () => {
         ]
       )
       
-      expect(mockPrompt).toHaveBeenCalled()
+      expect(mockPrompt).toHaveBeenCalledWith('Choose\n\nPick an option\n\nChoose an option:\n1. Option 1\n2. Option 2\n3. Option 3')
       expect(button1).not.toHaveBeenCalled()
       expect(button2).toHaveBeenCalled()
       expect(button3).not.toHaveBeenCalled()
