@@ -1,9 +1,9 @@
-import type { 
+import type {
   ProfileValidationResult,
   CustomProfileError,
   ProfileErrorType,
   UserProfile,
-  ProfileCompletionStatus 
+  ProfileCompletionStatus
 } from './profileTypes'
 
 /**
@@ -23,21 +23,21 @@ export function validateDisplayName(displayName: string): ProfileValidationResul
   if (!displayName || displayName.trim().length === 0) {
     return { isValid: false, error: 'errors:displayNameRequired' }
   }
-  
+
   if (displayName.length < 2) {
     return { isValid: false, error: 'errors:displayNameTooShort' }
   }
-  
+
   if (displayName.length > 50) {
     return { isValid: false, error: 'errors:displayNameTooLong' }
   }
-  
+
   // Only allow alphanumeric, spaces, and common punctuation
   const validNameRegex = /^[a-zA-Z0-9\s\-_.]+$/
   if (!validNameRegex.test(displayName)) {
     return { isValid: false, error: 'errors:displayNameInvalidCharacters' }
   }
-  
+
   return { isValid: true }
 }
 
@@ -48,7 +48,7 @@ export function validateBio(bio: string): ProfileValidationResult {
   if (bio.length > 500) {
     return { isValid: false, error: 'errors:bioTooLong' }
   }
-  
+
   return { isValid: true }
 }
 
@@ -62,9 +62,9 @@ export function validateBio(bio: string): ProfileValidationResult {
 export function calculateProfileCompletion(profile: UserProfile): ProfileCompletionStatus {
   const requiredFields = ['display_name', 'location_city']
   const optionalFields = ['bio', 'avatar_url']
-  
+
   const missingFields: string[] = []
-  
+
   // Check required fields
   requiredFields.forEach(field => {
     const value = profile[field as keyof UserProfile]
@@ -72,7 +72,7 @@ export function calculateProfileCompletion(profile: UserProfile): ProfileComplet
       missingFields.push(field)
     }
   })
-  
+
   // Count completed optional fields
   let completedOptionalFields = 0
   optionalFields.forEach(field => {
@@ -81,13 +81,13 @@ export function calculateProfileCompletion(profile: UserProfile): ProfileComplet
       completedOptionalFields++
     }
   })
-  
+
   // Calculate percentage
   const totalFields = requiredFields.length + optionalFields.length
   const completedRequiredFields = requiredFields.length - missingFields.length
   const totalCompletedFields = completedRequiredFields + completedOptionalFields
   const completionPercentage = Math.round((totalCompletedFields / totalFields) * 100)
-  
+
   return {
     isComplete: missingFields.length === 0,
     missingFields,
@@ -122,12 +122,12 @@ export function getAvatarUrl(profile: UserProfile | null): string {
  */
 export function getInitials(displayName: string | null): string {
   if (!displayName) return '?'
-  
+
   const names = displayName.trim().split(' ')
   if (names.length === 1) {
     return names[0].substring(0, 2).toUpperCase()
   }
-  
+
   return (names[0][0] + names[names.length - 1][0]).toUpperCase()
 }
 
@@ -146,7 +146,7 @@ export function mapProfileError(error: any): CustomProfileError {
       originalError: error
     }
   }
-  
+
   if (error?.message?.includes('network')) {
     return {
       type: 'network_error',
@@ -154,7 +154,39 @@ export function mapProfileError(error: any): CustomProfileError {
       originalError: error
     }
   }
-  
+
+  if (error?.message?.includes('storage')) {
+    return {
+      type: 'storage_error',
+      message: 'errors:storageError',
+      originalError: error
+    }
+  }
+
+  if (error?.message?.includes('upload')) {
+    return {
+      type: 'upload_failed',
+      message: 'errors:uploadFailed',
+      originalError: error
+    }
+  }
+
+  if (error?.message?.includes('file') && error?.message?.includes('type')) {
+    return {
+      type: 'invalid_file_type',
+      message: 'errors:invalidFileType',
+      originalError: error
+    }
+  }
+
+  if (error?.message?.includes('file') && error?.message?.includes('size')) {
+    return {
+      type: 'file_too_large',
+      message: 'errors:fileTooLarge',
+      originalError: error
+    }
+  }
+
   return {
     type: 'unknown_error',
     message: 'errors:unknownError',
