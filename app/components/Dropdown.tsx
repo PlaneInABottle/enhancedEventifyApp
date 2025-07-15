@@ -10,11 +10,13 @@ import {
   ScrollView,
   Pressable,
 } from "react-native"
-import { Text } from "./Text"
-import { TextField, TextFieldProps } from "./TextField"
+
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+
 import { Icon } from "./Icon"
+import { Text } from "./Text"
+import { TextField, TextFieldProps } from "./TextField"
 
 export interface DropdownOption<T = string> {
   label: string
@@ -69,29 +71,37 @@ export function Dropdown<T = string>(props: DropdownProps<T>) {
 
   if (Platform.OS === "web") {
     // Use native select on web for better accessibility
+    const selectRef = React.useRef<HTMLSelectElement>(null)
+
+    const focusSelect = () => {
+      if (disabled) return
+      selectRef.current?.focus()
+    }
+
     return (
-      <View style={[$containerStyleOverride]}>
-        {textFieldProps.label && (
+      <TouchableOpacity
+        activeOpacity={1}
+        style={$containerStyleOverride}
+        onPress={focusSelect}
+        disabled={disabled}
+      >
+        {(textFieldProps.label || textFieldProps.labelTx) && (
           <Text
             preset="formLabel"
             text={textFieldProps.label}
             tx={textFieldProps.labelTx}
             txOptions={textFieldProps.labelTxOptions}
+            style={themed($webLabel)}
           />
         )}
         <View style={themed($webSelectContainer)}>
           <select
+            ref={selectRef}
             value={value as any}
             onChange={(e) => onValueChange?.(e.target.value as T)}
             disabled={disabled}
             style={{
-              width: "100%",
-              padding: 16,
-              fontSize: 16,
-              borderRadius: 4,
-              border: `1px solid ${theme.colors.border}`,
-              backgroundColor: theme.colors.background,
-              color: theme.colors.text,
+              ...themed($webSelectStyle),
               cursor: disabled ? "not-allowed" : "pointer",
             }}
           >
@@ -107,23 +117,18 @@ export function Dropdown<T = string>(props: DropdownProps<T>) {
             ))}
           </select>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 
   // Mobile implementation with modal
   return (
     <>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        disabled={disabled}
-        onPress={() => setIsOpen(true)}
-      >
+      <TouchableOpacity activeOpacity={0.7} disabled={disabled} onPress={() => setIsOpen(true)}>
         <TextField
           {...textFieldProps}
           value={displayText}
           editable={false}
-          pointerEvents="none"
           containerStyle={$containerStyleOverride}
           RightAccessory={(props) => (
             <Icon
@@ -137,6 +142,7 @@ export function Dropdown<T = string>(props: DropdownProps<T>) {
             themed($input),
             $inputStyleOverride,
             disabled && themed($disabled),
+            themed($inputDisabledPointer),
           ]}
         />
       </TouchableOpacity>
@@ -144,10 +150,12 @@ export function Dropdown<T = string>(props: DropdownProps<T>) {
       <Modal
         visible={isOpen}
         transparent
-        animationType="fade"
+        animationType={Platform.OS === "ios" ? "slide" : "fade"}
         onRequestClose={() => setIsOpen(false)}
+        statusBarTranslucent={Platform.OS === "android"}
       >
         <Pressable
+          testID="modal-overlay"
           style={themed($modalOverlay)}
           onPress={() => setIsOpen(false)}
         >
@@ -164,10 +172,7 @@ export function Dropdown<T = string>(props: DropdownProps<T>) {
               {options.map((option) => (
                 <TouchableOpacity
                   key={String(option.value)}
-                  style={[
-                    themed($option),
-                    option.value === value && themed($selectedOption),
-                  ]}
+                  style={[themed($option), option.value === value && themed($selectedOption)]}
                   onPress={() => handleSelect(option)}
                 >
                   <Text
@@ -178,11 +183,7 @@ export function Dropdown<T = string>(props: DropdownProps<T>) {
                     ]}
                   />
                   {option.value === value && (
-                    <Icon
-                      icon="check"
-                      size={20}
-                      color={theme.colors.tint}
-                    />
+                    <Icon icon="check" size={20} color={theme.colors.tint} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -198,12 +199,30 @@ const $webSelectContainer: ViewStyle = {
   position: "relative",
 }
 
+const $webLabel: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  marginBottom: spacing.xs,
+})
+
+const $webSelectStyle: ThemedStyle<any> = ({ colors }) => ({
+  width: "100%",
+  padding: 16,
+  fontSize: 16,
+  borderRadius: 4,
+  border: `1px solid ${colors.border}`,
+  backgroundColor: colors.background,
+  color: colors.text,
+})
+
 const $input: ThemedStyle<TextStyle> = ({ colors }) => ({
   color: colors.text,
 })
 
 const $disabled: ThemedStyle<TextStyle> = ({ colors }) => ({
   opacity: 0.5,
+})
+
+const $inputDisabledPointer: ThemedStyle<TextStyle> = () => ({
+  pointerEvents: "none",
 })
 
 const $modalOverlay: ThemedStyle<ViewStyle> = ({ colors }) => ({
@@ -221,11 +240,17 @@ const $modalContent: ThemedStyle<ViewStyle> = ({ colors }) => ({
   width: "100%",
   maxWidth: 400,
   overflow: "hidden",
-  elevation: 5,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
+  ...(Platform.OS === "web"
+    ? ({
+        boxShadow: `0 2px 8px rgba(0, 0, 0, 0.25)`,
+      } as any)
+    : {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      }),
 })
 
 const $modalHeader: ThemedStyle<ViewStyle> = ({ colors }) => ({
