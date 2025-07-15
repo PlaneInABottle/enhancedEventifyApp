@@ -1,9 +1,9 @@
 import { UserProfileStore } from './UserProfileStore'
-import * as profileService from './profileService'
+import * as profileService from '@/services/profile/profileService'
 import { UserProfileModel } from '@/models/ProfileModels'
 
 // Mock the profile service
-jest.mock('./profileService', () => ({
+jest.mock('@/services/profile/profileService', () => ({
   getUserProfile: jest.fn(),
   updateUserProfile: jest.fn(),
   uploadAvatar: jest.fn(),

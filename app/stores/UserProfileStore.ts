@@ -1,8 +1,8 @@
 import { types, flow, Instance } from "mobx-state-tree"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { UserProfileModel } from "@/models/ProfileModels"
-import { getUserProfile, updateUserProfile, uploadAvatar } from "./profileService"
-import type { UpdateProfileRequest, AvatarUploadResult } from "./profileTypes"
+import { getUserProfile, updateUserProfile, uploadAvatar } from "@/services/profile/profileService"
+import type { UpdateProfileRequest, AvatarUploadResult } from "@/services/profile/profileTypes"
 
 /**
  * User Profile Store
