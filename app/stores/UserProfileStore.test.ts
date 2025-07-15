@@ -25,7 +25,6 @@ describe('UserProfileStore', () => {
     avatar_url: 'https://example.com/avatar.jpg',
     bio: 'Software developer',
     location_city: 'İstanbul' as const,
-    is_profile_complete: true,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z'
   }
