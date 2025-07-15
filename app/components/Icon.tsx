@@ -71,7 +71,7 @@ export function PressableIcon(props: PressableIconProps) {
 
   return (
     <TouchableOpacity {...pressableProps} style={$containerStyleOverride}>
-      <Image style={$imageStyle} source={iconRegistry[icon]} />
+      <Image style={$imageStyle} source={iconRegistry[icon]} resizeMode="contain" />
     </TouchableOpacity>
   )
 }
@@ -104,7 +104,7 @@ export function Icon(props: IconProps) {
 
   return (
     <View {...viewProps} style={$containerStyleOverride}>
-      <Image style={$imageStyle} source={iconRegistry[icon]} />
+      <Image style={$imageStyle} source={iconRegistry[icon]} resizeMode="contain" />
     </View>
   )
 }
@@ -135,5 +135,5 @@ export const iconRegistry = {
 }
 
 const $imageStyleBase: ImageStyle = {
-  resizeMode: "contain",
+  // resizeMode moved to props to avoid deprecation warning
 }
