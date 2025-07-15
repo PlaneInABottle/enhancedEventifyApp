@@ -61,6 +61,21 @@ describe('profileHelpers', () => {
       const result = validateDisplayName('John-Doe_Jr.')
       expect(result.isValid).toBe(true)
     })
+
+    it('should accept display names with Turkish characters', () => {
+      const result = validateDisplayName('Müşerref Özgür')
+      expect(result.isValid).toBe(true)
+    })
+
+    it('should accept display names with Turkish dotless i', () => {
+      const result = validateDisplayName('Uğur Işık')
+      expect(result.isValid).toBe(true)
+    })
+
+    it('should accept display names with all Turkish special characters', () => {
+      const result = validateDisplayName('Çağrı Şüküran')
+      expect(result.isValid).toBe(true)
+    })
   })
 
   describe('validateBio', () => {

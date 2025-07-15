@@ -32,8 +32,8 @@ export function validateDisplayName(displayName: string): ProfileValidationResul
     return { isValid: false, error: 'errors:displayNameTooLong' }
   }
 
-  // Only allow alphanumeric, spaces, and common punctuation
-  const validNameRegex = /^[a-zA-Z0-9\s\-_.]+$/
+  // Allow letters (including Turkish characters), numbers, spaces, and common punctuation
+  const validNameRegex = /^[\p{L}0-9\s\-_.]+$/u
   if (!validNameRegex.test(displayName)) {
     return { isValid: false, error: 'errors:displayNameInvalidCharacters' }
   }
