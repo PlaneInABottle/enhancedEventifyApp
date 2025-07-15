@@ -10,6 +10,7 @@ const tr = {
     events: "Etkinlikler",
     profile: "Profil",
     venues: "Mekanlar",
+    other: "Diğer",
   },
   welcomeScreen: {
     postscript:
@@ -46,6 +47,23 @@ const tr = {
     networkError: "Ağ bağlantı hatası. Lütfen internet bağlantınızı kontrol edin",
     serviceUnavailable: "Servis geçici olarak kullanılamıyor. Lütfen tekrar deneyin",
     unknownError: "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin",
+    // Profil doğrulama hataları
+    displayNameRequired: "Görünen ad gereklidir",
+    displayNameTooShort: "Görünen ad en az 2 karakter uzunluğunda olmalıdır",
+    displayNameTooLong: "Görünen ad 50 karakterden fazla olamaz",
+    displayNameInvalidCharacters: "Görünen ad yalnızca harf, rakam, boşluk, tire, alt çizgi ve nokta içerebilir",
+    bioTooLong: "Biyografi 500 karakterden fazla olamaz",
+    // Profil işlem hataları
+    profileNotFound: "Profil bulunamadı",
+    updateProfileFailed: "Profil güncellenemedi",
+    uploadAvatarFailed: "Profil fotoğrafı yüklenemedi",
+    deleteAvatarFailed: "Profil fotoğrafı silinemedi",
+    fetchProfileFailed: "Profil yüklenemedi",
+    // Dosya yükleme hataları
+    invalidFileType: "Geçersiz dosya tipi. Lütfen JPEG, PNG, GIF veya WebP kullanın",
+    fileTooLarge: "Dosya boyutu izin verilen maksimum limiti aşıyor",
+    storageError: "Depolama işlemi başarısız oldu",
+    uploadFailed: "Dosya yükleme başarısız oldu",
   },
   loginScreen: {
     logIn: "Giriş Yap",
@@ -155,6 +173,31 @@ const tr = {
   },
   userNavigator: {
     moderate: "Modere Et",
+  },
+  profile: {
+    userProfile: "Kullanıcı Profili",
+    profileInformation: "Profil Bilgileri",
+    accountActions: "Hesap İşlemleri",
+    noProfileData: "Profil bilgisi mevcut değil",
+    refresh: "Yenile",
+    loadingProfile: "Profil yükleniyor...",
+    errorMessage: "Hata: {{error}}",
+    displayName: "Görünen Ad",
+    bio: "Biyografi",
+    location: "Konum (Şehir)",
+    selectCity: "Bir şehir seçin",
+    nameField: "Ad: {{name}}",
+    bioField: "Biyografi: {{bio}}",
+    locationField: "Konum: {{location}}",
+    profileCompleteField: "Profil Tamamlandı: {{status}}",
+    editProfile: "Profili Düzenle",
+    cancel: "İptal",
+    saveChanges: "Değişiklikleri Kaydet",
+    success: "Başarılı",
+    error: "Hata",
+    profileUpdatedSuccessfully: "Profil başarıyla güncellendi!",
+    failedToUpdateProfile: "Profil güncellenemedi",
+    unexpectedError: "Beklenmeyen bir hata oluştu",
   },
 
   ...demoTr,

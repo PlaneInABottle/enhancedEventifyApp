@@ -10,6 +10,7 @@ const en = {
     events: "Events",
     profile: "Profile",
     venues: "Venues",
+    other: "Other",
   },
   welcomeScreen: {
     postscript:
@@ -46,6 +47,23 @@ const en = {
     networkError: "Network connection error. Please check your internet",
     serviceUnavailable: "Service temporarily unavailable. Please try again",
     unknownError: "An unexpected error occurred. Please try again",
+    // Profile validation errors
+    displayNameRequired: "Display name is required",
+    displayNameTooShort: "Display name must be at least 2 characters long",
+    displayNameTooLong: "Display name cannot exceed 50 characters",
+    displayNameInvalidCharacters: "Display name can only contain letters, numbers, spaces, hyphens, underscores, and periods",
+    bioTooLong: "Bio cannot exceed 500 characters",
+    // Profile operation errors
+    profileNotFound: "Profile not found",
+    updateProfileFailed: "Failed to update profile",
+    uploadAvatarFailed: "Failed to upload avatar",
+    deleteAvatarFailed: "Failed to delete avatar",
+    fetchProfileFailed: "Failed to fetch profile",
+    // File upload errors
+    invalidFileType: "Invalid file type. Please use JPEG, PNG, GIF or WebP",
+    fileTooLarge: "File size exceeds the maximum allowed limit",
+    storageError: "Storage operation failed",
+    uploadFailed: "File upload failed",
   },
   loginScreen: {
     logIn: "Log In",
@@ -155,6 +173,31 @@ const en = {
   },
   userNavigator: {
     moderate: "Moderate",
+  },
+  profile: {
+    userProfile: "User Profile",
+    profileInformation: "Profile Information",
+    accountActions: "Account Actions",
+    noProfileData: "No profile data available",
+    refresh: "Refresh",
+    loadingProfile: "Loading profile...",
+    errorMessage: "Error: {{error}}",
+    displayName: "Display Name",
+    bio: "Bio",
+    location: "Location (City)",
+    selectCity: "Select a city",
+    nameField: "Name: {{name}}",
+    bioField: "Bio: {{bio}}",
+    locationField: "Location: {{location}}",
+    profileCompleteField: "Profile Complete: {{status}}",
+    editProfile: "Edit Profile",
+    cancel: "Cancel",
+    saveChanges: "Save Changes",
+    success: "Success",
+    error: "Error",
+    profileUpdatedSuccessfully: "Profile updated successfully!",
+    failedToUpdateProfile: "Failed to update profile",
+    unexpectedError: "An unexpected error occurred",
   },
 
   ...demoEn,
