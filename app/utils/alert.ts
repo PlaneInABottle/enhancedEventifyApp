@@ -1,4 +1,5 @@
 import { Alert as RNAlert, Platform } from 'react-native'
+import { translate } from '@/i18n/translate'
 
 export interface AlertButton {
   text?: string
@@ -83,8 +84,8 @@ class AlertManager {
 
     // For more than 2 buttons, fall back to a simple prompt
     // This is a limitation of web browsers
-    const buttonTexts = buttons.map((b, i) => `${i + 1}. ${b.text || 'OK'}`).join('\n')
-    const choice = window.prompt(`${fullMessage}\n\nChoose an option:\n${buttonTexts}`)
+    const buttonTexts = buttons.map((b, i) => `${i + 1}. ${b.text || translate('common:ok')}`).join('\n')
+    const choice = window.prompt(`${fullMessage}\n\n${translate('common:chooseOption')}:\n${buttonTexts}`)
     
     if (choice) {
       const index = parseInt(choice) - 1
@@ -123,12 +124,12 @@ class AlertManager {
       message,
       [
         {
-          text: 'Cancel',
+          text: translate('common:cancel'),
           style: 'cancel',
           onPress: onCancel
         },
         {
-          text: 'OK',
+          text: translate('common:ok'),
           onPress: onConfirm
         }
       ]
