@@ -44,7 +44,6 @@ describe('AuthStore', () => {
       expect(store.userType).toBeNull()
       expect(store.hasProfile).toBe(false)
       expect(store.hasBusinessProfile).toBe(false)
-      expect(store.isProfileComplete).toBe(false)
     })
 
     it('should return correct user properties when user exists', () => {
@@ -58,7 +57,6 @@ describe('AuthStore', () => {
           avatar_url: null,
           bio: null,
           location_city: null,
-          is_profile_complete: true,
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
         },
@@ -72,7 +70,6 @@ describe('AuthStore', () => {
       expect(store.userType).toBe('user')
       expect(store.hasProfile).toBe(true)
       expect(store.hasBusinessProfile).toBe(false)
-      expect(store.isProfileComplete).toBe(true)
     })
   })
 

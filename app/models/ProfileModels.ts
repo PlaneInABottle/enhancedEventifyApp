@@ -16,7 +16,6 @@ export const UserProfileModel = types.model("UserProfile", {
   avatar_url: types.maybeNull(types.string),
   bio: types.maybeNull(types.string),
   location_city: types.maybeNull(types.string),
-  is_profile_complete: types.maybeNull(types.boolean),
   created_at: types.string,
   updated_at: types.string,
 })
@@ -34,7 +33,6 @@ export const BusinessProfileModel = types.model("BusinessProfile", {
   website_url: types.maybeNull(types.string),
   logo_url: types.maybeNull(types.string),
   business_status: types.enumeration("BusinessStatus", ["pending", "verified", "suspended"]),
-  is_profile_complete: types.maybeNull(types.boolean),
   created_at: types.string,
   updated_at: types.string,
 })

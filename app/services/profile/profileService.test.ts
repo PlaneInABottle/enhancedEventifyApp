@@ -49,7 +49,6 @@ describe('profileService', () => {
     avatar_url: 'https://example.com/avatar.jpg',
     bio: 'Software developer',
     location_city: 'İstanbul',
-    is_profile_complete: true,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z'
   }
@@ -114,7 +113,7 @@ describe('profileService', () => {
       }
       const updatedProfile = { ...mockProfile, ...updates }
       const mockResponse = { data: updatedProfile, error: null }
-      
+
       const mockSingle = jest.fn().mockResolvedValue(mockResponse)
       const mockSelect = jest.fn().mockReturnValue({ single: mockSingle })
       const mockEq = jest.fn().mockReturnValue({ select: mockSelect })
@@ -163,7 +162,7 @@ describe('profileService', () => {
       }
       const updatedProfile = { ...mockProfile, display_name: 'John Doe' }
       const mockResponse = { data: updatedProfile, error: null }
-      
+
       const mockSingle = jest.fn().mockResolvedValue(mockResponse)
       const mockSelect = jest.fn().mockReturnValue({ single: mockSingle })
       const mockEq = jest.fn().mockReturnValue({ select: mockSelect })
@@ -182,7 +181,7 @@ describe('profileService', () => {
       const updates: UpdateProfileRequest = { display_name: 'John Doe' }
       const mockError = { message: 'Database error' }
       const mockResponse = { data: null, error: mockError }
-      
+
       const mockSingle = jest.fn().mockResolvedValue(mockResponse)
       const mockSelect = jest.fn().mockReturnValue({ single: mockSingle })
       const mockEq = jest.fn().mockReturnValue({ select: mockSelect })
@@ -204,34 +203,34 @@ describe('profileService', () => {
     it('should successfully upload avatar', async () => {
       const mockFile = createMockFile('avatar.jpg', 1024 * 1024, 'image/jpeg') // 1MB
       const publicUrl = 'https://example.com/avatar.jpg'
-      
+
       // Mock getUserProfile to return no existing avatar
       const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
       const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
       const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
       const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-      
+
       // Mock storage upload
       const mockUploadResponse = { data: { path: 'user-123-123456789.jpg' }, error: null }
       const mockUpload = jest.fn().mockResolvedValue(mockUploadResponse)
       const mockGetPublicUrl = jest.fn().mockReturnValue({ data: { publicUrl } })
-      
+
       // Mock updateUserProfile
       const mockUpdateResponse = { data: { ...mockProfile, avatar_url: publicUrl }, error: null }
       const mockUpdateSingle = jest.fn().mockResolvedValue(mockUpdateResponse)
       const mockUpdateSelect = jest.fn().mockReturnValue({ single: mockUpdateSingle })
       const mockUpdateEq = jest.fn().mockReturnValue({ select: mockUpdateSelect })
       const mockUpdate = jest.fn().mockReturnValue({ eq: mockUpdateEq })
-      
+
       // Setup mocks step by step
       mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect })
-      
+
       // Mock storage.from to return upload and getPublicUrl methods
       mockSupabase.storage.from.mockReturnValue({
         upload: mockUpload,
         getPublicUrl: mockGetPublicUrl
       })
-      
+
       mockSupabase.from.mockReturnValueOnce({ update: mockUpdate })
 
       const result = await uploadAvatar('user-123', mockFile)
@@ -274,35 +273,35 @@ describe('profileService', () => {
       const mockFile = createMockFile('avatar.jpg', 1024 * 1024, 'image/jpeg') // 1MB
       const publicUrl = 'https://example.com/new-avatar.jpg'
       const existingAvatarUrl = 'https://example.com/old-avatar-user-123-123456.jpg'
-      
+
       // Mock getUserProfile to return existing avatar
       const mockProfileResponse = { data: { ...mockProfile, avatar_url: existingAvatarUrl }, error: null }
       const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
       const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
       const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-      
+
       // Mock storage operations
       const mockUploadResponse = { data: { path: 'user-123-987654321.jpg' }, error: null }
       const mockUpload = jest.fn().mockResolvedValue(mockUploadResponse)
       const mockRemove = jest.fn().mockResolvedValue({ data: null, error: null })
       const mockGetPublicUrl = jest.fn().mockReturnValue({ data: { publicUrl } })
-      
+
       // Mock updateUserProfile
       const mockUpdateResponse = { data: { ...mockProfile, avatar_url: publicUrl }, error: null }
       const mockUpdateSingle = jest.fn().mockResolvedValue(mockUpdateResponse)
       const mockUpdateSelect = jest.fn().mockReturnValue({ single: mockUpdateSingle })
       const mockUpdateEq = jest.fn().mockReturnValue({ select: mockUpdateSelect })
       const mockUpdate = jest.fn().mockReturnValue({ eq: mockUpdateEq })
-      
+
       // Setup mocks
       mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect } as any)
-      
-      ;(mockSupabase.storage.from as jest.Mock).mockReturnValue({
-        upload: mockUpload,
-        remove: mockRemove,
-        getPublicUrl: mockGetPublicUrl
-      })
-      
+
+        ; (mockSupabase.storage.from as jest.Mock).mockReturnValue({
+          upload: mockUpload,
+          remove: mockRemove,
+          getPublicUrl: mockGetPublicUrl
+        })
+
       mockSupabase.from.mockReturnValueOnce({ update: mockUpdate } as any)
 
       const result = await uploadAvatar('user-123', mockFile)
@@ -313,23 +312,23 @@ describe('profileService', () => {
 
     it('should handle storage upload errors', async () => {
       const mockFile = createMockFile('avatar.jpg', 1024 * 1024, 'image/jpeg') // 1MB
-      
+
       // Mock getUserProfile to return no existing avatar
       const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
       const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
       const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
       const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-      
+
       // Mock storage upload error
       const mockUploadError = { code: 'EntityTooLarge', message: 'File too large' }
       const mockUpload = jest.fn().mockResolvedValue({ data: null, error: mockUploadError })
-      
+
       // Setup mocks
       mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect } as any)
-      
-      ;(mockSupabase.storage.from as jest.Mock).mockReturnValue({
-        upload: mockUpload
-      })
+
+        ; (mockSupabase.storage.from as jest.Mock).mockReturnValue({
+          upload: mockUpload
+        })
 
       const result = await uploadAvatar('user-123', mockFile)
 
@@ -339,23 +338,23 @@ describe('profileService', () => {
 
     it('should handle generic storage upload errors', async () => {
       const mockFile = createMockFile('avatar.jpg', 1024 * 1024, 'image/jpeg') // 1MB
-      
+
       // Mock getUserProfile to return no existing avatar
       const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
       const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
       const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
       const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-      
+
       // Mock storage upload error
       const mockUploadError = { code: 'StorageError', message: 'Storage service unavailable' }
       const mockUpload = jest.fn().mockResolvedValue({ data: null, error: mockUploadError })
-      
+
       // Setup mocks
       mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect } as any)
-      
-      ;(mockSupabase.storage.from as jest.Mock).mockReturnValue({
-        upload: mockUpload
-      })
+
+        ; (mockSupabase.storage.from as jest.Mock).mockReturnValue({
+          upload: mockUpload
+        })
 
       const result = await uploadAvatar('user-123', mockFile)
 

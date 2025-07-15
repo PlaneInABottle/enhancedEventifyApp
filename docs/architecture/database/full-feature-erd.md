@@ -29,7 +29,6 @@ erDiagram
         text bio
         varchar location_city
         varchar location_country
-        boolean is_profile_complete
         timestamp created_at
         timestamp updated_at
     }

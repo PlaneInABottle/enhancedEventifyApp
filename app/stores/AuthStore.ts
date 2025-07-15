@@ -52,12 +52,7 @@ export const AuthStore = types
     get hasBusinessProfile() {
       return Boolean(self.user?.businessProfile)
     },
-    get isProfileComplete() {
-      if (self.user?.userType === "business") {
-        return self.user?.businessProfile?.is_profile_complete === true
-      }
-      return self.user?.profile?.is_profile_complete === true
-    },
+    
 
     // ========================================================================
     // ROLE & PERMISSION VIEWS

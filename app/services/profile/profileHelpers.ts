@@ -53,49 +53,6 @@ export function validateBio(bio: string): ProfileValidationResult {
 }
 
 // ============================================================================
-// PROFILE COMPLETION FUNCTIONS
-// ============================================================================
-
-/**
- * Calculates profile completion status
- */
-export function calculateProfileCompletion(profile: UserProfile): ProfileCompletionStatus {
-  const requiredFields = ['display_name', 'location_city']
-  const optionalFields = ['bio', 'avatar_url']
-
-  const missingFields: string[] = []
-
-  // Check required fields
-  requiredFields.forEach(field => {
-    const value = profile[field as keyof UserProfile]
-    if (!value) {
-      missingFields.push(field)
-    }
-  })
-
-  // Count completed optional fields
-  let completedOptionalFields = 0
-  optionalFields.forEach(field => {
-    const value = profile[field as keyof UserProfile]
-    if (value) {
-      completedOptionalFields++
-    }
-  })
-
-  // Calculate percentage
-  const totalFields = requiredFields.length + optionalFields.length
-  const completedRequiredFields = requiredFields.length - missingFields.length
-  const totalCompletedFields = completedRequiredFields + completedOptionalFields
-  const completionPercentage = Math.round((totalCompletedFields / totalFields) * 100)
-
-  return {
-    isComplete: missingFields.length === 0,
-    missingFields,
-    completionPercentage
-  }
-}
-
-// ============================================================================
 // FORMATTING FUNCTIONS
 // ============================================================================
 

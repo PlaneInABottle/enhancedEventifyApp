@@ -14,18 +14,17 @@ export interface UserProfile {
   avatar_url: string | null
   bio: string | null
   location_city: TurkishCity | null
-  is_profile_complete: boolean | null
   created_at: string
   updated_at: string
 }
 
-export type TurkishCity = 
-  | "İstanbul" | "Ankara" | "İzmir" | "Bursa" | "Antalya" 
+export type TurkishCity =
+  | "İstanbul" | "Ankara" | "İzmir" | "Bursa" | "Antalya"
   | "Adana" | "Konya" | "Gaziantep" | "Kayseri" | "Eskişehir"
   | "Diyarbakır" | "Samsun" | "Denizli" | "Şanlıurfa" | "Adapazarı"
   | "Malatya" | "Kahramanmaraş" | "Erzurum" | "Van" | "Batman"
   | "Elazığ" | "İzmit" | "Manisa" | "Sivas" | "Gebze"
-  | "Balıkesir" | "Tarsus" | "Kütahya" | "Trabzon" | "Çorum" 
+  | "Balıkesir" | "Tarsus" | "Kütahya" | "Trabzon" | "Çorum"
   | "Other"
 
 // ============================================================================
@@ -80,7 +79,7 @@ export interface StorageUploadOptions {
 // ERROR TYPES
 // ============================================================================
 
-export type ProfileErrorType = 
+export type ProfileErrorType =
   | 'profile_not_found'
   | 'invalid_display_name'
   | 'invalid_bio'

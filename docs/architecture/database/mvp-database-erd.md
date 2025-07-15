@@ -20,7 +20,6 @@ erDiagram
         varchar avatar_url
         text bio
         turkish_city location_city
-        boolean is_profile_complete
         timestamp created_at
         timestamp updated_at
     }
@@ -34,7 +33,6 @@ erDiagram
         text website_url
         text logo_url
         business_status business_status
-        boolean is_profile_complete
         timestamp created_at
         timestamp updated_at
     }

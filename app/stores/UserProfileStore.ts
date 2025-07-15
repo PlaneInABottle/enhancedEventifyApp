@@ -40,9 +40,7 @@ export const UserProfileStore = types
     get locationCity() {
       return self.profile?.location_city ?? null
     },
-    get isProfileComplete() {
-      return self.profile?.is_profile_complete === true
-    },
+    
   }))
   .actions((self) => ({
     // ========================================================================

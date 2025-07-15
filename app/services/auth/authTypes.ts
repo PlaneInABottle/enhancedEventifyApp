@@ -60,7 +60,6 @@ export interface UserProfile {
   avatar_url: string | null
   bio: string | null
   location_city: string | null
-  is_profile_complete: boolean | null
   created_at: string
   updated_at: string
 }
@@ -74,7 +73,6 @@ export interface BusinessProfile {
   website_url: string | null
   logo_url: string | null
   business_status: 'pending' | 'verified' | 'suspended'
-  is_profile_complete: boolean | null
   created_at: string
   updated_at: string
 }
@@ -111,7 +109,7 @@ export interface UserResponse {
 // ERROR TYPES
 // ============================================================================
 
-export type AuthErrorType = 
+export type AuthErrorType =
   | 'invalid_credentials'
   | 'email_not_confirmed'
   | 'too_many_requests'

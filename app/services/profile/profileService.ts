@@ -1,18 +1,17 @@
 import { supabase } from '@/clients/supabase/SupabaseClient'
-import { 
+import {
   mapProfileError,
   validateDisplayName,
   validateBio,
   formatDisplayName,
-  calculateProfileCompletion 
 } from './profileHelpers'
-import type { 
-  UserProfile, 
+import type {
+  UserProfile,
   ProfileResult,
   UpdateProfileRequest,
   AvatarUploadResult,
   StorageUploadOptions,
-  SupabaseStorageError 
+  SupabaseStorageError
 } from './profileTypes'
 
 /**
@@ -35,7 +34,7 @@ export async function getUserProfile(userId: string): Promise<ProfileResult> {
       .select('*')
       .eq('id', userId)
       .single()
-    
+
     if (error) {
       const customError = mapProfileError(error)
       return {
@@ -43,7 +42,7 @@ export async function getUserProfile(userId: string): Promise<ProfileResult> {
         error: customError.message
       }
     }
-    
+
     return {
       success: true,
       profile: data as UserProfile
@@ -65,7 +64,7 @@ export async function getUserProfile(userId: string): Promise<ProfileResult> {
  * Updates a user profile
  */
 export async function updateUserProfile(
-  userId: string, 
+  userId: string,
   updates: UpdateProfileRequest
 ): Promise<ProfileResult> {
   try {
@@ -80,7 +79,7 @@ export async function updateUserProfile(
       }
       updates.display_name = formatDisplayName(updates.display_name)
     }
-    
+
     // Validate bio if provided
     if (updates.bio !== undefined) {
       const validation = validateBio(updates.bio)
@@ -91,7 +90,7 @@ export async function updateUserProfile(
         }
       }
     }
-    
+
     const { data, error } = await supabase
       .from('user_profiles')
       .update({
@@ -101,7 +100,7 @@ export async function updateUserProfile(
       .eq('id', userId)
       .select()
       .single()
-    
+
     if (error) {
       const customError = mapProfileError(error)
       return {
@@ -109,7 +108,7 @@ export async function updateUserProfile(
         error: customError.message
       }
     }
-    
+
     return {
       success: true,
       profile: data as UserProfile
@@ -139,7 +138,7 @@ function getContentType(file: File): string {
  * Uploads a user avatar with proper Supabase Storage options
  */
 export async function uploadAvatar(
-  userId: string, 
+  userId: string,
   file: File
 ): Promise<AvatarUploadResult> {
   try {
@@ -150,7 +149,7 @@ export async function uploadAvatar(
         error: 'errors:invalidFileType'
       }
     }
-    
+
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       return {
@@ -158,7 +157,7 @@ export async function uploadAvatar(
         error: 'errors:fileTooLarge'
       }
     }
-    
+
     // Get current profile to check for existing avatar
     const profileResult = await getUserProfile(userId)
     if (profileResult.success && profileResult.profile?.avatar_url) {
@@ -170,52 +169,52 @@ export async function uploadAvatar(
           .remove([`${oldAvatarPath}`])
       }
     }
-    
+
     const fileExt = file.name.split('.').pop()
     const fileName = `${userId}-${Date.now()}.${fileExt}`
     const filePath = fileName
-    
+
     // Prepare upload options following Supabase best practices
     const uploadOptions: StorageUploadOptions = {
       upsert: true, // Allow overwriting existing files
       contentType: getContentType(file),
       cacheControl: '3600' // Cache for 1 hour
     }
-    
+
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(filePath, file, uploadOptions)
-    
+
     if (uploadError) {
       console.error('Storage upload error:', uploadError)
       // Handle specific Supabase Storage error formats
       const storageError = uploadError as SupabaseStorageError
       return {
         success: false,
-        error: storageError.code === 'EntityTooLarge' 
-          ? 'errors:fileTooLarge' 
+        error: storageError.code === 'EntityTooLarge'
+          ? 'errors:fileTooLarge'
           : 'errors:uploadFailed'
       }
     }
-    
+
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('avatars')
       .getPublicUrl(filePath)
-    
+
     // Update profile with new avatar URL
     const updateResult = await updateUserProfile(userId, {
       avatar_url: publicUrl
     })
-    
+
     if (!updateResult.success) {
       return {
         success: false,
         error: updateResult.error
       }
     }
-    
+
     return {
       success: true,
       avatarUrl: publicUrl

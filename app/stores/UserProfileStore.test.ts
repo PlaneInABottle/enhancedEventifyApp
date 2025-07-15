@@ -121,6 +121,9 @@ describe('UserProfileStore', () => {
     }
 
     it('should update profile successfully', async () => {
+      // Set up initial profile
+      store.setProfile(mockProfile)
+      
       mockProfileService.updateUserProfile.mockResolvedValue({
         success: true,
         profile: mockUpdatedProfile

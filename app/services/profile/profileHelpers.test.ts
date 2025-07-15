@@ -1,7 +1,6 @@
 import { 
   validateDisplayName, 
   validateBio, 
-  calculateProfileCompletion,
   formatDisplayName,
   getAvatarUrl,
   getInitials,
@@ -17,7 +16,6 @@ describe('profileHelpers', () => {
     avatar_url: null,
     bio: null,
     location_city: null,
-    is_profile_complete: false,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z',
     ...overrides
@@ -91,61 +89,6 @@ describe('profileHelpers', () => {
     })
   })
 
-  // ============================================================================
-  // PROFILE COMPLETION TESTS
-  // ============================================================================
-
-  describe('calculateProfileCompletion', () => {
-    it('should return 0% completion for empty profile', () => {
-      const profile = createMockProfile()
-      const result = calculateProfileCompletion(profile)
-      
-      expect(result.isComplete).toBe(false)
-      expect(result.completionPercentage).toBe(0)
-      expect(result.missingFields).toContain('display_name')
-      expect(result.missingFields).toContain('location_city')
-    })
-
-    it('should return 50% completion for profile with required fields only', () => {
-      const profile = createMockProfile({
-        display_name: 'John Doe',
-        location_city: 'İstanbul'
-      })
-      const result = calculateProfileCompletion(profile)
-      
-      expect(result.isComplete).toBe(true)
-      expect(result.completionPercentage).toBe(50)
-      expect(result.missingFields).toHaveLength(0)
-    })
-
-    it('should return 100% completion for fully completed profile', () => {
-      const profile = createMockProfile({
-        display_name: 'John Doe',
-        location_city: 'İstanbul',
-        bio: 'Software developer',
-        avatar_url: 'https://example.com/avatar.jpg'
-      })
-      const result = calculateProfileCompletion(profile)
-      
-      expect(result.isComplete).toBe(true)
-      expect(result.completionPercentage).toBe(100)
-      expect(result.missingFields).toHaveLength(0)
-    })
-
-    it('should return 75% completion for profile with one optional field', () => {
-      const profile = createMockProfile({
-        display_name: 'John Doe',
-        location_city: 'İstanbul',
-        bio: 'Software developer'
-        // avatar_url missing
-      })
-      const result = calculateProfileCompletion(profile)
-      
-      expect(result.isComplete).toBe(true)
-      expect(result.completionPercentage).toBe(75)
-      expect(result.missingFields).toHaveLength(0)
-    })
-  })
 
   // ============================================================================
   // FORMATTING TESTS
