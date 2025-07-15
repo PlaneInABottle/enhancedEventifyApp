@@ -11,7 +11,7 @@ import type { ThemedStyle } from "@/theme/types"
 import { useStores } from "@/models"
 
 import { MapScreen } from "@/screens/MapScreen"
-import { ProfileScreen } from "@/screens/ProfileScreen"
+import { UserProfileScreen } from "@/screens/UserProfileScreen"
 
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
@@ -87,7 +87,7 @@ export const UserNavigator = observer(function UserNavigator() {
 
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={UserProfileScreen}
         options={{
           tabBarLabel: translate("common:profile"),
           tabBarIcon: ({ focused }) => (
