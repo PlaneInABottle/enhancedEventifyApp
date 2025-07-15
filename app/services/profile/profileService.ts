@@ -3,7 +3,8 @@ import {
   mapProfileError,
   validateDisplayName,
   validateBio,
-  formatDisplayName 
+  formatDisplayName,
+  calculateProfileCompletion 
 } from './profileHelpers'
 import type { 
   UserProfile, 
