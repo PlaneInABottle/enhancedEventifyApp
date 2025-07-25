@@ -180,14 +180,21 @@ export async function uploadAvatar(userId: string, arrayBuffer: ArrayBuffer, mim
     const fileName = `avatar-${Date.now()}.${fileExt}`
     const filePath = `${userId}/${fileName}`
 
-    // Upload to Supabase Storage with ArrayBuffer
-    const { error: uploadError } = await supabase.storage
+    // Upload to Supabase Storage with ArrayBuffer (with timeout)
+    const uploadPromise = supabase.storage
       .from("avatars")
       .upload(filePath, arrayBuffer, {
         upsert: true,
         contentType: mimeType,
         cacheControl: "3600",
       })
+
+    // Add 30 second timeout to prevent stuck uploads
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Upload timeout after 30 seconds")), 30000)
+    })
+
+    const { error: uploadError } = await Promise.race([uploadPromise, timeoutPromise])
 
     if (uploadError) {
       console.error("Storage upload error:", uploadError)

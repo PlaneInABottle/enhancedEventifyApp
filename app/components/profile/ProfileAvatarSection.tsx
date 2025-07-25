@@ -93,7 +93,9 @@ export const ProfileAvatarSection: FC<ProfileAvatarSectionProps> = function Prof
 
         {isUploading && (
           <View style={themed($uploadingOverlay)}>
-            <Text tx="profile:uploading" size="xs" style={themed($uploadingText)} />
+            <View style={themed($uploadingBadge)}>
+              <Text tx="profile:uploading" size="xs" style={themed($uploadingText)} />
+            </View>
           </View>
         )}
       </View>
@@ -188,17 +190,36 @@ const $avatarOverlay: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
 const $uploadingOverlay: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   position: "absolute",
   bottom: -spacing.md,
-  left: "50%",
-  transform: [{ translateX: -40 }],
-  backgroundColor: colors.palette.overlay50,
+  left: 0,
+  right: 0,
+  alignItems: "center",
+  justifyContent: "center",
+})
+
+const $uploadingBadge: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
+  backgroundColor: colors.palette.primary500,
   paddingHorizontal: spacing.sm,
   paddingVertical: spacing.xs,
   borderRadius: spacing.sm,
+  borderWidth: 2,
+  borderColor: colors.palette.neutral100,
+  ...(Platform.OS === "web"
+    ? ({
+        boxShadow: `0 2px 8px rgba(0, 0, 0, 0.15)`,
+      } as any)
+    : {
+        shadowColor: colors.palette.neutral800,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 6,
+      }),
 })
 
 const $uploadingText: ThemedStyle<TextStyle> = ({ colors }) => ({
   color: colors.palette.neutral100,
   fontWeight: "600",
+  fontSize: 12,
 })
 
 const $nameContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
