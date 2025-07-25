@@ -144,10 +144,7 @@ jest.mock('@/i18n/translate')
 
 *Use tab completion to discover specific commands for each tool*
 
-## Project-Specific Agents
-
-Located in `.claude/agents/`:
-- `react-native-component-builder` - Creates RN components following project patterns
+## Agent Integration
 
 For analysis tasks, use global agents with Gemini:
 ```bash
