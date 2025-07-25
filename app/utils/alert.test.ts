@@ -1,26 +1,27 @@
-import { Platform } from 'react-native'
-import { Alert } from './alert'
+import { Platform } from "react-native"
+
+import { Alert } from "./alert"
 
 // Mock translate function
-jest.mock('@/i18n/translate', () => ({
+jest.mock("@/i18n/translate", () => ({
   translate: jest.fn((key: string) => {
     const translations: Record<string, string> = {
-      'common:ok': 'OK',
-      'common:cancel': 'Cancel',
-      'common:chooseOption': 'Choose an option'
+      "common:ok": "OK",
+      "common:cancel": "Cancel",
+      "common:chooseOption": "Choose an option",
     }
     return translations[key] || key
-  })
+  }),
 }))
 
 // Mock React Native Alert
-jest.mock('react-native', () => ({
+jest.mock("react-native", () => ({
   Platform: {
-    OS: 'ios'
+    OS: "ios",
   },
   Alert: {
-    alert: jest.fn()
-  }
+    alert: jest.fn(),
+  },
 }))
 
 // Mock window methods for web
@@ -38,124 +39,118 @@ beforeEach(() => {
   jest.clearAllMocks()
 })
 
-describe('Alert utility', () => {
-  describe('mobile platform', () => {
+describe("Alert utility", () => {
+  describe("mobile platform", () => {
     beforeEach(() => {
-      Platform.OS = 'ios'
+      Platform.OS = "ios"
     })
 
-    it('should call React Native Alert on mobile', () => {
-      const RNAlert = require('react-native').Alert
-      Alert.simple('Test Title', 'Test Message')
-      
-      expect(RNAlert.alert).toHaveBeenCalledWith('Test Title', 'Test Message', undefined, undefined)
+    it("should call React Native Alert on mobile", () => {
+      const RNAlert = require("react-native").Alert
+      Alert.simple("Test Title", "Test Message")
+
+      expect(RNAlert.alert).toHaveBeenCalledWith("Test Title", "Test Message", undefined, undefined)
     })
 
-    it('should handle confirm dialog on mobile', () => {
-      const RNAlert = require('react-native').Alert
+    it("should handle confirm dialog on mobile", () => {
+      const RNAlert = require("react-native").Alert
       const onConfirm = jest.fn()
       const onCancel = jest.fn()
-      
-      Alert.confirm('Confirm?', 'Are you sure?', onConfirm, onCancel)
-      
+
+      Alert.confirm("Confirm?", "Are you sure?", onConfirm, onCancel)
+
       expect(RNAlert.alert).toHaveBeenCalledWith(
-        'Confirm?',
-        'Are you sure?',
+        "Confirm?",
+        "Are you sure?",
         [
-          { text: 'Cancel', style: 'cancel', onPress: onCancel },
-          { text: 'OK', onPress: onConfirm }
+          { text: "Cancel", style: "cancel", onPress: onCancel },
+          { text: "OK", onPress: onConfirm },
         ],
-        undefined
+        undefined,
       )
     })
   })
 
-  describe('web platform', () => {
+  describe("web platform", () => {
     beforeEach(() => {
-      Platform.OS = 'web'
+      Platform.OS = "web"
     })
 
-    it('should call window.alert on web for simple alerts', () => {
-      Alert.simple('Web Title', 'Web Message')
-      
-      expect(mockAlert).toHaveBeenCalledWith('Web Title\n\nWeb Message')
+    it("should call window.alert on web for simple alerts", () => {
+      Alert.simple("Web Title", "Web Message")
+
+      expect(mockAlert).toHaveBeenCalledWith("Web Title\n\nWeb Message")
     })
 
-    it('should call window.alert with only title if no message', () => {
-      Alert.simple('Just Title')
-      
-      expect(mockAlert).toHaveBeenCalledWith('Just Title')
+    it("should call window.alert with only title if no message", () => {
+      Alert.simple("Just Title")
+
+      expect(mockAlert).toHaveBeenCalledWith("Just Title")
     })
 
-    it('should handle single button alert on web', () => {
+    it("should handle single button alert on web", () => {
       const onPress = jest.fn()
-      Alert.alert('Title', 'Message', [{ text: 'OK', onPress }])
-      
-      expect(mockAlert).toHaveBeenCalledWith('Title\n\nMessage')
+      Alert.alert("Title", "Message", [{ text: "OK", onPress }])
+
+      expect(mockAlert).toHaveBeenCalledWith("Title\n\nMessage")
       expect(onPress).toHaveBeenCalled()
     })
 
-    it('should handle confirm dialog on web', () => {
+    it("should handle confirm dialog on web", () => {
       mockConfirm.mockReturnValue(true)
       const onConfirm = jest.fn()
       const onCancel = jest.fn()
-      
-      Alert.confirm('Confirm?', 'Are you sure?', onConfirm, onCancel)
-      
-      expect(mockConfirm).toHaveBeenCalledWith('Confirm?\n\nAre you sure?')
+
+      Alert.confirm("Confirm?", "Are you sure?", onConfirm, onCancel)
+
+      expect(mockConfirm).toHaveBeenCalledWith("Confirm?\n\nAre you sure?")
       expect(onConfirm).toHaveBeenCalled()
       expect(onCancel).not.toHaveBeenCalled()
     })
 
-    it('should handle cancel in confirm dialog on web', () => {
+    it("should handle cancel in confirm dialog on web", () => {
       mockConfirm.mockReturnValue(false)
       const onConfirm = jest.fn()
       const onCancel = jest.fn()
-      
-      Alert.confirm('Confirm?', 'Are you sure?', onConfirm, onCancel)
-      
-      expect(mockConfirm).toHaveBeenCalledWith('Confirm?\n\nAre you sure?')
+
+      Alert.confirm("Confirm?", "Are you sure?", onConfirm, onCancel)
+
+      expect(mockConfirm).toHaveBeenCalledWith("Confirm?\n\nAre you sure?")
       expect(onConfirm).not.toHaveBeenCalled()
       expect(onCancel).toHaveBeenCalled()
     })
 
-    it('should handle multiple buttons with prompt on web', () => {
-      mockPrompt.mockReturnValue('2')
+    it("should handle multiple buttons with prompt on web", () => {
+      mockPrompt.mockReturnValue("2")
       const button1 = jest.fn()
       const button2 = jest.fn()
       const button3 = jest.fn()
-      
-      Alert.alert(
-        'Choose',
-        'Pick an option',
-        [
-          { text: 'Option 1', onPress: button1 },
-          { text: 'Option 2', onPress: button2 },
-          { text: 'Option 3', onPress: button3 }
-        ]
+
+      Alert.alert("Choose", "Pick an option", [
+        { text: "Option 1", onPress: button1 },
+        { text: "Option 2", onPress: button2 },
+        { text: "Option 3", onPress: button3 },
+      ])
+
+      expect(mockPrompt).toHaveBeenCalledWith(
+        "Choose\n\nPick an option\n\nChoose an option:\n1. Option 1\n2. Option 2\n3. Option 3",
       )
-      
-      expect(mockPrompt).toHaveBeenCalledWith('Choose\n\nPick an option\n\nChoose an option:\n1. Option 1\n2. Option 2\n3. Option 3')
       expect(button1).not.toHaveBeenCalled()
       expect(button2).toHaveBeenCalled()
       expect(button3).not.toHaveBeenCalled()
     })
 
-    it('should handle dismiss callback when prompt is cancelled', () => {
+    it("should handle dismiss callback when prompt is cancelled", () => {
       mockPrompt.mockReturnValue(null)
       const onDismiss = jest.fn()
-      
+
       Alert.alert(
-        'Choose',
+        "Choose",
         undefined,
-        [
-          { text: 'Option 1' },
-          { text: 'Option 2' },
-          { text: 'Option 3' }
-        ],
-        { onDismiss }
+        [{ text: "Option 1" }, { text: "Option 2" }, { text: "Option 3" }],
+        { onDismiss },
       )
-      
+
       expect(onDismiss).toHaveBeenCalled()
     })
   })

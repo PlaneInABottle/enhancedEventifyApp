@@ -1,8 +1,8 @@
-import type { Session, User, AuthError } from '@supabase/supabase-js'
+import type { Session, User, AuthError } from "@supabase/supabase-js"
 
 /**
  * Authentication Types for Enhanced Eventify
- * 
+ *
  * Based on Supabase auth types and our database schema
  */
 
@@ -30,7 +30,7 @@ export interface SignUpCredentials {
   email: string
   password: string
   confirmPassword: string
-  userType: 'user' | 'business'
+  userType: "user" | "business"
 }
 
 export interface SignUpResult extends AuthResult {
@@ -44,7 +44,7 @@ export interface SignUpResult extends AuthResult {
 export interface AuthUser {
   id: string
   email: string
-  userType: 'user' | 'business'
+  userType: "user" | "business"
   profile: UserProfile | null
   businessProfile: BusinessProfile | null
   // JWT Custom Claims (from custom_access_token_hook)
@@ -72,7 +72,7 @@ export interface BusinessProfile {
   phone: string | null
   website_url: string | null
   logo_url: string | null
-  business_status: 'pending' | 'verified' | 'suspended'
+  business_status: "pending" | "verified" | "suspended"
   created_at: string
   updated_at: string
 }
@@ -110,12 +110,12 @@ export interface UserResponse {
 // ============================================================================
 
 export type AuthErrorType =
-  | 'invalid_credentials'
-  | 'email_not_confirmed'
-  | 'too_many_requests'
-  | 'network_error'
-  | 'service_unavailable'
-  | 'unknown_error'
+  | "invalid_credentials"
+  | "email_not_confirmed"
+  | "too_many_requests"
+  | "network_error"
+  | "service_unavailable"
+  | "unknown_error"
 
 export interface CustomAuthError {
   type: AuthErrorType

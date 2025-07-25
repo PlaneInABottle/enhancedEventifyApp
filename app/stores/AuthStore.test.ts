@@ -1,35 +1,35 @@
-import { AuthStore } from './AuthStore'
+import { AuthStore } from "./AuthStore"
 
 /**
  * Unit tests for AuthStore - MobX State Tree store
  */
 
 // Mock the Supabase client
-jest.mock('@/clients/supabase/SupabaseClient', () => ({
+jest.mock("@/clients/supabase/SupabaseClient", () => ({
   supabase: {
     auth: {
       signOut: jest.fn(),
       onAuthStateChange: jest.fn(),
-    }
-  }
+    },
+  },
 }))
 
 // Mock the auth service
-jest.mock('@/services/auth', () => ({
+jest.mock("@/services/auth", () => ({
   signIn: jest.fn(),
   signUp: jest.fn(),
   buildUserFromSession: jest.fn(),
 }))
 
-describe('AuthStore', () => {
+describe("AuthStore", () => {
   let store: any
 
   beforeEach(() => {
     store = AuthStore.create({})
   })
 
-  describe('initial state', () => {
-    it('should have correct default values', () => {
+  describe("initial state", () => {
+    it("should have correct default values", () => {
       expect(store.user).toBeNull()
       expect(store.isLoading).toBe(false)
       expect(store.isAuthenticated).toBe(false)
@@ -37,8 +37,8 @@ describe('AuthStore', () => {
     })
   })
 
-  describe('views', () => {
-    it('should return null for user properties when no user', () => {
+  describe("views", () => {
+    it("should return null for user properties when no user", () => {
       expect(store.userId).toBeNull()
       expect(store.userEmail).toBeNull()
       expect(store.userType).toBeNull()
@@ -46,60 +46,60 @@ describe('AuthStore', () => {
       expect(store.hasBusinessProfile).toBe(false)
     })
 
-    it('should return correct user properties when user exists', () => {
+    it("should return correct user properties when user exists", () => {
       const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: {
-          id: 'profile-123',
-          display_name: 'Test User',
+          id: "profile-123",
+          display_name: "Test User",
           avatar_url: null,
           bio: null,
           location_city: null,
-          created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-01T00:00:00Z',
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
         },
         businessProfile: null,
       }
 
-      store.setProp('user', mockUser)
+      store.setProp("user", mockUser)
 
-      expect(store.userId).toBe('user-123')
-      expect(store.userEmail).toBe('test@example.com')
-      expect(store.userType).toBe('user')
+      expect(store.userId).toBe("user-123")
+      expect(store.userEmail).toBe("test@example.com")
+      expect(store.userType).toBe("user")
       expect(store.hasProfile).toBe(true)
       expect(store.hasBusinessProfile).toBe(false)
     })
   })
 
-  describe('signIn flow', () => {
+  describe("signIn flow", () => {
     const mockCredentials = {
-      email: 'test@example.com',
-      password: 'password123'
+      email: "test@example.com",
+      password: "password123",
     }
 
-    it('should handle successful sign in', async () => {
+    it("should handle successful sign in", async () => {
       const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: null,
         businessProfile: null,
-        userRole: 'user',
+        userRole: "user",
         permissions: [],
         isBusinessUser: false,
-        businessStatus: 'none'
+        businessStatus: "none",
       }
 
       const mockResult = {
         success: true,
         user: mockUser,
-        session: { access_token: 'mock-token' }
+        session: { access_token: "mock-token" },
       }
 
       // Use the already mocked signIn
-      const { signIn } = require('@/services/auth')
+      const { signIn } = require("@/services/auth")
       signIn.mockResolvedValue(mockResult)
 
       const result = await store.signIn(mockCredentials)
@@ -111,13 +111,13 @@ describe('AuthStore', () => {
       expect(result).toEqual(mockResult)
     })
 
-    it('should handle sign in failure', async () => {
+    it("should handle sign in failure", async () => {
       const mockResult = {
         success: false,
-        error: 'errors:invalidCredentials'
+        error: "errors:invalidCredentials",
       }
 
-      const { signIn } = require('@/services/auth')
+      const { signIn } = require("@/services/auth")
       signIn.mockResolvedValue(mockResult)
 
       const result = await store.signIn(mockCredentials)
@@ -125,40 +125,40 @@ describe('AuthStore', () => {
       expect(store.isLoading).toBe(false)
       expect(store.isAuthenticated).toBe(false)
       expect(store.user).toBeNull()
-      expect(store.lastError).toBe('errors:invalidCredentials')
+      expect(store.lastError).toBe("errors:invalidCredentials")
       expect(result).toEqual(mockResult)
     })
   })
 
-  describe('signUp flow', () => {
+  describe("signUp flow", () => {
     const mockCredentials = {
-      email: 'test@example.com',
-      password: 'password123',
-      confirmPassword: 'password123',
-      userType: 'user' as const
+      email: "test@example.com",
+      password: "password123",
+      confirmPassword: "password123",
+      userType: "user" as const,
     }
 
-    it('should handle successful sign up without email verification', async () => {
+    it("should handle successful sign up without email verification", async () => {
       const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: null,
         businessProfile: null,
-        userRole: 'user',
+        userRole: "user",
         permissions: [],
         isBusinessUser: false,
-        businessStatus: 'none'
+        businessStatus: "none",
       }
 
       const mockResult = {
         success: true,
         user: mockUser,
-        session: { access_token: 'mock-token' },
-        requiresEmailVerification: false
+        session: { access_token: "mock-token" },
+        requiresEmailVerification: false,
       }
 
-      const { signUp } = require('@/services/auth')
+      const { signUp } = require("@/services/auth")
       signUp.mockResolvedValue(mockResult)
 
       const result = await store.signUp(mockCredentials)
@@ -170,11 +170,11 @@ describe('AuthStore', () => {
       expect(result).toEqual(mockResult)
     })
 
-    it('should handle successful sign up with email verification required', async () => {
+    it("should handle successful sign up with email verification required", async () => {
       const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: null,
         businessProfile: null,
       }
@@ -183,10 +183,10 @@ describe('AuthStore', () => {
         success: true,
         user: mockUser,
         session: undefined,
-        requiresEmailVerification: true
+        requiresEmailVerification: true,
       }
 
-      const { signUp } = require('@/services/auth')
+      const { signUp } = require("@/services/auth")
       signUp.mockResolvedValue(mockResult)
 
       const result = await store.signUp(mockCredentials)
@@ -198,13 +198,13 @@ describe('AuthStore', () => {
       expect(result).toEqual(mockResult)
     })
 
-    it('should handle sign up failure', async () => {
+    it("should handle sign up failure", async () => {
       const mockResult = {
         success: false,
-        error: 'errors:emailAlreadyInUse'
+        error: "errors:emailAlreadyInUse",
       }
 
-      const { signUp } = require('@/services/auth')
+      const { signUp } = require("@/services/auth")
       signUp.mockResolvedValue(mockResult)
 
       const result = await store.signUp(mockCredentials)
@@ -212,38 +212,38 @@ describe('AuthStore', () => {
       expect(store.isLoading).toBe(false)
       expect(store.isAuthenticated).toBe(false)
       expect(store.user).toBeNull()
-      expect(store.lastError).toBe('errors:emailAlreadyInUse')
+      expect(store.lastError).toBe("errors:emailAlreadyInUse")
       expect(result).toEqual(mockResult)
     })
 
-    it('should handle business user sign up', async () => {
+    it("should handle business user sign up", async () => {
       const businessCredentials = {
-        email: 'business@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
-        userType: 'business' as const
+        email: "business@example.com",
+        password: "password123",
+        confirmPassword: "password123",
+        userType: "business" as const,
       }
 
       const mockUser = {
-        id: 'business-123',
-        email: 'business@example.com',
-        userType: 'business',
+        id: "business-123",
+        email: "business@example.com",
+        userType: "business",
         profile: null,
         businessProfile: null,
-        userRole: 'business',
+        userRole: "business",
         permissions: [],
         isBusinessUser: true,
-        businessStatus: 'pending'
+        businessStatus: "pending",
       }
 
       const mockResult = {
         success: true,
         user: mockUser,
-        session: { access_token: 'mock-token' },
-        requiresEmailVerification: false
+        session: { access_token: "mock-token" },
+        requiresEmailVerification: false,
       }
 
-      const { signUp } = require('@/services/auth')
+      const { signUp } = require("@/services/auth")
       signUp.mockResolvedValue(mockResult)
 
       const result = await store.signUp(businessCredentials)
@@ -251,27 +251,27 @@ describe('AuthStore', () => {
       expect(store.isLoading).toBe(false)
       expect(store.isAuthenticated).toBe(true)
       expect(store.user).toEqual(mockUser)
-      expect(store.user.userType).toBe('business')
+      expect(store.user.userType).toBe("business")
       expect(store.lastError).toBeNull()
       expect(result).toEqual(mockResult)
     })
   })
 
-  describe('signOut flow', () => {
+  describe("signOut flow", () => {
     beforeEach(() => {
       // Set up authenticated state
-      store.setProp('user', {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+      store.setProp("user", {
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: null,
         businessProfile: null,
       })
-      store.setProp('isAuthenticated', true)
+      store.setProp("isAuthenticated", true)
     })
 
-    it('should handle successful sign out', async () => {
-      const { supabase } = require('@/clients/supabase/SupabaseClient')
+    it("should handle successful sign out", async () => {
+      const { supabase } = require("@/clients/supabase/SupabaseClient")
       supabase.auth.signOut.mockResolvedValue({ error: null })
 
       await store.signOut()
@@ -283,69 +283,70 @@ describe('AuthStore', () => {
     })
   })
 
-  describe('_handleAuthStateChange', () => {
-    it('should handle SIGNED_OUT event', () => {
+  describe("_handleAuthStateChange", () => {
+    it("should handle SIGNED_OUT event", () => {
       // Set up authenticated state first with complete user object
-      store.setProp('user', {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+      store.setProp("user", {
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: null,
         businessProfile: null,
       })
-      store.setProp('isAuthenticated', true)
-      store.setProp('lastError', 'some error')
+      store.setProp("isAuthenticated", true)
+      store.setProp("lastError", "some error")
 
-      store._handleAuthStateChange('SIGNED_OUT', null)
+      store._handleAuthStateChange("SIGNED_OUT", null)
 
       expect(store.user).toBeNull()
       expect(store.isAuthenticated).toBe(false)
       expect(store.lastError).toBeNull()
     })
 
-    it('should handle SIGNED_IN event', () => {
+    it("should handle SIGNED_IN event", () => {
       const mockSession = {
         user: {
-          id: 'user-123',
-          email: 'test@example.com'
+          id: "user-123",
+          email: "test@example.com",
         },
-        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6W10sImlzX2J1c2luZXNzX3VzZXIiOmZhbHNlLCJidXNpbmVzc19zdGF0dXMiOiJub25lIn0.mock-signature'
+        access_token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6W10sImlzX2J1c2luZXNzX3VzZXIiOmZhbHNlLCJidXNpbmVzc19zdGF0dXMiOiJub25lIn0.mock-signature",
       }
 
       const expectedUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        userType: 'user',
+        id: "user-123",
+        email: "test@example.com",
+        userType: "user",
         profile: null,
         businessProfile: null,
-        userRole: 'user',
+        userRole: "user",
         permissions: [],
         isBusinessUser: false,
-        businessStatus: 'none'
+        businessStatus: "none",
       }
 
-      const { buildUserFromSession } = require('@/services/auth')
+      const { buildUserFromSession } = require("@/services/auth")
       buildUserFromSession.mockReturnValue(expectedUser)
 
-      store._handleAuthStateChange('SIGNED_IN', mockSession)
+      store._handleAuthStateChange("SIGNED_IN", mockSession)
 
       expect(store.user).toEqual(expectedUser)
       expect(store.isAuthenticated).toBe(true)
     })
   })
 
-  describe('clearError', () => {
-    it('should clear the lastError state', () => {
+  describe("clearError", () => {
+    it("should clear the lastError state", () => {
       // Set an error first
-      store.setProp('lastError', 'errors:someError')
-      expect(store.lastError).toBe('errors:someError')
+      store.setProp("lastError", "errors:someError")
+      expect(store.lastError).toBe("errors:someError")
 
       // Clear the error
       store.clearError()
       expect(store.lastError).toBeNull()
     })
 
-    it('should handle clearing when no error exists', () => {
+    it("should handle clearing when no error exists", () => {
       // Ensure no error exists
       expect(store.lastError).toBeNull()
 

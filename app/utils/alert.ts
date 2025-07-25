@@ -1,10 +1,11 @@
-import { Alert as RNAlert, Platform } from 'react-native'
-import { translate } from '@/i18n/translate'
+import { Alert as RNAlert, Platform } from "react-native"
+
+import { translate } from "@/i18n/translate"
 
 export interface AlertButton {
   text?: string
   onPress?: () => void
-  style?: 'default' | 'cancel' | 'destructive'
+  style?: "default" | "cancel" | "destructive"
 }
 
 export interface AlertOptions {
@@ -23,13 +24,8 @@ class AlertManager {
    * @param buttons - Array of buttons (optional)
    * @param options - Alert options (optional)
    */
-  alert(
-    title: string,
-    message?: string,
-    buttons?: AlertButton[],
-    options?: AlertOptions
-  ): void {
-    if (Platform.OS === 'web') {
+  alert(title: string, message?: string, buttons?: AlertButton[], options?: AlertOptions): void {
+    if (Platform.OS === "web") {
       // Web implementation using browser's confirm/alert
       this.webAlert(title, message, buttons, options)
     } else {
@@ -42,7 +38,7 @@ class AlertManager {
     title: string,
     message?: string,
     buttons?: AlertButton[],
-    options?: AlertOptions
+    options?: AlertOptions,
   ): void {
     const fullMessage = message ? `${title}\n\n${message}` : title
 
@@ -64,8 +60,8 @@ class AlertManager {
 
     // Multiple buttons - use confirm dialog for simple yes/no scenarios
     if (buttons.length === 2) {
-      const confirmButton = buttons.find(b => b.style !== 'cancel')
-      const cancelButton = buttons.find(b => b.style === 'cancel')
+      const confirmButton = buttons.find((b) => b.style !== "cancel")
+      const cancelButton = buttons.find((b) => b.style === "cancel")
 
       if (window.confirm(fullMessage)) {
         if (confirmButton?.onPress) {
@@ -84,9 +80,13 @@ class AlertManager {
 
     // For more than 2 buttons, fall back to a simple prompt
     // This is a limitation of web browsers
-    const buttonTexts = buttons.map((b, i) => `${i + 1}. ${b.text || translate('common:ok')}`).join('\n')
-    const choice = window.prompt(`${fullMessage}\n\n${translate('common:chooseOption')}:\n${buttonTexts}`)
-    
+    const buttonTexts = buttons
+      .map((b, i) => `${i + 1}. ${b.text || translate("common:ok")}`)
+      .join("\n")
+    const choice = window.prompt(
+      `${fullMessage}\n\n${translate("common:chooseOption")}:\n${buttonTexts}`,
+    )
+
     if (choice) {
       const index = parseInt(choice) - 1
       if (index >= 0 && index < buttons.length && buttons[index].onPress) {
@@ -113,27 +113,18 @@ class AlertManager {
    * @param onConfirm - Callback when user confirms
    * @param onCancel - Callback when user cancels (optional)
    */
-  confirm(
-    title: string,
-    message?: string,
-    onConfirm?: () => void,
-    onCancel?: () => void
-  ): void {
-    this.alert(
-      title,
-      message,
-      [
-        {
-          text: translate('common:cancel'),
-          style: 'cancel',
-          onPress: onCancel
-        },
-        {
-          text: translate('common:ok'),
-          onPress: onConfirm
-        }
-      ]
-    )
+  confirm(title: string, message?: string, onConfirm?: () => void, onCancel?: () => void): void {
+    this.alert(title, message, [
+      {
+        text: translate("common:cancel"),
+        style: "cancel",
+        onPress: onCancel,
+      },
+      {
+        text: translate("common:ok"),
+        onPress: onConfirm,
+      },
+    ])
   }
 }
 

@@ -1,6 +1,6 @@
 /**
  * Auth Service Exports
- * 
+ *
  * Central export point for authentication functionality
  */
 
@@ -17,20 +17,16 @@ export type {
   AuthErrorType,
   CustomAuthError,
   AuthResponse,
-  UserResponse
-} from './authTypes'
+  UserResponse,
+} from "./authTypes"
 
 // Helper functions
 export {
   validateEmail,
   validatePassword,
   validatePasswordConfirmation,
-  mapAuthError
-} from './authHelpers'
+  mapAuthError,
+} from "./authHelpers"
 
 // Service functions
-export {
-  signIn,
-  signUp,
-  buildUserFromSession
-} from './authService'
+export { signIn, signUp, buildUserFromSession } from "./authService"

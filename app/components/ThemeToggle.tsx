@@ -1,10 +1,12 @@
 import React, { FC } from "react"
 import { View, ViewStyle, TextStyle, TouchableOpacity } from "react-native"
+
+import { translate } from "@/i18n/translate"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
-import { Text } from "./Text"
+
 import { Icon } from "./Icon"
-import { translate } from "@/i18n/translate"
+import { Text } from "./Text"
 
 export interface ThemeToggleProps {
   /**
@@ -16,9 +18,7 @@ export interface ThemeToggleProps {
 /**
  * Component for toggling between light, dark, and system theme modes
  */
-export const ThemeToggle: FC<ThemeToggleProps> = React.memo(({
-  style: $styleOverride,
-}) => {
+export const ThemeToggle: FC<ThemeToggleProps> = React.memo(({ style: $styleOverride }) => {
   const { themed, theme, themeContext, setThemeContextOverride } = useAppTheme()
 
   const toggleTheme = () => {
@@ -42,14 +42,13 @@ export const ThemeToggle: FC<ThemeToggleProps> = React.memo(({
           containerStyle={themed($themeIcon)}
         />
         <View style={themed($themeContent)}>
+          <Text tx="profile:appearance" size="md" weight="semiBold" style={themed($themeTitle)} />
           <Text
-            tx="profile:appearance"
-            size="md"
-            weight="semiBold"
-            style={themed($themeTitle)}
-          />
-          <Text
-            text={themeContext === "dark" ? translate("profile:darkMode") : translate("profile:lightMode")}
+            text={
+              themeContext === "dark"
+                ? translate("profile:darkMode")
+                : translate("profile:lightMode")
+            }
             size="sm"
             style={themed($themeDescription)}
           />
@@ -57,11 +56,7 @@ export const ThemeToggle: FC<ThemeToggleProps> = React.memo(({
       </View>
 
       <View style={themed($themeButton)}>
-        <Icon
-          icon="caretRight"
-          size={20}
-          color={theme.colors.textDim}
-        />
+        <Icon icon="caretRight" size={20} color={theme.colors.textDim} />
       </View>
     </TouchableOpacity>
   )

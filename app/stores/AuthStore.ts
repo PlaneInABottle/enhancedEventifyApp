@@ -1,13 +1,14 @@
 import { types, flow, Instance } from "mobx-state-tree"
+
+import { supabase } from "@/clients/supabase/SupabaseClient"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { UserProfileModel, BusinessProfileModel } from "@/models/ProfileModels"
-import { supabase } from "@/clients/supabase/SupabaseClient"
 import { signIn, signUp, buildUserFromSession } from "@/services/auth"
 import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/auth"
 
 /**
  * Authentication Store
- * 
+ *
  * Manages reactive authentication state using MobX-State-Tree
  */
 
@@ -52,7 +53,6 @@ export const AuthStore = types
     get hasBusinessProfile() {
       return Boolean(self.user?.businessProfile)
     },
-    
 
     // ========================================================================
     // ROLE & PERMISSION VIEWS
@@ -115,7 +115,7 @@ export const AuthStore = types
           self.setProp("user", result.user)
           self.setProp("isAuthenticated", true)
         } else {
-          self.setProp("lastError", result.error || 'errors:unknownError')
+          self.setProp("lastError", result.error || "errors:unknownError")
           self.setProp("isAuthenticated", false)
           self.setProp("user", null)
         }
@@ -123,10 +123,10 @@ export const AuthStore = types
         return result
       } catch (error) {
         console.error("AuthStore.signIn error:", error)
-        self.setProp("lastError", 'errors:unknownError')
+        self.setProp("lastError", "errors:unknownError")
         self.setProp("isAuthenticated", false)
         self.setProp("user", null)
-        return { success: false, error: 'errors:unknownError' }
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.setProp("isLoading", false)
       }
@@ -156,7 +156,7 @@ export const AuthStore = types
           }
         } else {
           // Sign up failed
-          self.setProp("lastError", result.error || 'errors:unknownError')
+          self.setProp("lastError", result.error || "errors:unknownError")
           self.setProp("isAuthenticated", false)
           self.setProp("user", null)
         }
@@ -164,10 +164,10 @@ export const AuthStore = types
         return result
       } catch (error) {
         console.error("AuthStore.signUp error:", error)
-        self.setProp("lastError", 'errors:unknownError')
+        self.setProp("lastError", "errors:unknownError")
         self.setProp("isAuthenticated", false)
         self.setProp("user", null)
-        return { success: false, error: 'errors:unknownError' }
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.setProp("isLoading", false)
       }
@@ -181,7 +181,7 @@ export const AuthStore = types
         // onAuthStateChange will handle clearing user state
       } catch (error) {
         console.error("AuthStore.signOut error:", error)
-        self.setProp("lastError", 'errors:unknownError')
+        self.setProp("lastError", "errors:unknownError")
       } finally {
         self.setProp("isLoading", false)
       }
@@ -206,7 +206,7 @@ export const AuthStore = types
         case "INITIAL_SESSION":
         case "SIGNED_IN":
         case "TOKEN_REFRESHED":
-          console.log("Event: ", event);
+          console.log("Event: ", event)
           const authUser = buildUserFromSession(session)
           if (authUser) {
             self.setProp("user", authUser)
@@ -233,7 +233,7 @@ export const AuthStore = types
 // TYPES
 // ============================================================================
 
-export interface AuthStore extends Instance<typeof AuthStore> { }
-export interface AuthUserType extends Instance<typeof AuthUserModel> { }
-export interface UserProfileType extends Instance<typeof UserProfileModel> { }
-export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> { }
+export interface AuthStore extends Instance<typeof AuthStore> {}
+export interface AuthUserType extends Instance<typeof AuthUserModel> {}
+export interface UserProfileType extends Instance<typeof UserProfileModel> {}
+export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> {}

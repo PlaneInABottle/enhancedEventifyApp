@@ -219,7 +219,9 @@ describe("ProfileField", () => {
     })
 
     expect(screen.getByText("Description")).toBeOnTheScreen()
-    expect(screen.getByText("This is a long description that should be multiline")).toBeOnTheScreen()
+    expect(
+      screen.getByText("This is a long description that should be multiline"),
+    ).toBeOnTheScreen()
   })
 
   it("should use translation keys for labels", () => {
