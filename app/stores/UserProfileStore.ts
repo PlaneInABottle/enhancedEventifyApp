@@ -1,4 +1,5 @@
 import { types, flow, Instance } from "mobx-state-tree"
+
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { UserProfileModel } from "@/models/ProfileModels"
 import { getUserProfile, updateUserProfile, uploadAvatar } from "@/services/profile/profileService"
@@ -6,7 +7,7 @@ import type { UpdateProfileRequest, AvatarUploadResult } from "@/services/profil
 
 /**
  * User Profile Store
- * 
+ *
  * Manages reactive user profile state using MobX-State-Tree
  * Based on AuthStore patterns
  */
@@ -40,7 +41,6 @@ export const UserProfileStore = types
     get locationCity() {
       return self.profile?.location_city ?? null
     },
-    
   }))
   .actions((self) => ({
     // ========================================================================
@@ -81,18 +81,18 @@ export const UserProfileStore = types
         self.lastError = null
 
         const result = yield getUserProfile(userId)
-        
+
         if (result.success) {
           self.profile = result.profile
         } else {
-          self.lastError = result.error || 'errors:fetchProfileFailed'
+          self.lastError = result.error || "errors:fetchProfileFailed"
         }
-        
+
         return result
       } catch (error) {
-        console.error('Error fetching profile:', error)
-        self.lastError = 'errors:unknownError'
-        return { success: false, error: 'errors:unknownError' }
+        console.error("Error fetching profile:", error)
+        self.lastError = "errors:unknownError"
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.isLoading = false
       }
@@ -104,18 +104,18 @@ export const UserProfileStore = types
         self.lastError = null
 
         const result = yield updateUserProfile(userId, updates)
-        
+
         if (result.success && result.profile) {
           self.profile = result.profile
         } else {
-          self.lastError = result.error || 'errors:updateProfileFailed'
+          self.lastError = result.error || "errors:updateProfileFailed"
         }
-        
+
         return result
       } catch (error) {
-        console.error('Error updating profile:', error)
-        self.lastError = 'errors:unknownError'
-        return { success: false, error: 'errors:unknownError' }
+        console.error("Error updating profile:", error)
+        self.lastError = "errors:unknownError"
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.isUpdating = false
       }
@@ -127,19 +127,19 @@ export const UserProfileStore = types
         self.lastError = null
 
         const result: AvatarUploadResult = yield uploadAvatar(userId, file)
-        
+
         if (result.success && result.avatarUrl && self.profile) {
           // Update the profile's avatar_url
           self.profile = { ...self.profile, avatar_url: result.avatarUrl }
         } else {
-          self.lastError = result.error || 'errors:uploadAvatarFailed'
+          self.lastError = result.error || "errors:uploadAvatarFailed"
         }
-        
+
         return result
       } catch (error) {
-        console.error('Error uploading avatar:', error)
-        self.lastError = 'errors:unknownError'
-        return { success: false, error: 'errors:unknownError' }
+        console.error("Error uploading avatar:", error)
+        self.lastError = "errors:unknownError"
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.isUploading = false
       }
