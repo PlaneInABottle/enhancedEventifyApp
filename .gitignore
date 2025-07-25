@@ -82,6 +82,7 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+dist/
 
 # Configurations
 !env.js
