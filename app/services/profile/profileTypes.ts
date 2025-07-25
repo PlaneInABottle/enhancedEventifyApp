@@ -1,6 +1,6 @@
 /**
  * Profile Types for Enhanced Eventify
- * 
+ *
  * Based on the user_profiles database schema
  */
 
@@ -19,12 +19,36 @@ export interface UserProfile {
 }
 
 export type TurkishCity =
-  | "İstanbul" | "Ankara" | "İzmir" | "Bursa" | "Antalya"
-  | "Adana" | "Konya" | "Gaziantep" | "Kayseri" | "Eskişehir"
-  | "Diyarbakır" | "Samsun" | "Denizli" | "Şanlıurfa" | "Adapazarı"
-  | "Malatya" | "Kahramanmaraş" | "Erzurum" | "Van" | "Batman"
-  | "Elazığ" | "İzmit" | "Manisa" | "Sivas" | "Gebze"
-  | "Balıkesir" | "Tarsus" | "Kütahya" | "Trabzon" | "Çorum"
+  | "İstanbul"
+  | "Ankara"
+  | "İzmir"
+  | "Bursa"
+  | "Antalya"
+  | "Adana"
+  | "Konya"
+  | "Gaziantep"
+  | "Kayseri"
+  | "Eskişehir"
+  | "Diyarbakır"
+  | "Samsun"
+  | "Denizli"
+  | "Şanlıurfa"
+  | "Adapazarı"
+  | "Malatya"
+  | "Kahramanmaraş"
+  | "Erzurum"
+  | "Van"
+  | "Batman"
+  | "Elazığ"
+  | "İzmit"
+  | "Manisa"
+  | "Sivas"
+  | "Gebze"
+  | "Balıkesir"
+  | "Tarsus"
+  | "Kütahya"
+  | "Trabzon"
+  | "Çorum"
   | "Other"
 
 // ============================================================================
@@ -80,16 +104,16 @@ export interface StorageUploadOptions {
 // ============================================================================
 
 export type ProfileErrorType =
-  | 'profile_not_found'
-  | 'invalid_display_name'
-  | 'invalid_bio'
-  | 'upload_failed'
-  | 'storage_error'
-  | 'invalid_file_type'
-  | 'file_too_large'
-  | 'update_failed'
-  | 'network_error'
-  | 'unknown_error'
+  | "profile_not_found"
+  | "invalid_display_name"
+  | "invalid_bio"
+  | "upload_failed"
+  | "storage_error"
+  | "invalid_file_type"
+  | "file_too_large"
+  | "update_failed"
+  | "network_error"
+  | "unknown_error"
 
 export interface CustomProfileError {
   type: ProfileErrorType
