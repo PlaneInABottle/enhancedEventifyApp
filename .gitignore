@@ -84,6 +84,11 @@ npm-debug.*
 web-build/
 dist/
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # Configurations
 !env.js
 
