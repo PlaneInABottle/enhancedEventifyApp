@@ -2,7 +2,7 @@ import { types } from "mobx-state-tree"
 
 /**
  * Shared Profile Models
- * 
+ *
  * Common MobX-State-Tree models used across AuthStore and ProfileStore
  */
 

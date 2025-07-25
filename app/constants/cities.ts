@@ -1,5 +1,5 @@
-import type { TurkishCity } from "@/services/profile/profileTypes"
 import type { DropdownOption } from "@/components/Dropdown"
+import type { TurkishCity } from "@/services/profile/profileTypes"
 
 /**
  * Turkish cities for user profile location selection
@@ -7,7 +7,7 @@ import type { DropdownOption } from "@/components/Dropdown"
  */
 export const TURKISH_CITIES: TurkishCity[] = [
   "İstanbul",
-  "Ankara", 
+  "Ankara",
   "İzmir",
   "Bursa",
   "Antalya",
@@ -36,7 +36,7 @@ export const TURKISH_CITIES: TurkishCity[] = [
   "Kütahya",
   "Trabzon",
   "Çorum",
-  "Other"
+  "Other",
 ]
 
 /**
@@ -44,9 +44,9 @@ export const TURKISH_CITIES: TurkishCity[] = [
  * Note: Translation for "Other" should be handled by the consumer
  */
 export const createTurkishCityOptions = (otherLabel: string): DropdownOption<TurkishCity>[] => [
-  ...TURKISH_CITIES.slice(0, -1).map(city => ({
+  ...TURKISH_CITIES.slice(0, -1).map((city) => ({
     label: city,
-    value: city
+    value: city,
   })),
-  { label: otherLabel, value: "Other" }
+  { label: otherLabel, value: "Other" },
 ]
