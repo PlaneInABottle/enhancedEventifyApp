@@ -33,7 +33,8 @@ const tr = {
   emptyStateComponent: {
     generic: {
       heading: "Çok boş... çok üzücü",
-      content: "Henüz veri bulunamadı. Yenilemek veya uygulamayı yeniden yüklemek için butona tıklamayı deneyin.",
+      content:
+        "Henüz veri bulunamadı. Yenilemek veya uygulamayı yeniden yüklemek için butona tıklamayı deneyin.",
       button: "Tekrar deneyelim",
     },
   },
@@ -55,7 +56,8 @@ const tr = {
     displayNameRequired: "Görünen ad gereklidir",
     displayNameTooShort: "Görünen ad en az 2 karakter uzunluğunda olmalıdır",
     displayNameTooLong: "Görünen ad 50 karakterden fazla olamaz",
-    displayNameInvalidCharacters: "Görünen ad yalnızca harf, rakam, boşluk, tire, alt çizgi ve nokta içerebilir",
+    displayNameInvalidCharacters:
+      "Görünen ad yalnızca harf, rakam, boşluk, tire, alt çizgi ve nokta içerebilir",
     bioTooLong: "Biyografi 500 karakterden fazla olamaz",
     // Profil işlem hataları
     profileNotFound: "Profil bulunamadı",
@@ -156,8 +158,7 @@ const tr = {
     },
     noFavoritesEmptyState: {
       heading: "Bu biraz boş görünüyor",
-      content:
-        "Henüz favori eklenmedi. Favorilerinize eklemek için bir bölümün kalbine dokunun!",
+      content: "Henüz favori eklenmedi. Favorilerinize eklemek için bir bölümün kalbine dokunun!",
     },
   },
   signUpScreen: {
@@ -208,11 +209,17 @@ const tr = {
     selectPhoto: "Fotoğraf Seç",
     avatarUploadReady: "Profil fotoğrafı yükleme özelliği hazır!",
     avatarUploadFailed: "Profil fotoğrafı yüklenemedi",
+    avatarUploadedSuccessfully: "Profil fotoğrafı başarıyla yüklendi!",
+    permissionRequired: "İzin Gerekli",
+    photoLibraryPermissionMessage:
+      "Profil fotoğrafı yüklemek için fotoğraf galerinize erişim iznine ihtiyacımız var",
+    imageSelected: "Resim başarıyla seçildi",
     uploading: "Yükleniyor...",
     profileComplete: "Profil Tamamlandı",
     profileIncomplete: "Profil Tamamlanmadı",
     allInformationProvided: "Tüm gerekli bilgiler sağlandı",
-    profileCompletionDescription: "%{{percentage}} tamamlandı - Profilinizi geliştirmek için daha fazla detay ekleyin",
+    profileCompletionDescription:
+      "%{{percentage}} tamamlandı - Profilinizi geliştirmek için daha fazla detay ekleyin",
     appearance: "Görünüm",
     darkMode: "Karanlık Mod",
     lightMode: "Aydınlık Mod",

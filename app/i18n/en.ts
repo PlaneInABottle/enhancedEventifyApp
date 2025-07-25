@@ -41,7 +41,7 @@ const en = {
   errors: {
     invalidEmail: "Invalid email address.",
     emailRequired: "Email is required",
-    passwordRequired: "Password is required", 
+    passwordRequired: "Password is required",
     passwordMinLength: "Password must be at least 6 characters long",
     confirmPasswordRequired: "Password confirmation is required",
     passwordMismatch: "Passwords do not match",
@@ -55,7 +55,8 @@ const en = {
     displayNameRequired: "Display name is required",
     displayNameTooShort: "Display name must be at least 2 characters long",
     displayNameTooLong: "Display name cannot exceed 50 characters",
-    displayNameInvalidCharacters: "Display name can only contain letters, numbers, spaces, hyphens, underscores, and periods",
+    displayNameInvalidCharacters:
+      "Display name can only contain letters, numbers, spaces, hyphens, underscores, and periods",
     bioTooLong: "Bio cannot exceed 500 characters",
     // Profile operation errors
     profileNotFound: "Profile not found",
@@ -208,11 +209,16 @@ const en = {
     selectPhoto: "Select Photo",
     avatarUploadReady: "Avatar upload functionality is ready!",
     avatarUploadFailed: "Failed to upload avatar",
+    avatarUploadedSuccessfully: "Avatar uploaded successfully!",
+    permissionRequired: "Permission Required",
+    photoLibraryPermissionMessage: "We need access to your photo library to upload an avatar",
+    imageSelected: "Image selected successfully",
     uploading: "Uploading...",
     profileComplete: "Profile Complete",
     profileIncomplete: "Profile Incomplete",
     allInformationProvided: "All required information has been provided",
-    profileCompletionDescription: "{{percentage}}% complete - Add more details to improve your profile",
+    profileCompletionDescription:
+      "{{percentage}}% complete - Add more details to improve your profile",
     appearance: "Appearance",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
