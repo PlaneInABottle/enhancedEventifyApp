@@ -199,7 +199,7 @@ describe("UserProfileScreen", () => {
     })
     
     // Mock fetch to fail
-    global.fetch = jest.fn().mockRejectedValue(new Error("Network error"))
+    global.fetch = jest.fn().mockRejectedValue(new Error("Failed to fetch"))
     
     render(
       <ThemeProvider>
@@ -216,12 +216,12 @@ describe("UserProfileScreen", () => {
       expect(mockUserProfileStore.uploadAvatar).not.toHaveBeenCalled()
       expect(Alert.simple).toHaveBeenCalledWith(
         "profile:error",
-        "profile:avatarUploadFailed"
+        "Failed to fetch"
       )
     })
   })
 
-  it("should create File object and call uploadAvatar when image selected successfully", async () => {
+  it("should create ArrayBuffer and call uploadAvatar when image selected successfully", async () => {
     // Mock permission granted
     ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
       status: "granted",
@@ -233,9 +233,10 @@ describe("UserProfileScreen", () => {
       assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg" }],
     })
     
-    // Mock successful fetch and blob
+    // Mock successful fetch and arrayBuffer
+    const mockArrayBuffer = new ArrayBuffer(8)
     global.fetch = jest.fn().mockResolvedValue({
-      blob: jest.fn().mockResolvedValue(new Blob(["test"], { type: "image/jpeg" })),
+      arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
     })
     
     // Mock successful upload
@@ -255,7 +256,8 @@ describe("UserProfileScreen", () => {
     await waitFor(() => {
       expect(mockUserProfileStore.uploadAvatar).toHaveBeenCalledWith(
         "test-user-123",
-        expect.any(File)
+        mockArrayBuffer,
+        "image/jpeg"
       )
       expect(Alert.simple).toHaveBeenCalledWith(
         "profile:success",

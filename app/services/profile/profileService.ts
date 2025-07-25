@@ -127,21 +127,21 @@ export async function updateUserProfile(
 // AVATAR FUNCTIONALITY
 // ============================================================================
 
-/**
- * Determines content type from file
- */
-function getContentType(file: File): string {
-  // Use the file's MIME type, defaulting to image/jpeg if undefined
-  return file.type || "application/octet-stream"
-}
 
 /**
  * Uploads a user avatar with proper Supabase Storage options
  */
-export async function uploadAvatar(userId: string, file: File): Promise<AvatarUploadResult> {
+export async function uploadAvatar(userId: string, arrayBuffer: ArrayBuffer, mimeType: string): Promise<AvatarUploadResult> {
   try {
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
+    // Validate inputs
+    if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+      return {
+        success: false,
+        error: "errors:invalidFile",
+      }
+    }
+
+    if (!mimeType.startsWith("image/")) {
       return {
         success: false,
         error: "errors:invalidFileType",
@@ -149,7 +149,7 @@ export async function uploadAvatar(userId: string, file: File): Promise<AvatarUp
     }
 
     // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
+    if (arrayBuffer.byteLength > 5 * 1024 * 1024) {
       return {
         success: false,
         error: "errors:fileTooLarge",
@@ -161,28 +161,33 @@ export async function uploadAvatar(userId: string, file: File): Promise<AvatarUp
     if (profileResult.success && profileResult.profile?.avatar_url) {
       // Extract file path from URL and delete old avatar
       const urlParts = profileResult.profile.avatar_url.split("/")
-      const bucketIndex = urlParts.findIndex((part) => part === "avatars")
-      if (bucketIndex !== -1 && bucketIndex < urlParts.length - 2) {
-        const oldAvatarPath = urlParts.slice(bucketIndex + 1).join("/")
+      const avatarsIndex = urlParts.findIndex((part) => part === "avatars")
+      if (avatarsIndex !== -1 && avatarsIndex < urlParts.length - 1) {
+        // Get everything after 'avatars/' in the URL
+        const oldAvatarPath = urlParts.slice(avatarsIndex + 1).join("/")
+        console.log("Deleting old avatar:", oldAvatarPath)
         await supabase.storage.from("avatars").remove([oldAvatarPath])
       }
     }
 
-    const fileExt = file.name.split(".").pop()
+    // Extract file extension from mimeType
+    let fileExt = 'jpg' // default
+    if (mimeType === 'image/png') fileExt = 'png'
+    else if (mimeType === 'image/gif') fileExt = 'gif'
+    else if (mimeType === 'image/webp') fileExt = 'webp'
+    else fileExt = 'jpg'
+    
     const fileName = `avatar-${Date.now()}.${fileExt}`
     const filePath = `${userId}/${fileName}`
 
-    // Prepare upload options following Supabase best practices
-    const uploadOptions: StorageUploadOptions = {
-      upsert: true, // Allow overwriting existing files
-      contentType: getContentType(file),
-      cacheControl: "3600", // Cache for 1 hour
-    }
-
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage with ArrayBuffer
     const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(filePath, file, uploadOptions)
+      .upload(filePath, arrayBuffer, {
+        upsert: true,
+        contentType: mimeType,
+        cacheControl: "3600",
+      })
 
     if (uploadError) {
       console.error("Storage upload error:", uploadError)

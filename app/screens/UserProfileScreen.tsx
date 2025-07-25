@@ -140,15 +140,16 @@ export const UserProfileScreen: FC<UserProfileScreenProps> = observer(() => {
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0]
 
-        // Create File object from the selected image
+        // Use ArrayBuffer for both platforms (simpler approach)
         const response = await fetch(asset.uri)
-        const blob = await response.blob()
-        const file = new File([blob], asset.fileName || `avatar-${Date.now()}.jpg`, {
-          type: asset.mimeType || "image/jpeg",
-        })
+        const arrayBuffer = await response.arrayBuffer()
 
         // Upload avatar using the store
-        const uploadResult = await userProfileStore.uploadAvatar(authenticationStore.userId, file)
+        const uploadResult = await userProfileStore.uploadAvatar(
+          authenticationStore.userId, 
+          arrayBuffer,
+          asset.mimeType || 'image/jpeg'
+        )
 
         if (uploadResult.success) {
           Alert.simple(
@@ -156,12 +157,17 @@ export const UserProfileScreen: FC<UserProfileScreenProps> = observer(() => {
             translate("profile:avatarUploadedSuccessfully"),
           )
         } else {
-          Alert.simple(translate("profile:error"), translate("profile:avatarUploadFailed"))
+          Alert.simple(
+            translate("profile:error"), 
+            uploadResult.error ? translate(uploadResult.error) : translate("profile:avatarUploadFailed")
+          )
         }
       }
     } catch (error) {
       console.error("Avatar upload error:", error)
-      Alert.simple(translate("profile:error"), translate("profile:avatarUploadFailed"))
+      // Show more specific error message if available
+      const errorMessage = error instanceof Error ? error.message : translate("profile:avatarUploadFailed")
+      Alert.simple(translate("profile:error"), errorMessage)
     }
   }
 

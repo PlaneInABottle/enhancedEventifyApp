@@ -121,12 +121,12 @@ export const UserProfileStore = types
       }
     }),
 
-    uploadAvatar: flow(function* (userId: string, file: File) {
+    uploadAvatar: flow(function* (userId: string, arrayBuffer: ArrayBuffer, mimeType: string) {
       try {
         self.isUploading = true
         self.lastError = null
 
-        const result: AvatarUploadResult = yield uploadAvatar(userId, file)
+        const result: AvatarUploadResult = yield uploadAvatar(userId, arrayBuffer, mimeType)
 
         if (result.success && result.avatarUrl && self.profile) {
           // Update the profile's avatar_url
