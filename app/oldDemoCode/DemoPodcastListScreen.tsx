@@ -33,12 +33,13 @@ import { isRTL } from "@/i18n"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import { Episode } from "@/models/Episode"
-import { DemoTabScreenProps } from "./DemoNavigator"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { delay } from "@/utils/delay"
 import { openLinkInBrowser } from "@/utils/openLinkInBrowser"
+
+import { DemoTabScreenProps } from "./DemoNavigator"
 
 const ICON_SIZE = 14
 

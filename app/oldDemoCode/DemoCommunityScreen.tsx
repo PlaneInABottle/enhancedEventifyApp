@@ -5,11 +5,12 @@ import { ListItem } from "@/components/ListItem"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { isRTL } from "@/i18n"
-import { DemoTabScreenProps } from "./DemoNavigator"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { openLinkInBrowser } from "@/utils/openLinkInBrowser"
+
+import { DemoTabScreenProps } from "./DemoNavigator"
 
 const chainReactLogo = require("@assets/images/demo/cr-logo.png")
 const reactNativeLiveLogo = require("@assets/images/demo/rnl-logo.png")

@@ -7,16 +7,16 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { isRTL } from "@/i18n"
 import { useStores } from "@/models"
-// Archived demo code - using local type to avoid navigation conflicts
-type DemoWelcomeScreenProps = {
-  navigation: any
-  route: any
-}
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import { useHeader } from "@/utils/useHeader"
 import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+// Archived demo code - using local type to avoid navigation conflicts
+type DemoWelcomeScreenProps = {
+  navigation: any
+  route: any
+}
 
 const welcomeLogo = require("@assets/images/logo.png")
 const welcomeFace = require("@assets/images/welcome-face.png")

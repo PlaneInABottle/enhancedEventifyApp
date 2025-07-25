@@ -16,10 +16,11 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { isRTL } from "@/i18n"
 import { useStores } from "@/models"
-import { DemoTabScreenProps } from "./DemoNavigator"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
+
+import { DemoTabScreenProps } from "./DemoNavigator"
 
 /**
  * @param {string} url - The URL to open in the browser.
