@@ -8,11 +8,11 @@ import { PressableIcon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { TextField, type TextFieldAccessoryProps } from "@/components/TextField"
+import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
-import { translate } from "@/i18n/translate"
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
@@ -37,7 +37,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen({
   const handleLogin = async () => {
     await authenticationStore.signIn({
       email: email.trim(),
-      password
+      password,
     })
   }
 
@@ -66,13 +66,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen({
     >
       <Text testID="login-heading" tx="loginScreen:logIn" preset="heading" style={themed($logIn)} />
       <Text tx="loginScreen:enterDetails" preset="subheading" style={themed($enterDetails)} />
-      
+
       {authenticationStore.lastError && (
-        <Text 
-          text={translate(authenticationStore.lastError as any)} 
-          size="sm" 
-          weight="light" 
-          style={themed($errorText)} 
+        <Text
+          text={translate(authenticationStore.lastError as any)}
+          size="sm"
+          weight="light"
+          style={themed($errorText)}
         />
       )}
 
@@ -113,9 +113,17 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen({
         preset="reversed"
         onPress={handleLogin}
         disabled={authenticationStore.isLoading}
-        RightAccessory={authenticationStore.isLoading ? 
-          (props) => <ActivityIndicator size="small" color={colors.background} style={themed($loadingIndicator)} testID="loading-indicator" /> : 
-          undefined
+        RightAccessory={
+          authenticationStore.isLoading
+            ? (props) => (
+                <ActivityIndicator
+                  size="small"
+                  color={colors.background}
+                  style={themed($loadingIndicator)}
+                  testID="loading-indicator"
+                />
+              )
+            : undefined
         }
       />
 

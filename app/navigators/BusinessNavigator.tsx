@@ -5,11 +5,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { Icon } from "@/components/Icon"
 import { translate } from "@/i18n/translate"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
-
 import { MapScreen } from "@/screens/MapScreen"
 import { ProfileScreen } from "@/screens/ProfileScreen"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
 
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
@@ -77,7 +76,6 @@ export function BusinessNavigator() {
           ),
         }}
       />
-
 
       <Tab.Screen
         name="Profile"

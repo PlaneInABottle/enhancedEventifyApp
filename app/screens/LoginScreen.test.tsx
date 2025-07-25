@@ -1,9 +1,11 @@
-import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native'
-import { LoginScreen } from './LoginScreen'
-import { useStores } from '@/models'
-import { ThemeProvider } from '@/theme/context'
+import React from "react"
+import { NavigationContainer } from "@react-navigation/native"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react-native"
+
+import { useStores } from "@/models"
+import { ThemeProvider } from "@/theme/context"
+
+import { LoginScreen } from "./LoginScreen"
 
 /**
  * Unit tests for LoginScreen component
@@ -17,22 +19,22 @@ const mockAuthenticationStore = {
   lastError: null as string | null,
 }
 
-jest.mock('@/models', () => ({
+jest.mock("@/models", () => ({
   useStores: jest.fn(),
 }))
 
 // Mock SafeAreaProvider
-jest.mock('react-native-safe-area-context', () => ({
+jest.mock("react-native-safe-area-context", () => ({
   SafeAreaProvider: ({ children }: any) => children,
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }))
 
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 
-describe('LoginScreen', () => {
+describe("LoginScreen", () => {
   const defaultProps = {
     navigation: { navigate: jest.fn() } as any,
-    route: { key: 'Login', name: 'Login' as const },
+    route: { key: "Login", name: "Login" as const },
   }
 
   beforeEach(() => {
@@ -40,53 +42,53 @@ describe('LoginScreen', () => {
     mockUseStores.mockReturnValue({
       authenticationStore: mockAuthenticationStore,
     } as any)
-    
+
     // Reset mock store state
     mockAuthenticationStore.isLoading = false
     mockAuthenticationStore.lastError = null
   })
 
-  it('should render login form elements', () => {
+  it("should render login form elements", () => {
     render(
       <ThemeProvider>
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
-    expect(screen.getByTestId('login-heading')).toBeOnTheScreen()
-    expect(screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')).toBeOnTheScreen()
-    expect(screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')).toBeOnTheScreen()
-    expect(screen.getByTestId('login-button')).toBeOnTheScreen()
+    expect(screen.getByTestId("login-heading")).toBeOnTheScreen()
+    expect(screen.getByPlaceholderText("loginScreen:emailFieldPlaceholder")).toBeOnTheScreen()
+    expect(screen.getByPlaceholderText("loginScreen:passwordFieldPlaceholder")).toBeOnTheScreen()
+    expect(screen.getByTestId("login-button")).toBeOnTheScreen()
   })
 
-  it('should update email field when user types', () => {
+  it("should update email field when user types", () => {
     render(
       <ThemeProvider>
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
-    const emailInput = screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')
-    fireEvent.changeText(emailInput, 'test@example.com')
+    const emailInput = screen.getByPlaceholderText("loginScreen:emailFieldPlaceholder")
+    fireEvent.changeText(emailInput, "test@example.com")
 
-    expect(emailInput.props.value).toBe('test@example.com')
+    expect(emailInput.props.value).toBe("test@example.com")
   })
 
-  it('should toggle password visibility when eye icon is pressed', () => {
+  it("should toggle password visibility when eye icon is pressed", () => {
     render(
       <ThemeProvider>
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
-    const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
-    const toggleButton = screen.getByTestId('password-toggle')
+    const passwordInput = screen.getByPlaceholderText("loginScreen:passwordFieldPlaceholder")
+    const toggleButton = screen.getByTestId("password-toggle")
 
     // Initially password should be hidden (secureTextEntry=true)
     expect(passwordInput.props.secureTextEntry).toBe(true)
@@ -98,22 +100,22 @@ describe('LoginScreen', () => {
     expect(passwordInput.props.secureTextEntry).toBe(false)
   })
 
-  it('should call signIn when form is submitted with valid credentials', async () => {
+  it("should call signIn when form is submitted with valid credentials", async () => {
     render(
       <ThemeProvider>
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
-    const emailInput = screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')
-    const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
-    const loginButton = screen.getByTestId('login-button')
+    const emailInput = screen.getByPlaceholderText("loginScreen:emailFieldPlaceholder")
+    const passwordInput = screen.getByPlaceholderText("loginScreen:passwordFieldPlaceholder")
+    const loginButton = screen.getByTestId("login-button")
 
     // Fill in the form
-    fireEvent.changeText(emailInput, 'test@example.com')
-    fireEvent.changeText(passwordInput, 'password123')
+    fireEvent.changeText(emailInput, "test@example.com")
+    fireEvent.changeText(passwordInput, "password123")
 
     // Submit the form
     fireEvent.press(loginButton)
@@ -121,13 +123,13 @@ describe('LoginScreen', () => {
     // Verify signIn was called with correct credentials
     await waitFor(() => {
       expect(mockAuthenticationStore.signIn).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123'
+        email: "test@example.com",
+        password: "password123",
       })
     })
   })
 
-  it('should show loading indicator when authentication is in progress', () => {
+  it("should show loading indicator when authentication is in progress", () => {
     // Set loading state to true
     mockAuthenticationStore.isLoading = true
 
@@ -136,34 +138,34 @@ describe('LoginScreen', () => {
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     // Should show loading indicator
-    expect(screen.getByTestId('loading-indicator')).toBeOnTheScreen()
-    
+    expect(screen.getByTestId("loading-indicator")).toBeOnTheScreen()
+
     // Login button should be disabled during loading
-    const loginButton = screen.getByTestId('login-button')
+    const loginButton = screen.getByTestId("login-button")
     expect(loginButton.props.accessibilityState.disabled).toBe(true)
   })
 
-  it('should display error message when authentication fails', () => {
+  it("should display error message when authentication fails", () => {
     // Set error state
-    mockAuthenticationStore.lastError = 'errors:invalidCredentials'
+    mockAuthenticationStore.lastError = "errors:invalidCredentials"
 
     render(
       <ThemeProvider>
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     // Should show error message
-    expect(screen.getByText('errors:invalidCredentials')).toBeOnTheScreen()
+    expect(screen.getByText("errors:invalidCredentials")).toBeOnTheScreen()
   })
 
-  it('should not display error message when no error exists', () => {
+  it("should not display error message when no error exists", () => {
     // Ensure no error state
     mockAuthenticationStore.lastError = null
 
@@ -172,14 +174,14 @@ describe('LoginScreen', () => {
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     // Should not show any error message
-    expect(screen.queryByText('errors:invalidCredentials')).not.toBeOnTheScreen()
+    expect(screen.queryByText("errors:invalidCredentials")).not.toBeOnTheScreen()
   })
 
-  it('should have enabled button and fields when not loading', () => {
+  it("should have enabled button and fields when not loading", () => {
     // Ensure not loading state
     mockAuthenticationStore.isLoading = false
 
@@ -188,52 +190,52 @@ describe('LoginScreen', () => {
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     // Login button should be enabled
-    const loginButton = screen.getByTestId('login-button')
+    const loginButton = screen.getByTestId("login-button")
     expect(loginButton.props.accessibilityState.disabled).toBe(false)
-    
+
     // Form fields should be editable
-    const emailInput = screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')
-    const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
+    const emailInput = screen.getByPlaceholderText("loginScreen:emailFieldPlaceholder")
+    const passwordInput = screen.getByPlaceholderText("loginScreen:passwordFieldPlaceholder")
     expect(emailInput.props.editable).toBe(true)
     expect(passwordInput.props.editable).toBe(true)
-    
+
     // Should show normal login text
-    expect(screen.getByText('loginScreen:tapToLogIn')).toBeOnTheScreen()
+    expect(screen.getByText("loginScreen:tapToLogIn")).toBeOnTheScreen()
   })
 
-  it('should have proper accessibility attributes', () => {
+  it("should have proper accessibility attributes", () => {
     render(
       <ThemeProvider>
         <NavigationContainer>
           <LoginScreen {...defaultProps} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     // Login button should have button role
-    const loginButton = screen.getByTestId('login-button')
-    expect(loginButton.props.accessibilityRole).toBe('button')
-    
+    const loginButton = screen.getByTestId("login-button")
+    expect(loginButton.props.accessibilityRole).toBe("button")
+
     // Password toggle should be accessible
-    const passwordToggle = screen.getByTestId('password-toggle')
+    const passwordToggle = screen.getByTestId("password-toggle")
     expect(passwordToggle.props.accessible).toBe(true)
-    
+
     // Form fields should be accessible
-    const emailInput = screen.getByPlaceholderText('loginScreen:emailFieldPlaceholder')
-    const passwordInput = screen.getByPlaceholderText('loginScreen:passwordFieldPlaceholder')
+    const emailInput = screen.getByPlaceholderText("loginScreen:emailFieldPlaceholder")
+    const passwordInput = screen.getByPlaceholderText("loginScreen:passwordFieldPlaceholder")
     expect(emailInput.props.accessible).not.toBe(false)
     expect(passwordInput.props.accessible).not.toBe(false)
   })
 
-  it('should navigate to SignUp screen when sign up link is pressed', () => {
+  it("should navigate to SignUp screen when sign up link is pressed", () => {
     const mockNavigate = jest.fn()
     const propsWithMockNav = {
       ...defaultProps,
-      navigation: { navigate: mockNavigate } as any
+      navigation: { navigate: mockNavigate } as any,
     }
 
     render(
@@ -241,15 +243,15 @@ describe('LoginScreen', () => {
         <NavigationContainer>
           <LoginScreen {...propsWithMockNav} />
         </NavigationContainer>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
-    const signUpLink = screen.getByTestId('signup-link')
+    const signUpLink = screen.getByTestId("signup-link")
     expect(signUpLink).toBeOnTheScreen()
-    expect(screen.getByText('loginScreen:dontHaveAccount')).toBeOnTheScreen()
+    expect(screen.getByText("loginScreen:dontHaveAccount")).toBeOnTheScreen()
 
     fireEvent.press(signUpLink)
 
-    expect(mockNavigate).toHaveBeenCalledWith('SignUp')
+    expect(mockNavigate).toHaveBeenCalledWith("SignUp")
   })
 })

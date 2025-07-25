@@ -1,12 +1,13 @@
 import { FC } from "react"
 import { ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import type { UserTabScreenProps } from "@/navigators/UserNavigator"
-import type { BusinessTabScreenProps } from "@/navigators/BusinessNavigator"
+
+import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { Button } from "@/components/Button"
 import { useStores } from "@/models"
+import type { BusinessTabScreenProps } from "@/navigators/BusinessNavigator"
+import type { UserTabScreenProps } from "@/navigators/UserNavigator"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
@@ -23,7 +24,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = observer(() => {
   return (
     <Screen style={$root} preset="scroll">
       <Text text="profile" />
-      
+
       <Button
         testID="logout-button"
         tx="common:logOut"

@@ -8,11 +8,11 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { TextField, type TextFieldAccessoryProps } from "@/components/TextField"
 import { Checkbox } from "@/components/Toggle/Checkbox"
+import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
-import { translate } from "@/i18n/translate"
 
 interface SignUpScreenProps extends AppStackScreenProps<"SignUp"> {}
 
@@ -26,7 +26,7 @@ export const SignUpScreen: FC<SignUpScreenProps> = observer(function SignUpScree
   const [isPasswordHidden, setIsPasswordHidden] = useState(true)
   const [isConfirmPasswordHidden, setIsConfirmPasswordHidden] = useState(true)
   const [isBusinessAccount, setIsBusinessAccount] = useState(false)
-  
+
   const { authenticationStore } = useStores()
 
   const {
@@ -44,7 +44,7 @@ export const SignUpScreen: FC<SignUpScreenProps> = observer(function SignUpScree
       email: email.trim(),
       password,
       confirmPassword,
-      userType: isBusinessAccount ? "business" : "user"
+      userType: isBusinessAccount ? "business" : "user",
     })
 
     if (result.success && result.requiresEmailVerification) {
@@ -94,15 +94,20 @@ export const SignUpScreen: FC<SignUpScreenProps> = observer(function SignUpScree
       contentContainerStyle={themed($screenContentContainer)}
       safeAreaEdges={["top", "bottom"]}
     >
-      <Text testID="signup-heading" tx="signUpScreen:signUp" preset="heading" style={themed($signUp)} />
+      <Text
+        testID="signup-heading"
+        tx="signUpScreen:signUp"
+        preset="heading"
+        style={themed($signUp)}
+      />
       <Text tx="signUpScreen:createAccount" preset="subheading" style={themed($enterDetails)} />
-      
+
       {authenticationStore.lastError && (
-        <Text 
-          text={translate(authenticationStore.lastError as any)} 
-          size="sm" 
-          weight="light" 
-          style={themed($errorText)} 
+        <Text
+          text={translate(authenticationStore.lastError as any)}
+          size="sm"
+          weight="light"
+          style={themed($errorText)}
         />
       )}
 
@@ -162,14 +167,26 @@ export const SignUpScreen: FC<SignUpScreenProps> = observer(function SignUpScree
 
       <Button
         testID="signup-button"
-        tx={authenticationStore.isLoading ? "signUpScreen:signingUp" : "signUpScreen:createAccountButton"}
+        tx={
+          authenticationStore.isLoading
+            ? "signUpScreen:signingUp"
+            : "signUpScreen:createAccountButton"
+        }
         style={themed($tapButton)}
         preset="reversed"
         onPress={handleSignUp}
         disabled={authenticationStore.isLoading}
-        RightAccessory={authenticationStore.isLoading ? 
-          (props) => <ActivityIndicator size="small" color={colors.background} style={themed($loadingIndicator)} testID="loading-indicator" /> : 
-          undefined
+        RightAccessory={
+          authenticationStore.isLoading
+            ? (props) => (
+                <ActivityIndicator
+                  size="small"
+                  color={colors.background}
+                  style={themed($loadingIndicator)}
+                  testID="loading-indicator"
+                />
+              )
+            : undefined
         }
       />
 

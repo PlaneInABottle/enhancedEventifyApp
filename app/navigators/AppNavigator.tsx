@@ -11,15 +11,15 @@ import { observer } from "mobx-react-lite"
 
 import Config from "@/config"
 import { useStores } from "@/models"
+import { EnhancedEventifyWelcomeScreen } from "@/screens/EnhancedEventifyWelcomeScreen"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { LoginScreen } from "@/screens/LoginScreen"
 import { SignUpScreen } from "@/screens/SignUpScreen"
-import { EnhancedEventifyWelcomeScreen } from "@/screens/EnhancedEventifyWelcomeScreen"
 import { useAppTheme } from "@/theme/context"
 
-import { UserNavigator, UserTabParamList } from "./UserNavigator"
 import { BusinessNavigator, BusinessTabParamList } from "./BusinessNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
+import { UserNavigator, UserTabParamList } from "./UserNavigator"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -85,9 +85,7 @@ const AppStack = observer(function AppStack() {
       initialRouteName={isAuthenticated ? (shouldUseBusinessFlow ? "Business" : "User") : "Welcome"}
     >
       {isAuthenticated ? (
-        <>
-          {getMainNavigator()}
-        </>
+        <>{getMainNavigator()}</>
       ) : (
         <>
           <Stack.Screen name="Welcome" component={EnhancedEventifyWelcomeScreen} />

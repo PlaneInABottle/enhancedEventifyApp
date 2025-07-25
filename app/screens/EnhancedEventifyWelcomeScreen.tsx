@@ -15,45 +15,47 @@ const welcomeLogo = require("@assets/images/logo.png")
 
 interface EnhancedEventifyWelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
-export const EnhancedEventifyWelcomeScreen: FC<EnhancedEventifyWelcomeScreenProps> = observer(function EnhancedEventifyWelcomeScreen(_props) {
-  const { themed, theme } = useAppTheme()
+export const EnhancedEventifyWelcomeScreen: FC<EnhancedEventifyWelcomeScreenProps> = observer(
+  function EnhancedEventifyWelcomeScreen(_props) {
+    const { themed, theme } = useAppTheme()
 
-  const { navigation } = _props
+    const { navigation } = _props
 
-  function goNext() {
-    navigation.navigate("Login")
-  }
+    function goNext() {
+      navigation.navigate("Login")
+    }
 
-  // No header for unauthenticated welcome screen
+    // No header for unauthenticated welcome screen
 
-  const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
+    const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
 
-  return (
-    <Screen preset="fixed" safeAreaEdges={["top"]} contentContainerStyle={themed($container)}>
-      <View style={themed($topContainer)}>
-        <Image style={themed($welcomeLogo)} source={welcomeLogo} resizeMode="contain" />
-        <Text
-          testID="welcome-heading"
-          style={themed($welcomeHeading)}
-          tx="welcomeScreen:readyForLaunch"
-          preset="heading"
-        />
-        <Text tx="welcomeScreen:exciting" preset="subheading" />
-      </View>
+    return (
+      <Screen preset="fixed" safeAreaEdges={["top"]} contentContainerStyle={themed($container)}>
+        <View style={themed($topContainer)}>
+          <Image style={themed($welcomeLogo)} source={welcomeLogo} resizeMode="contain" />
+          <Text
+            testID="welcome-heading"
+            style={themed($welcomeHeading)}
+            tx="welcomeScreen:readyForLaunch"
+            preset="heading"
+          />
+          <Text tx="welcomeScreen:exciting" preset="subheading" />
+        </View>
 
-      <View style={themed([$bottomContainer, $bottomContainerInsets])}>
-        <Text tx="welcomeScreen:postscript" size="md" />
-        
-        <Button
-          testID="next-screen-button"
-          preset="reversed"
-          tx="welcomeScreen:letsGo"
-          onPress={goNext}
-        />
-      </View>
-    </Screen>
-  )
-})
+        <View style={themed([$bottomContainer, $bottomContainerInsets])}>
+          <Text tx="welcomeScreen:postscript" size="md" />
+
+          <Button
+            testID="next-screen-button"
+            preset="reversed"
+            tx="welcomeScreen:letsGo"
+            onPress={goNext}
+          />
+        </View>
+      </Screen>
+    )
+  },
+)
 
 const $container: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   flex: 1,
