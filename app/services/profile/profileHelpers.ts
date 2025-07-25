@@ -3,12 +3,12 @@ import type {
   CustomProfileError,
   ProfileErrorType,
   UserProfile,
-  ProfileCompletionStatus
-} from './profileTypes'
+  ProfileCompletionStatus,
+} from "./profileTypes"
 
 /**
  * Profile Helper Functions
- * 
+ *
  * Pure utility functions for validation and error handling
  */
 
@@ -21,21 +21,21 @@ import type {
  */
 export function validateDisplayName(displayName: string): ProfileValidationResult {
   if (!displayName || displayName.trim().length === 0) {
-    return { isValid: false, error: 'errors:displayNameRequired' }
+    return { isValid: false, error: "errors:displayNameRequired" }
   }
 
   if (displayName.length < 2) {
-    return { isValid: false, error: 'errors:displayNameTooShort' }
+    return { isValid: false, error: "errors:displayNameTooShort" }
   }
 
   if (displayName.length > 50) {
-    return { isValid: false, error: 'errors:displayNameTooLong' }
+    return { isValid: false, error: "errors:displayNameTooLong" }
   }
 
   // Allow letters (including Turkish characters), numbers, spaces, and common punctuation
   const validNameRegex = /^[\p{L}0-9\s\-_.]+$/u
   if (!validNameRegex.test(displayName)) {
-    return { isValid: false, error: 'errors:displayNameInvalidCharacters' }
+    return { isValid: false, error: "errors:displayNameInvalidCharacters" }
   }
 
   return { isValid: true }
@@ -46,7 +46,7 @@ export function validateDisplayName(displayName: string): ProfileValidationResul
  */
 export function validateBio(bio: string): ProfileValidationResult {
   if (bio.length > 500) {
-    return { isValid: false, error: 'errors:bioTooLong' }
+    return { isValid: false, error: "errors:bioTooLong" }
   }
 
   return { isValid: true }
@@ -60,7 +60,7 @@ export function validateBio(bio: string): ProfileValidationResult {
  * Formats display name for consistency
  */
 export function formatDisplayName(name: string): string {
-  return name.trim().replace(/\s+/g, ' ')
+  return name.trim().replace(/\s+/g, " ")
 }
 
 /**
@@ -71,16 +71,16 @@ export function getAvatarUrl(profile: UserProfile | null): string {
     return profile.avatar_url
   }
   // Return default avatar URL
-  return '/images/default-avatar.png'
+  return "/images/default-avatar.png"
 }
 
 /**
  * Gets initials from display name
  */
 export function getInitials(displayName: string | null): string {
-  if (!displayName) return '?'
+  if (!displayName) return "?"
 
-  const names = displayName.trim().split(' ')
+  const names = displayName.trim().split(" ")
   if (names.length === 1) {
     return names[0].substring(0, 2).toUpperCase()
   }
@@ -98,55 +98,55 @@ export function getInitials(displayName: string | null): string {
 export function mapProfileError(error: any): CustomProfileError {
   if (error?.status === 404) {
     return {
-      type: 'profile_not_found',
-      message: 'errors:profileNotFound',
-      originalError: error
+      type: "profile_not_found",
+      message: "errors:profileNotFound",
+      originalError: error,
     }
   }
 
-  if (error?.message?.includes('network')) {
+  if (error?.message?.includes("network")) {
     return {
-      type: 'network_error',
-      message: 'errors:networkError',
-      originalError: error
+      type: "network_error",
+      message: "errors:networkError",
+      originalError: error,
     }
   }
 
-  if (error?.message?.includes('storage')) {
+  if (error?.message?.includes("storage")) {
     return {
-      type: 'storage_error',
-      message: 'errors:storageError',
-      originalError: error
+      type: "storage_error",
+      message: "errors:storageError",
+      originalError: error,
     }
   }
 
-  if (error?.message?.includes('upload')) {
+  if (error?.message?.includes("upload")) {
     return {
-      type: 'upload_failed',
-      message: 'errors:uploadFailed',
-      originalError: error
+      type: "upload_failed",
+      message: "errors:uploadFailed",
+      originalError: error,
     }
   }
 
-  if (error?.message?.includes('file') && error?.message?.includes('type')) {
+  if (error?.message?.includes("file") && error?.message?.includes("type")) {
     return {
-      type: 'invalid_file_type',
-      message: 'errors:invalidFileType',
-      originalError: error
+      type: "invalid_file_type",
+      message: "errors:invalidFileType",
+      originalError: error,
     }
   }
 
-  if (error?.message?.includes('file') && error?.message?.includes('size')) {
+  if (error?.message?.includes("file") && error?.message?.includes("size")) {
     return {
-      type: 'file_too_large',
-      message: 'errors:fileTooLarge',
-      originalError: error
+      type: "file_too_large",
+      message: "errors:fileTooLarge",
+      originalError: error,
     }
   }
 
   return {
-    type: 'unknown_error',
-    message: 'errors:unknownError',
-    originalError: error
+    type: "unknown_error",
+    message: "errors:unknownError",
+    originalError: error,
   }
 }
