@@ -235,11 +235,12 @@ const en = {
     noDescription: "No description added",
     logoUploadedSuccessfully: "Logo uploaded successfully",
     logoUploadFailed: "Failed to upload logo",
+    businessNameRequired: "Business name is required",
   },
 
   businessTypes: {
     restaurant: "Restaurant",
-    bar: "Bar", 
+    bar: "Bar",
     cafe: "Cafe",
     eventOrganizer: "Event Organizer",
     other: "Other",

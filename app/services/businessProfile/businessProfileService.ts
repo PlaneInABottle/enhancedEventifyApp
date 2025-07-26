@@ -1,5 +1,10 @@
 import { supabase } from "@/clients/supabase/SupabaseClient"
-import type { BusinessProfile, UpdateBusinessProfileRequest, LogoUploadResult } from "./businessProfileTypes"
+
+import type {
+  BusinessProfile,
+  UpdateBusinessProfileRequest,
+  LogoUploadResult,
+} from "./businessProfileTypes"
 
 /**
  * Business Profile Service
@@ -38,8 +43,8 @@ export async function getBusinessProfile(businessId: string): Promise<BusinessPr
  * Updates a business profile
  */
 export async function updateBusinessProfile(
-  businessId: string, 
-  updates: UpdateBusinessProfileRequest
+  businessId: string,
+  updates: UpdateBusinessProfileRequest,
 ): Promise<BusinessProfileResult> {
   try {
     const { data, error } = await supabase
@@ -63,9 +68,9 @@ export async function updateBusinessProfile(
  * Uploads a logo for business profile
  */
 export async function uploadLogo(
-  businessId: string, 
-  arrayBuffer: ArrayBuffer, 
-  mimeType: string
+  businessId: string,
+  arrayBuffer: ArrayBuffer,
+  mimeType: string,
 ): Promise<LogoUploadResult> {
   try {
     // Validate inputs
@@ -84,20 +89,18 @@ export async function uploadLogo(
 
     // Get current business profile to check for existing logo
     const currentProfile = await getBusinessProfile(businessId)
-    
+
     // Remove old logo if it exists
     if (currentProfile.success && currentProfile.profile?.logo_url) {
-      const oldLogoPath = currentProfile.profile.logo_url.split('/').pop()
+      const oldLogoPath = currentProfile.profile.logo_url.split("/").pop()
       if (oldLogoPath) {
-        await supabase.storage
-          .from("avatars")
-          .remove([`${businessId}/${oldLogoPath}`])
+        await supabase.storage.from("avatars").remove([`${businessId}/${oldLogoPath}`])
       }
     }
 
-    const fileExtension = mimeType.split('/')[1]
+    const fileExtension = mimeType.split("/")[1]
     const fileName = `${businessId}/business-logo-${Date.now()}.${fileExtension}`
-    
+
     const { data, error } = await supabase.storage
       .from("avatars")
       .upload(fileName, arrayBuffer, { contentType: mimeType, upsert: true })
@@ -106,9 +109,9 @@ export async function uploadLogo(
       return { success: false, error: error.message }
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(data.path)
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("avatars").getPublicUrl(data.path)
 
     // Update business profile with new logo URL
     const updateResult = await updateBusinessProfile(businessId, {
@@ -116,7 +119,10 @@ export async function uploadLogo(
     })
 
     if (!updateResult.success) {
-      return { success: false, error: updateResult.error || "Failed to update profile with logo URL" }
+      return {
+        success: false,
+        error: updateResult.error || "Failed to update profile with logo URL",
+      }
     }
 
     return { success: true, logoUrl: publicUrl }

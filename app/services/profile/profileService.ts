@@ -127,11 +127,14 @@ export async function updateUserProfile(
 // AVATAR FUNCTIONALITY
 // ============================================================================
 
-
 /**
  * Uploads a user avatar with proper Supabase Storage options
  */
-export async function uploadAvatar(userId: string, arrayBuffer: ArrayBuffer, mimeType: string): Promise<AvatarUploadResult> {
+export async function uploadAvatar(
+  userId: string,
+  arrayBuffer: ArrayBuffer,
+  mimeType: string,
+): Promise<AvatarUploadResult> {
   try {
     // Validate inputs
     if (!arrayBuffer || arrayBuffer.byteLength === 0) {
@@ -171,23 +174,21 @@ export async function uploadAvatar(userId: string, arrayBuffer: ArrayBuffer, mim
     }
 
     // Extract file extension from mimeType
-    let fileExt = 'jpg' // default
-    if (mimeType === 'image/png') fileExt = 'png'
-    else if (mimeType === 'image/gif') fileExt = 'gif'
-    else if (mimeType === 'image/webp') fileExt = 'webp'
-    else fileExt = 'jpg'
-    
+    let fileExt = "jpg" // default
+    if (mimeType === "image/png") fileExt = "png"
+    else if (mimeType === "image/gif") fileExt = "gif"
+    else if (mimeType === "image/webp") fileExt = "webp"
+    else fileExt = "jpg"
+
     const fileName = `avatar-${Date.now()}.${fileExt}`
     const filePath = `${userId}/${fileName}`
 
     // Upload to Supabase Storage with ArrayBuffer (with timeout)
-    const uploadPromise = supabase.storage
-      .from("avatars")
-      .upload(filePath, arrayBuffer, {
-        upsert: true,
-        contentType: mimeType,
-        cacheControl: "3600",
-      })
+    const uploadPromise = supabase.storage.from("avatars").upload(filePath, arrayBuffer, {
+      upsert: true,
+      contentType: mimeType,
+      cacheControl: "3600",
+    })
 
     const { error: uploadError } = await uploadPromise
 

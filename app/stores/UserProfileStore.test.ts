@@ -172,7 +172,11 @@ describe("UserProfileStore", () => {
       const mockArrayBuffer = new ArrayBuffer(8)
       const result = await store.uploadAvatar("user-123", mockArrayBuffer, "image/jpeg")
 
-      expect(mockProfileService.uploadAvatar).toHaveBeenCalledWith("user-123", expect.any(ArrayBuffer), "image/jpeg")
+      expect(mockProfileService.uploadAvatar).toHaveBeenCalledWith(
+        "user-123",
+        expect.any(ArrayBuffer),
+        "image/jpeg",
+      )
       expect(result.success).toBe(true)
       expect(store.profile?.avatar_url).toBe(mockAvatarUrl)
       expect(store.isUploading).toBe(false)

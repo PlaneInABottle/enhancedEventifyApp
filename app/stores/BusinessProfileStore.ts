@@ -2,8 +2,15 @@ import { types, flow, Instance, SnapshotOut, SnapshotIn } from "mobx-state-tree"
 
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { BusinessProfileModel } from "@/models/ProfileModels"
-import { getBusinessProfile, updateBusinessProfile, uploadLogo } from "@/services/businessProfile/businessProfileService"
-import type { UpdateBusinessProfileRequest, LogoUploadResult } from "@/services/businessProfile/businessProfileTypes"
+import {
+  getBusinessProfile,
+  updateBusinessProfile,
+  uploadLogo,
+} from "@/services/businessProfile/businessProfileService"
+import type {
+  UpdateBusinessProfileRequest,
+  LogoUploadResult,
+} from "@/services/businessProfile/businessProfileTypes"
 
 /**
  * Business Profile Store
@@ -60,9 +67,9 @@ export const BusinessProfileStore = types
       try {
         self.setProp("isLoading", true)
         self.setProp("lastError", null)
-        
+
         const result = yield getBusinessProfile(businessId)
-        
+
         if (result.success && result.profile) {
           self.setProp("profile", result.profile)
         } else {
@@ -79,9 +86,9 @@ export const BusinessProfileStore = types
       try {
         self.setProp("isUpdating", true)
         self.setProp("lastError", null)
-        
+
         const result = yield updateBusinessProfile(businessId, updates)
-        
+
         if (result.success && result.profile) {
           self.setProp("profile", result.profile)
         } else {
@@ -98,15 +105,15 @@ export const BusinessProfileStore = types
       try {
         self.setProp("isUploading", true)
         self.setProp("lastError", null)
-        
+
         const result = yield uploadLogo(businessId, arrayBuffer, mimeType)
-        
+
         if (result.success && result.logoUrl && self.profile) {
           self.setProp("profile", { ...self.profile, logo_url: result.logoUrl })
         } else {
           self.setProp("lastError", result.error || "errors:businessProfile.uploadFailed")
         }
-        
+
         return result
       } catch (error) {
         self.setProp("lastError", "errors:businessProfile.uploadUnexpected")

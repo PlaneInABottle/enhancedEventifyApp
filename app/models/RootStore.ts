@@ -1,8 +1,8 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
 import { AuthStore } from "@/stores/AuthStore"
-import { UserProfileStore } from "@/stores/UserProfileStore"
 import { BusinessProfileStore } from "@/stores/BusinessProfileStore"
+import { UserProfileStore } from "@/stores/UserProfileStore"
 
 import { EpisodeStoreModel } from "./EpisodeStore" // @demo remove-current-line
 

@@ -1,17 +1,20 @@
-import { FC, useState, useEffect } from "react"
+import { FC, useState, useEffect, useCallback } from "react"
 import { ViewStyle, View, TextStyle } from "react-native"
 import * as ImagePicker from "expo-image-picker"
 import { observer } from "mobx-react-lite"
 
-import { ProfileAvatarSection, ProfileInfoCard, ProfileField } from "@/components/profile"
 import { BusinessTypeMultiSelect } from "@/components/BusinessTypeMultiSelect"
-import { BusinessType, UpdateBusinessProfileRequest } from "@/services/businessProfile/businessProfileTypes"
 import { Button } from "@/components/Button"
+import { ProfileAvatarSection, ProfileInfoCard, ProfileField } from "@/components/profile"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
+import {
+  BusinessType,
+  UpdateBusinessProfileRequest,
+} from "@/services/businessProfile/businessProfileTypes"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { Alert } from "@/utils/alert"
@@ -24,7 +27,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
   const { authenticationStore, businessProfileStore } = useStores()
   const { themed } = useAppTheme()
   const [isEditing, setIsEditing] = useState(false)
-  
+
   // Form state for editing
   const [editForm, setEditForm] = useState({
     business_name: "",
@@ -59,10 +62,10 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
     resetFormToProfile()
   }, [businessProfileStore.profile])
 
-  // Generic form field handler
-  const updateFormField = (field: keyof typeof editForm, value: any) => {
-    setEditForm(prev => ({ ...prev, [field]: value }))
-  }
+  // Generic form field handler - memoized for performance
+  const updateFormField = useCallback((field: keyof typeof editForm, value: any) => {
+    setEditForm((prev) => ({ ...prev, [field]: value }))
+  }, [])
 
   // Edit toggle handler
   const handleEditToggle = () => {
@@ -108,27 +111,26 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
 
         // Upload logo using the store
         const uploadResult = await businessProfileStore.uploadLogo(
-          authenticationStore.userId, 
+          authenticationStore.userId,
           arrayBuffer,
-          asset.mimeType || 'image/jpeg'
+          asset.mimeType || "image/jpeg",
         )
 
         if (uploadResult.success) {
-          Alert.simple(
-            translate("profile:success"),
-            translate("profile:logoUploadedSuccessfully"),
-          )
+          Alert.simple(translate("profile:success"), translate("profile:logoUploadedSuccessfully"))
         } else {
           Alert.simple(
-            translate("profile:error"), 
-            uploadResult.error ? translate(uploadResult.error as any) : translate("profile:logoUploadFailed")
+            translate("profile:error"),
+            uploadResult.error
+              ? translate(uploadResult.error as any)
+              : translate("profile:logoUploadFailed"),
           )
         }
       }
     } catch (error) {
-      console.error("Logo upload error:", error)
       // Show more specific error message if available
-      const errorMessage = error instanceof Error ? error.message : translate("profile:logoUploadFailed")
+      const errorMessage =
+        error instanceof Error ? error.message : translate("profile:logoUploadFailed")
       Alert.simple(translate("profile:error"), errorMessage)
     }
   }
@@ -140,13 +142,24 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
       return
     }
 
+    // Basic validation
+    if (!editForm.business_name.trim()) {
+      Alert.simple(translate("profile:error"), translate("profile:businessNameRequired"))
+      return
+    }
+
     const updates: UpdateBusinessProfileRequest = {}
 
     // Only include changed fields - use computed properties for consistency
     if (editForm.business_name !== (businessProfileStore.businessName || "")) {
       updates.business_name = editForm.business_name
     }
-    if (JSON.stringify(editForm.business_types) !== JSON.stringify(businessProfileStore.businessTypes)) {
+    // Compare arrays properly instead of using JSON.stringify
+    const currentTypes = [...businessProfileStore.businessTypes] // Create mutable copy
+    const hasTypesChanged = editForm.business_types.length !== currentTypes.length || 
+      editForm.business_types.some((type: BusinessType) => !currentTypes.includes(type))
+    
+    if (hasTypesChanged) {
       updates.business_types = editForm.business_types
     }
     if (editForm.description !== (businessProfileStore.description || "")) {
@@ -170,10 +183,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
         setIsEditing(false)
         Alert.simple(translate("profile:success"), translate("profile:profileUpdatedSuccessfully"))
       } else {
-        Alert.simple(
-          translate("profile:error"),
-          translate(businessProfileStore.lastError as any),
-        )
+        Alert.simple(translate("profile:error"), translate(businessProfileStore.lastError as any))
       }
     } catch {
       Alert.simple(translate("profile:error"), translate("profile:unexpectedError"))
@@ -201,10 +211,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
       {/* Error State */}
       {businessProfileStore.lastError && (
         <View style={themed($errorContainer)}>
-          <Text
-            text={businessProfileStore.lastError}
-            style={themed($errorText)}
-          />
+          <Text text={businessProfileStore.lastError} style={themed($errorText)} />
         </View>
       )}
 
@@ -239,7 +246,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
                   containerStyle={themed($editField)}
                   editable={!businessProfileStore.isUpdating}
                 />
-                
+
                 <BusinessTypeMultiSelect
                   labelTx="profile:businessTypes"
                   value={editForm.business_types}
@@ -279,7 +286,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
                   containerStyle={themed($editField)}
                   editable={!businessProfileStore.isUpdating}
                 />
-                
+
                 <TextField
                   labelTx="profile:websiteUrl"
                   value={editForm.website_url}

@@ -1,17 +1,10 @@
 import React, { FC, useState, useMemo, useCallback } from "react"
-import {
-  View,
-  ViewStyle,
-  TextStyle,
-  Modal,
-  ScrollView,
-  Pressable,
-} from "react-native"
+import { View, ViewStyle, TextStyle, Modal, ScrollView, Pressable } from "react-native"
 
+import { translate } from "@/i18n/translate"
+import { BusinessType } from "@/services/businessProfile/businessProfileTypes"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
-import { BusinessType } from "@/services/businessProfile/businessProfileTypes"
-import { translate } from "@/i18n/translate"
 
 import { Icon } from "./Icon"
 import { Text } from "./Text"
@@ -63,7 +56,7 @@ const businessTypeOptions: BusinessTypeOption[] = [
     value: "restaurant",
   },
   {
-    labelTx: "businessTypes:bar", 
+    labelTx: "businessTypes:bar",
     value: "bar",
   },
   {
@@ -93,15 +86,18 @@ export const BusinessTypeMultiSelect: FC<BusinessTypeMultiSelectProps> = ({
   const { themed, theme } = useAppTheme()
   const [isModalVisible, setIsModalVisible] = useState(false)
 
-  const handleToggleOption = useCallback((optionValue: BusinessType) => {
-    if (disabled) return
+  const handleToggleOption = useCallback(
+    (optionValue: BusinessType) => {
+      if (disabled) return
 
-    const newValues = value.includes(optionValue)
-      ? value.filter(v => v !== optionValue)
-      : [...value, optionValue]
+      const newValues = value.includes(optionValue)
+        ? value.filter((v) => v !== optionValue)
+        : [...value, optionValue]
 
-    onValueChange?.(newValues)
-  }, [disabled, value, onValueChange])
+      onValueChange?.(newValues)
+    },
+    [disabled, value, onValueChange],
+  )
 
   const handleOpenModal = useCallback(() => {
     if (!disabled) {
@@ -115,10 +111,12 @@ export const BusinessTypeMultiSelect: FC<BusinessTypeMultiSelectProps> = ({
 
   const displayText = useMemo(() => {
     return value.length > 0
-      ? value.map(v => {
-          const option = businessTypeOptions.find(opt => opt.value === v)
-          return option ? translate(option.labelTx as any) : v
-        }).join(", ")
+      ? value
+          .map((v) => {
+            const option = businessTypeOptions.find((opt) => opt.value === v)
+            return option ? translate(option.labelTx as any) : v
+          })
+          .join(", ")
       : placeholder || translate((placeholderTx || "common:chooseOption") as any)
   }, [value, placeholder, placeholderTx])
 
@@ -130,22 +128,19 @@ export const BusinessTypeMultiSelect: FC<BusinessTypeMultiSelectProps> = ({
     <View style={[themed($container), containerStyle]}>
       {/* Label */}
       {displayLabel && (
-        <Text 
+        <Text
           text={label}
           tx={labelTx as any}
-          style={themed($label)} 
-          size="sm" 
-          weight="semiBold" 
+          style={themed($label)}
+          size="sm"
+          weight="semiBold"
           testID="business-type-label"
         />
       )}
 
       {/* Selection Display */}
       <Pressable
-        style={[
-          themed($selectionContainer),
-          disabled && themed($disabledContainer),
-        ]}
+        style={[themed($selectionContainer), disabled && themed($disabledContainer)]}
         onPress={handleOpenModal}
         disabled={disabled}
         testID="business-type-selector"
@@ -156,10 +151,7 @@ export const BusinessTypeMultiSelect: FC<BusinessTypeMultiSelectProps> = ({
       >
         <Text
           text={displayText}
-          style={[
-            themed($selectionText),
-            value.length === 0 && themed($placeholderText),
-          ]}
+          style={[themed($selectionText), value.length === 0 && themed($placeholderText)]}
           numberOfLines={2}
           testID="business-type-selection"
         />
@@ -186,47 +178,36 @@ export const BusinessTypeMultiSelect: FC<BusinessTypeMultiSelectProps> = ({
           <View style={themed($modalContainer)}>
             <View style={themed($modalContent)}>
               <View style={themed($modalHeader)}>
-                  <Text
-                    text={displayLabel}
-                    style={themed($modalTitle)}
-                    weight="bold"
-                  />
-                  <Pressable 
-                    onPress={handleCloseModal}
-                    accessibilityRole="button"
-                    accessibilityLabel="Close modal"
-                    testID="close-modal-button"
-                  >
-                    <Icon icon="x" size={24} color={theme.colors.text} />
-                  </Pressable>
-                </View>
-
-                <ScrollView style={themed($optionsList)}>
-                  {businessTypeOptions.map((option) => (
-                    <Pressable
-                      key={option.value}
-                      style={themed($optionItem)}
-                      onPress={() => handleToggleOption(option.value)}
-                    >
-                      <View style={themed($optionContent)}>
-                        <Text
-                          tx={option.labelTx as any}
-                          style={themed($optionText)}
-                        />
-                        {value.includes(option.value) && (
-                          <Icon
-                            icon="check"
-                            size={20}
-                            color={theme.colors.tint}
-                          />
-                        )}
-                      </View>
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                <Text text={displayLabel} style={themed($modalTitle)} weight="bold" />
+                <Pressable
+                  onPress={handleCloseModal}
+                  accessibilityRole="button"
+                  accessibilityLabel="Close modal"
+                  testID="close-modal-button"
+                >
+                  <Icon icon="x" size={24} color={theme.colors.text} />
+                </Pressable>
               </View>
+
+              <ScrollView style={themed($optionsList)}>
+                {businessTypeOptions.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    style={themed($optionItem)}
+                    onPress={() => handleToggleOption(option.value)}
+                  >
+                    <View style={themed($optionContent)}>
+                      <Text tx={option.labelTx as any} style={themed($optionText)} />
+                      {value.includes(option.value) && (
+                        <Icon icon="check" size={20} color={theme.colors.tint} />
+                      )}
+                    </View>
+                  </Pressable>
+                ))}
+              </ScrollView>
             </View>
-          </Pressable>
+          </View>
+        </Pressable>
       </Modal>
     </View>
   )

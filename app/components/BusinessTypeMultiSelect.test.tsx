@@ -1,6 +1,6 @@
 import React from "react"
-import { render, screen, fireEvent } from "@testing-library/react-native"
 import { NavigationContainer } from "@react-navigation/native"
+import { render, screen, fireEvent } from "@testing-library/react-native"
 
 import { ThemeProvider } from "@/theme/context"
 

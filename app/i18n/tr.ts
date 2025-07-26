@@ -236,12 +236,13 @@ const tr = {
     noDescription: "Açıklama eklenmemiş",
     logoUploadedSuccessfully: "Logo başarıyla yüklendi",
     logoUploadFailed: "Logo yüklenemedi",
+    businessNameRequired: "İşletme adı gereklidir",
   },
 
   businessTypes: {
     restaurant: "Restoran",
     bar: "Bar",
-    cafe: "Kafe", 
+    cafe: "Kafe",
     eventOrganizer: "Etkinlik Organizatörü",
     other: "Diğer",
   },
