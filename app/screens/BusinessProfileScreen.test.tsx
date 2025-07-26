@@ -47,7 +47,7 @@ describe("BusinessProfileScreen", () => {
     } as any)
   })
 
-  it("renders the screen without crashing", () => {
+  it("renders the screen with business logo section", () => {
     render(
       <ThemeProvider>
         <NavigationContainer>
@@ -56,6 +56,6 @@ describe("BusinessProfileScreen", () => {
       </ThemeProvider>,
     )
 
-    expect(screen.getByText("businessProfile:title")).toBeOnTheScreen()
+    expect(screen.getByTestId("avatar-button")).toBeOnTheScreen()
   })
 })

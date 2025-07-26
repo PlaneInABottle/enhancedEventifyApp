@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "@/components/Icon"
 import { translate } from "@/i18n/translate"
 import { MapScreen } from "@/screens/MapScreen"
-import { ProfileScreen } from "@/screens/ProfileScreen"
+import { BusinessProfileScreen } from "@/screens/BusinessProfileScreen"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
@@ -79,7 +79,7 @@ export function BusinessNavigator() {
 
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={BusinessProfileScreen}
         options={{
           tabBarLabel: translate("common:profile"),
           tabBarIcon: ({ focused }) => (
