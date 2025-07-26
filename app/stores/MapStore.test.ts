@@ -115,9 +115,9 @@ describe("MapStore", () => {
   })
 
   describe("actions", () => {
-    it("should clear events", () => {
-      // First add some mock events
-      store.setEvents([
+    it("should clear events", async () => {
+      // Use loadEventsInBounds to add events properly through MST
+      const mockEvents = [
         {
           instance_id: "123",
           event_id: "456",
@@ -137,7 +137,20 @@ describe("MapStore", () => {
           full_address: "Test Address",
           city: "Istanbul",
         },
-      ])
+      ]
+
+      mockGetEventsInBounds.mockResolvedValue({
+        success: true,
+        events: mockEvents,
+      })
+
+      // Load events first
+      await store.loadEventsInBounds({
+        north: 41.1,
+        south: 40.9,
+        east: 29.1,
+        west: 28.9,
+      })
 
       expect(store.events.length).toBe(1)
 
