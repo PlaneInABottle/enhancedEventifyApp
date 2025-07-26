@@ -128,14 +128,16 @@ export const BusinessTypeMultiSelect: FC<BusinessTypeMultiSelectProps> = ({
     <View style={[themed($container), containerStyle]}>
       {/* Label */}
       {displayLabel && (
-        <Text
-          text={label}
-          tx={labelTx as any}
-          style={themed($label)}
-          size="sm"
-          weight="semiBold"
-          testID="business-type-label"
-        />
+        <Pressable onPress={handleOpenModal} disabled={disabled}>
+          <Text
+            text={label}
+            tx={labelTx as any}
+            style={themed($label)}
+            size="sm"
+            weight="semiBold"
+            testID="business-type-label"
+          />
+        </Pressable>
       )}
 
       {/* Selection Display */}
