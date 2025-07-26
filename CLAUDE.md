@@ -46,6 +46,10 @@ npx tsc --noEmit       # TypeScript check
 npm run lint           # ESLint check
 npm test               # Run all tests
 npm run test:watch     # Watch mode for TDD
+
+# Database Testing (pgTAP with CRITICAL rollback requirement)
+# ALWAYS run with rollback - tests modify database state
+mcp__supabase__execute_sql    # Execute test files with automatic rollback
 ```
 
 ## Project Patterns
