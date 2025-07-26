@@ -159,7 +159,7 @@ export const UserProfileScreen: FC<UserProfileScreenProps> = observer(() => {
         } else {
           Alert.simple(
             translate("profile:error"), 
-            uploadResult.error ? translate(uploadResult.error) : translate("profile:avatarUploadFailed")
+            uploadResult.error ? translate(uploadResult.error as any) : translate("profile:avatarUploadFailed")
           )
         }
       }
