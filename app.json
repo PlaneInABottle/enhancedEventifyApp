@@ -53,7 +53,8 @@
           "enforceNavigationBarContrast": false
         }
       }
-    ]
+    ],
+    "@rnmapbox/maps"
   ],
   "experiments": {
     "tsconfigPaths": true
