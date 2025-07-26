@@ -35,3 +35,13 @@ export interface UpdateBusinessProfileRequest {
   website_url?: string
   logo_url?: string
 }
+
+// ============================================================================
+// LOGO UPLOAD TYPES
+// ============================================================================
+
+export interface LogoUploadResult {
+  success: boolean
+  logoUrl?: string
+  error?: string
+}
