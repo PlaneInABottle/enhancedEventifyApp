@@ -257,7 +257,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
                 tx="profile:saveChanges"
                 onPress={handleSaveProfile}
                 style={themed($actionButton)}
-                preset="filled"
+                preset="reversed"
                 disabled={businessProfileStore.isUpdating}
               />
             )}
