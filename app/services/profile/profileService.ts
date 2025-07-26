@@ -189,12 +189,7 @@ export async function uploadAvatar(userId: string, arrayBuffer: ArrayBuffer, mim
         cacheControl: "3600",
       })
 
-    // Add 30 second timeout to prevent stuck uploads
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error("Upload timeout after 30 seconds")), 30000)
-    })
-
-    const { error: uploadError } = await Promise.race([uploadPromise, timeoutPromise])
+    const { error: uploadError } = await uploadPromise
 
     if (uploadError) {
       console.error("Storage upload error:", uploadError)
