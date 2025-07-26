@@ -227,7 +227,7 @@ const $selectionContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   backgroundColor: colors.palette.neutral200,
-  borderRadius: spacing.sm,
+  borderRadius: 4,
   paddingHorizontal: spacing.md,
   paddingVertical: spacing.sm,
   minHeight: 48,
