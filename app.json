@@ -54,7 +54,12 @@
         }
       }
     ],
-    "@rnmapbox/maps"
+    [
+      "@rnmapbox/maps",
+      {
+        "RNMapboxMapsImpl": "mapbox"
+      }
+    ]
   ],
   "experiments": {
     "tsconfigPaths": true

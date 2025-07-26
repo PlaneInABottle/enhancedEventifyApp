@@ -1,24 +1,28 @@
 import { FC } from "react"
-import { ViewStyle } from "react-native"
+import { ViewStyle, View, Text } from "react-native"
+import { MapView } from "@rnmapbox/maps"
 
 import { Screen } from "@/components/Screen"
-import { Text } from "@/components/Text"
-import type { BusinessTabScreenProps } from "@/navigators/BusinessNavigator"
 import type { UserTabScreenProps } from "@/navigators/UserNavigator"
-// import { useNavigation } from "@react-navigation/native"
 
-interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> {}
+interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> { }
 
 export const MapScreen: FC<MapScreenProps> = () => {
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
+
   return (
-    <Screen style={$root} preset="scroll">
-      <Text text="map" />
+    <Screen preset="fixed" contentContainerStyle={$screenContent}>
+      <MapView
+        style={$map}
+        styleURL="mapbox://styles/mapbox/streets-v12"
+      />
     </Screen>
   )
 }
 
-const $root: ViewStyle = {
+const $screenContent: ViewStyle = {
+  flex: 1,
+}
+
+const $map: ViewStyle = {
   flex: 1,
 }
