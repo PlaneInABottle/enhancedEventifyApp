@@ -112,6 +112,11 @@ export const BusinessProfileStore = types
         self.setProp("isUploading", false)
       }
     }),
+
+    // Clear error state
+    clearError() {
+      self.setProp("lastError", null)
+    },
   }))
 
 export interface BusinessProfileStore extends Instance<typeof BusinessProfileStore> {}
