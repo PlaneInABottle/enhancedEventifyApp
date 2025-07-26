@@ -235,6 +235,14 @@ const en = {
     noDescription: "No description added",
   },
 
+  businessTypes: {
+    restaurant: "Restaurant",
+    bar: "Bar", 
+    cafe: "Cafe",
+    eventOrganizer: "Event Organizer",
+    other: "Other",
+  },
+
   ...demoEn,
 }
 

@@ -236,6 +236,14 @@ const tr = {
     noDescription: "Açıklama eklenmemiş",
   },
 
+  businessTypes: {
+    restaurant: "Restoran",
+    bar: "Bar",
+    cafe: "Kafe", 
+    eventOrganizer: "Etkinlik Organizatörü",
+    other: "Diğer",
+  },
+
   ...demoTr,
 }
 
