@@ -218,13 +218,8 @@ const $container: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginBottom: spacing.md,
 })
 
-const $label: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
-  color: colors.palette.primary600,
+const $label: ThemedStyle<TextStyle> = ({ spacing }) => ({
   marginBottom: spacing.xs,
-  textTransform: "uppercase",
-  letterSpacing: 0.8,
-  fontSize: 12,
-  fontWeight: "600",
 })
 
 const $selectionContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
