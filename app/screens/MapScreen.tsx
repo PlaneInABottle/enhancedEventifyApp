@@ -36,7 +36,7 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
     <Screen preset="fixed" contentContainerStyle={$screenContent}>
       <View style={$searchContainer}>
         <Button
-          text="Search This Area"
+          tx="map:searchThisArea"
           onPress={handleSearchArea}
           disabled={mapStore.isLoading}
           style={$searchButton}

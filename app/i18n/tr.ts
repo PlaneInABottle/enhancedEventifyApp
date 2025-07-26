@@ -179,6 +179,13 @@ const tr = {
   userNavigator: {
     moderate: "Modere Et",
   },
+  map: {
+    searchThisArea: "Bu Alanı Ara",
+    searching: "Aranıyor...",
+    noEventsFound: "Bu alanda etkinlik bulunamadı",
+    errorLoadingEvents: "Etkinlikler yüklenirken hata",
+    searchFailedMessage: "Bu alanda etkinlik arama başarısız. Lütfen tekrar deneyin.",
+  },
   profile: {
     userProfile: "Kullanıcı Profili",
     profileInformation: "Profil Bilgileri",

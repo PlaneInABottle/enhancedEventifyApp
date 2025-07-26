@@ -179,6 +179,13 @@ const en = {
   userNavigator: {
     moderate: "Moderate",
   },
+  map: {
+    searchThisArea: "Search This Area",
+    searching: "Searching...",
+    noEventsFound: "No events found in this area",
+    errorLoadingEvents: "Error loading events",
+    searchFailedMessage: "Failed to search events in this area. Please try again.",
+  },
   profile: {
     userProfile: "User Profile",
     profileInformation: "Profile Information",
