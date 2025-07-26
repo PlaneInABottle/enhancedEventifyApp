@@ -9,9 +9,11 @@ import { Button } from "@/components/Button"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
+import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+import { Alert } from "@/utils/alert"
 
 interface BusinessProfileScreenProps {
   // TODO: Add proper navigation props when integrated
@@ -101,9 +103,19 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
       return
     }
 
-    await businessProfileStore.updateProfile(businessProfileStore.profile.id, updates)
-    if (!businessProfileStore.lastError) {
-      setIsEditing(false)
+    try {
+      await businessProfileStore.updateProfile(businessProfileStore.profile.id, updates)
+      if (!businessProfileStore.lastError) {
+        setIsEditing(false)
+        Alert.simple(translate("profile:success"), translate("profile:profileUpdatedSuccessfully"))
+      } else {
+        Alert.simple(
+          translate("profile:error"),
+          translate(businessProfileStore.lastError as any),
+        )
+      }
+    } catch {
+      Alert.simple(translate("profile:error"), translate("profile:unexpectedError"))
     }
   }
 
