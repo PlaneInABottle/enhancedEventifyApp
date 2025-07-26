@@ -233,6 +233,8 @@ const en = {
     websiteUrl: "Website URL",
     description: "Description",
     noDescription: "No description added",
+    logoUploadedSuccessfully: "Logo uploaded successfully",
+    logoUploadFailed: "Failed to upload logo",
   },
 
   businessTypes: {

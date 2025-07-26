@@ -82,10 +82,24 @@ export async function uploadLogo(
       return { success: false, error: "File too large" }
     }
 
-    const fileName = `business-logos/${businessId}-${Date.now()}.${mimeType.split('/')[1]}`
+    // Get current business profile to check for existing logo
+    const currentProfile = await getBusinessProfile(businessId)
+    
+    // Remove old logo if it exists
+    if (currentProfile.success && currentProfile.profile?.logo_url) {
+      const oldLogoPath = currentProfile.profile.logo_url.split('/').pop()
+      if (oldLogoPath) {
+        await supabase.storage
+          .from("avatars")
+          .remove([`${businessId}/${oldLogoPath}`])
+      }
+    }
+
+    const fileExtension = mimeType.split('/')[1]
+    const fileName = `${businessId}/business-logo-${Date.now()}.${fileExtension}`
     
     const { data, error } = await supabase.storage
-      .from("business-assets")
+      .from("avatars")
       .upload(fileName, arrayBuffer, { contentType: mimeType, upsert: true })
 
     if (error) {
@@ -93,8 +107,17 @@ export async function uploadLogo(
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from("business-assets")
+      .from("avatars")
       .getPublicUrl(data.path)
+
+    // Update business profile with new logo URL
+    const updateResult = await updateBusinessProfile(businessId, {
+      logo_url: publicUrl,
+    })
+
+    if (!updateResult.success) {
+      return { success: false, error: updateResult.error || "Failed to update profile with logo URL" }
+    }
 
     return { success: true, logoUrl: publicUrl }
   } catch (error) {

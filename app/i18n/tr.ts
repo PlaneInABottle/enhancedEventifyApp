@@ -234,6 +234,8 @@ const tr = {
     websiteUrl: "Web Sitesi",
     description: "Açıklama",
     noDescription: "Açıklama eklenmemiş",
+    logoUploadedSuccessfully: "Logo başarıyla yüklendi",
+    logoUploadFailed: "Logo yüklenemedi",
   },
 
   businessTypes: {

@@ -1,5 +1,6 @@
 import { FC, useState, useEffect } from "react"
 import { ViewStyle, View, TextStyle } from "react-native"
+import * as ImagePicker from "expo-image-picker"
 import { observer } from "mobx-react-lite"
 
 import { ProfileAvatarSection, ProfileInfoCard, ProfileField } from "@/components/profile"
@@ -72,6 +73,66 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
     setIsEditing(!isEditing)
   }
 
+  // Logo upload handler
+  const handleLogoUpload = async () => {
+    if (!authenticationStore.userId || businessProfileStore.isUploading) return
+
+    try {
+      // Clear any previous errors
+      businessProfileStore.clearError()
+      // Request permission to access media library
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+      if (status !== "granted") {
+        Alert.simple(
+          translate("profile:permissionRequired"),
+          translate("profile:photoLibraryPermissionMessage"),
+        )
+        return
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      })
+
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0]
+
+        // Use ArrayBuffer for both platforms (simpler approach)
+        const response = await fetch(asset.uri)
+        const arrayBuffer = await response.arrayBuffer()
+
+        // Upload logo using the store
+        const uploadResult = await businessProfileStore.uploadLogo(
+          authenticationStore.userId, 
+          arrayBuffer,
+          asset.mimeType || 'image/jpeg'
+        )
+
+        if (uploadResult.success) {
+          Alert.simple(
+            translate("profile:success"),
+            translate("profile:logoUploadedSuccessfully"),
+          )
+        } else {
+          Alert.simple(
+            translate("profile:error"), 
+            uploadResult.error ? translate(uploadResult.error as any) : translate("profile:logoUploadFailed")
+          )
+        }
+      }
+    } catch (error) {
+      console.error("Logo upload error:", error)
+      // Show more specific error message if available
+      const errorMessage = error instanceof Error ? error.message : translate("profile:logoUploadFailed")
+      Alert.simple(translate("profile:error"), errorMessage)
+    }
+  }
+
   // Save profile handler
   const handleSaveProfile = async () => {
     if (!businessProfileStore.profile?.id) {
@@ -126,7 +187,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
         displayName={businessProfileStore.businessName}
         avatarUrl={businessProfileStore.logoUrl}
         isEditing={isEditing}
-        onAvatarPress={() => {}} // TODO: Implement logo upload
+        onAvatarPress={handleLogoUpload}
         isUploading={businessProfileStore.isUploading}
       />
 

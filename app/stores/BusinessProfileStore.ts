@@ -106,8 +106,11 @@ export const BusinessProfileStore = types
         } else {
           self.setProp("lastError", result.error || "errors:businessProfile.uploadFailed")
         }
+        
+        return result
       } catch (error) {
         self.setProp("lastError", "errors:businessProfile.uploadUnexpected")
+        return { success: false, error: "errors:businessProfile.uploadUnexpected" }
       } finally {
         self.setProp("isUploading", false)
       }

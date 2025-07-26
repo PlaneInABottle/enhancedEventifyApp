@@ -152,17 +152,46 @@ describe('uploadLogo', () => {
     const mimeType = 'image/png'
     const businessId = 'test-business-id'
 
+    // Mock getBusinessProfile (no existing logo)
+    const mockSelect = jest.fn().mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: { id: businessId, logo_url: null },
+          error: null
+        })
+      })
+    })
+    
+    // Mock updateBusinessProfile
+    const mockUpdate = jest.fn().mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: { id: businessId, logo_url: 'https://example.com/logo.png' },
+            error: null
+          })
+        })
+      })
+    })
+    
     const mockUpload = jest.fn().mockResolvedValue({
-      data: { path: 'business-logos/test-business-id-123456.png' },
+      data: { path: 'test-business-id/business-logo-123456.png' },
       error: null
     })
     const mockGetPublicUrl = jest.fn().mockReturnValue({
       data: { publicUrl: 'https://example.com/logo.png' }
     })
+    const mockRemove = jest.fn().mockResolvedValue({ data: null, error: null })
     
     const mockStorageFrom = jest.fn().mockReturnValue({
       upload: mockUpload,
-      getPublicUrl: mockGetPublicUrl
+      getPublicUrl: mockGetPublicUrl,
+      remove: mockRemove
+    })
+    
+    ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+      select: mockSelect,
+      update: mockUpdate
     })
     ;(mockSupabase.storage as any).from = mockStorageFrom
 
@@ -170,7 +199,7 @@ describe('uploadLogo', () => {
 
     expect(result.success).toBe(true)
     expect(result.logoUrl).toBe('https://example.com/logo.png')
-    expect(mockStorageFrom).toHaveBeenCalledWith('business-assets')
+    expect(mockStorageFrom).toHaveBeenCalledWith('avatars')
   })
 
   it('should reject invalid file', async () => {
