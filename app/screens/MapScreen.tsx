@@ -1,5 +1,5 @@
 import { FC } from "react"
-import { ViewStyle, View, Text } from "react-native"
+import { ViewStyle } from "react-native"
 import { MapView } from "@rnmapbox/maps"
 
 import { Screen } from "@/components/Screen"
