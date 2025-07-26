@@ -2,6 +2,7 @@ import React from "react"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react-native"
 import { NavigationContainer } from "@react-navigation/native"
 import * as ImagePicker from "expo-image-picker"
+import { PermissionStatus } from "expo-modules-core"
 
 import { useStores } from "@/models"
 import { ThemeProvider } from "@/theme/context"
@@ -54,13 +55,18 @@ jest.mock("@/utils/alert", () => ({
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 
 describe("UserProfileScreen", () => {
+  const mockRequestPermissions = ImagePicker.requestMediaLibraryPermissionsAsync as jest.MockedFunction<typeof ImagePicker.requestMediaLibraryPermissionsAsync>
+  const mockLaunchLibrary = ImagePicker.launchImageLibraryAsync as jest.MockedFunction<typeof ImagePicker.launchImageLibraryAsync>
+  
   const defaultProps = {
     navigation: { navigate: jest.fn() } as any,
-    route: { key: "UserProfile", name: "UserProfile" as const },
+    route: { key: "Profile", name: "Profile" as const },
   }
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockRequestPermissions.mockClear()
+    mockLaunchLibrary.mockClear()
     mockUseStores.mockReturnValue({
       authenticationStore: mockAuthenticationStore,
       userProfileStore: mockUserProfileStore,
@@ -98,7 +104,7 @@ describe("UserProfileScreen", () => {
     fireEvent.press(avatarButton)
 
     // Should exit early - no ImagePicker calls should be made
-    expect(ImagePicker.requestMediaLibraryPermissionsAsync).not.toHaveBeenCalled()
+    expect(mockRequestPermissions).not.toHaveBeenCalled()
   })
 
   it("should not attempt upload when already uploading", async () => {
@@ -125,13 +131,16 @@ describe("UserProfileScreen", () => {
     fireEvent.press(avatarButton)
 
     // Should exit early - no ImagePicker calls should be made
-    expect(ImagePicker.requestMediaLibraryPermissionsAsync).not.toHaveBeenCalled()
+    expect(mockRequestPermissions).not.toHaveBeenCalled()
   })
 
   it("should show permission alert and stop when permission denied", async () => {
     // Mock permission denied
-    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-      status: "denied",
+    mockRequestPermissions.mockResolvedValue({
+      status: PermissionStatus.DENIED,
+      granted: false,
+      canAskAgain: true,
+      expires: "never",
     })
     
     render(
@@ -150,19 +159,23 @@ describe("UserProfileScreen", () => {
         "profile:permissionRequired",
         "profile:photoLibraryPermissionMessage"
       )
-      expect(ImagePicker.launchImageLibraryAsync).not.toHaveBeenCalled()
+      expect(mockLaunchLibrary).not.toHaveBeenCalled()
     })
   })
 
   it("should launch image picker with correct options when permitted", async () => {
     // Mock permission granted
-    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-      status: "granted",
+    mockRequestPermissions.mockResolvedValue({
+      status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
     })
     
     // Mock user canceling the picker
-    ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+    mockLaunchLibrary.mockResolvedValue({
       canceled: true,
+      assets: null,
     })
     
     render(
@@ -177,7 +190,7 @@ describe("UserProfileScreen", () => {
     fireEvent.press(avatarButton)
 
     await waitFor(() => {
-      expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalledWith({
+      expect(mockLaunchLibrary).toHaveBeenCalledWith({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
@@ -188,14 +201,17 @@ describe("UserProfileScreen", () => {
 
   it("should handle file conversion error without calling uploadAvatar", async () => {
     // Mock permission granted
-    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-      status: "granted",
+    mockRequestPermissions.mockResolvedValue({
+      status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
     })
     
     // Mock image selection
-    ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+    mockLaunchLibrary.mockResolvedValue({
       canceled: false,
-      assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg" }],
+      assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
     })
     
     // Mock fetch to fail
@@ -223,14 +239,17 @@ describe("UserProfileScreen", () => {
 
   it("should create ArrayBuffer and call uploadAvatar when image selected successfully", async () => {
     // Mock permission granted
-    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-      status: "granted",
+    mockRequestPermissions.mockResolvedValue({
+      status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
     })
     
     // Mock image selection
-    ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+    mockLaunchLibrary.mockResolvedValue({
       canceled: false,
-      assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg" }],
+      assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
     })
     
     // Mock successful fetch and arrayBuffer
@@ -270,14 +289,17 @@ describe("UserProfileScreen", () => {
   describe("Critical scenarios from development issues", () => {
     it("should handle ArrayBuffer conversion from fetch correctly", async () => {
       // Mock permission granted
-      ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-        status: "granted",
+      mockRequestPermissions.mockResolvedValue({
+        status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
       })
       
       // Mock image selection
-      ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+      mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg" }],
+        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
       })
       
       // Mock fetch returning proper ArrayBuffer (what actually happens in React Native)
@@ -316,14 +338,17 @@ describe("UserProfileScreen", () => {
 
     it("should handle upload service returning specific error codes", async () => {
       // Mock permission granted
-      ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-        status: "granted",
+      mockRequestPermissions.mockResolvedValue({
+        status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
       })
       
       // Mock image selection
-      ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+      mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg" }],
+        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
       })
       
       // Mock successful fetch
@@ -359,14 +384,17 @@ describe("UserProfileScreen", () => {
 
     it("should handle empty ArrayBuffer (corrupted file scenario)", async () => {
       // Mock permission granted
-      ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-        status: "granted",
+      mockRequestPermissions.mockResolvedValue({
+        status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
       })
       
       // Mock image selection
-      ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+      mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://empty.jpg", fileName: "empty.jpg", mimeType: "image/jpeg" }],
+        assets: [{ uri: "file://empty.jpg", fileName: "empty.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
       })
       
       // Mock fetch returning empty ArrayBuffer (corrupted/empty file)
@@ -407,14 +435,17 @@ describe("UserProfileScreen", () => {
 
     it("should handle missing mimeType from ImagePicker (fallback scenario)", async () => {
       // Mock permission granted
-      ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-        status: "granted",
+      mockRequestPermissions.mockResolvedValue({
+        status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
       })
       
       // Mock image selection without mimeType (happens on some devices)
-      ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+      mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg" }], // No mimeType
+        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", width: 400, height: 400 }], // No mimeType
       })
       
       // Mock successful fetch
@@ -449,14 +480,17 @@ describe("UserProfileScreen", () => {
 
     it("should clear errors before upload and show loading state correctly", async () => {
       // Mock permission granted
-      ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
-        status: "granted",
+      mockRequestPermissions.mockResolvedValue({
+        status: PermissionStatus.GRANTED,
+      granted: true,
+      canAskAgain: true,
+      expires: "never",
       })
       
       // Mock image selection
-      ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+      mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg" }],
+        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
       })
       
       // Mock successful fetch

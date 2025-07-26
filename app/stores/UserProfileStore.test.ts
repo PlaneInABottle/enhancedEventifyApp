@@ -169,9 +169,10 @@ describe("UserProfileStore", () => {
         avatarUrl: mockAvatarUrl,
       })
 
-      const result = await store.uploadAvatar("user-123", mockFile)
+      const mockArrayBuffer = new ArrayBuffer(8)
+      const result = await store.uploadAvatar("user-123", mockArrayBuffer, "image/jpeg")
 
-      expect(mockProfileService.uploadAvatar).toHaveBeenCalledWith("user-123", mockFile)
+      expect(mockProfileService.uploadAvatar).toHaveBeenCalledWith("user-123", expect.any(ArrayBuffer), "image/jpeg")
       expect(result.success).toBe(true)
       expect(store.profile?.avatar_url).toBe(mockAvatarUrl)
       expect(store.isUploading).toBe(false)
@@ -184,7 +185,8 @@ describe("UserProfileStore", () => {
         error: "errors:fileTooLarge",
       })
 
-      const result = await store.uploadAvatar("user-123", mockFile)
+      const mockArrayBuffer = new ArrayBuffer(8)
+      const result = await store.uploadAvatar("user-123", mockArrayBuffer, "image/jpeg")
 
       expect(result.success).toBe(false)
       expect(store.lastError).toBe("errors:fileTooLarge")

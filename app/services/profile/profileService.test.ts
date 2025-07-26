@@ -207,6 +207,8 @@ describe("profileService", () => {
   describe("uploadAvatar", () => {
     it("should successfully upload avatar", async () => {
       const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
+      const arrayBuffer = new ArrayBuffer(1024 * 1024)
+      const mimeType = "image/jpeg"
       const publicUrl = "https://example.com/avatar.jpg"
 
       // Mock getUserProfile to return no existing avatar
@@ -238,12 +240,12 @@ describe("profileService", () => {
 
       mockSupabase.from.mockReturnValueOnce({ update: mockUpdate })
 
-      const result = await uploadAvatar("user-123", mockFile)
+      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(mockSupabase.storage.from).toHaveBeenCalledWith("avatars")
       expect(mockUpload).toHaveBeenCalledWith(
         expect.stringContaining("user-123/avatar-"),
-        mockFile,
+        arrayBuffer,
         expect.objectContaining({
           upsert: true,
           contentType: "image/jpeg",
@@ -256,8 +258,10 @@ describe("profileService", () => {
 
     it("should reject non-image files", async () => {
       const mockFile = createMockFile("document.pdf", 1024, "application/pdf")
+      const arrayBuffer = new ArrayBuffer(1024)
+      const mimeType = "application/pdf"
 
-      const result = await uploadAvatar("user-123", mockFile)
+      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:invalidFileType")
@@ -266,8 +270,10 @@ describe("profileService", () => {
 
     it("should reject files that are too large", async () => {
       const mockFile = createMockFile("large-image.jpg", 6 * 1024 * 1024, "image/jpeg") // 6MB
+      const arrayBuffer = new ArrayBuffer(6 * 1024 * 1024)
+      const mimeType = "image/jpeg"
 
-      const result = await uploadAvatar("user-123", mockFile)
+      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:fileTooLarge")
@@ -276,6 +282,8 @@ describe("profileService", () => {
 
     it("should delete existing avatar before uploading new one", async () => {
       const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
+      const arrayBuffer = new ArrayBuffer(1024 * 1024)
+      const mimeType = "image/jpeg"
       const publicUrl = "https://example.com/new-avatar.jpg"
       const existingAvatarUrl = "https://example.com/storage/v1/object/public/avatars/user-123/old-avatar-user-123-123456.jpg"
 
@@ -311,7 +319,7 @@ describe("profileService", () => {
 
       mockSupabase.from.mockReturnValueOnce({ update: mockUpdate } as any)
 
-      const result = await uploadAvatar("user-123", mockFile)
+      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(mockRemove).toHaveBeenCalledWith(["user-123/old-avatar-user-123-123456.jpg"])
       expect(result.success).toBe(true)
@@ -319,6 +327,8 @@ describe("profileService", () => {
 
     it("should handle storage upload errors", async () => {
       const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
+      const arrayBuffer = new ArrayBuffer(1024 * 1024)
+      const mimeType = "image/jpeg"
 
       // Mock getUserProfile to return no existing avatar
       const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
@@ -336,7 +346,7 @@ describe("profileService", () => {
         upload: mockUpload,
       })
 
-      const result = await uploadAvatar("user-123", mockFile)
+      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:fileTooLarge") // Should map EntityTooLarge to fileTooLarge
@@ -344,6 +354,8 @@ describe("profileService", () => {
 
     it("should handle generic storage upload errors", async () => {
       const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
+      const arrayBuffer = new ArrayBuffer(1024 * 1024)
+      const mimeType = "image/jpeg"
 
       // Mock getUserProfile to return no existing avatar
       const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
@@ -361,7 +373,7 @@ describe("profileService", () => {
         upload: mockUpload,
       })
 
-      const result = await uploadAvatar("user-123", mockFile)
+      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:uploadFailed") // Should map other errors to uploadFailed
