@@ -225,6 +225,15 @@ const tr = {
     lightMode: "Aydınlık Mod",
     systemTheme: "Sistem Teması",
     themeSettings: "Tema Ayarları",
+    // Business Profile specific keys
+    businessInformation: "İşletme Bilgileri",
+    contactInformation: "İletişim Bilgileri",
+    businessName: "İşletme Adı",
+    businessTypes: "İşletme Türleri",
+    phone: "Telefon Numarası",
+    websiteUrl: "Web Sitesi",
+    description: "Açıklama",
+    noDescription: "Açıklama eklenmemiş",
   },
 
   ...demoTr,

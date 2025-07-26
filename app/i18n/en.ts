@@ -224,6 +224,15 @@ const en = {
     lightMode: "Light Mode",
     systemTheme: "System Theme",
     themeSettings: "Theme Settings",
+    // Business Profile specific keys
+    businessInformation: "Business Information",
+    contactInformation: "Contact Information",
+    businessName: "Business Name",
+    businessTypes: "Business Types",
+    phone: "Phone Number",
+    websiteUrl: "Website URL",
+    description: "Description",
+    noDescription: "No description added",
   },
 
   ...demoEn,
