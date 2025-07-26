@@ -14,6 +14,7 @@ export const MapScreen: FC<MapScreenProps> = () => {
       <MapView
         style={$map}
         styleURL="mapbox://styles/mapbox/streets-v12"
+        scaleBarEnabled={false}
       />
     </Screen>
   )
