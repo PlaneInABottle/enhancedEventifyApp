@@ -3,7 +3,7 @@ import { ViewStyle, View, TextStyle } from "react-native"
 import * as ImagePicker from "expo-image-picker"
 import { observer } from "mobx-react-lite"
 
-import { BusinessTypeMultiSelect } from "@/components/BusinessTypeMultiSelect"
+import { BusinessTypeMultiSelect, businessTypeOptions } from "@/components/BusinessTypeMultiSelect"
 import { Button } from "@/components/Button"
 import { ProfileAvatarSection, ProfileInfoCard, ProfileField } from "@/components/profile"
 import { Screen } from "@/components/Screen"
@@ -232,7 +232,12 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
                 />
                 <ProfileField
                   labelTx="profile:businessTypes"
-                  value={businessProfileStore.businessTypes.join(", ")}
+                  value={businessProfileStore.businessTypes
+                    .map(type => {
+                      const option = businessTypeOptions.find(opt => opt.value === type)
+                      return option ? translate(option.labelTx as any) : type
+                    })
+                    .join(", ")}
                   placeholderTx="common:notSet"
                 />
               </View>

@@ -50,7 +50,7 @@ export interface BusinessTypeMultiSelectProps {
 }
 
 // Move business type options outside component for performance
-const businessTypeOptions: BusinessTypeOption[] = [
+export const businessTypeOptions: BusinessTypeOption[] = [
   {
     labelTx: "businessTypes:restaurant",
     value: "restaurant",
