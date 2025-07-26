@@ -11,7 +11,7 @@ import { types } from "mobx-state-tree"
 // ============================================================================
 
 export const UserProfileModel = types.model("UserProfile", {
-  id: types.string,
+  id: types.identifier,
   display_name: types.maybeNull(types.string),
   avatar_url: types.maybeNull(types.string),
   bio: types.maybeNull(types.string),
@@ -25,7 +25,7 @@ export const UserProfileModel = types.model("UserProfile", {
 // ============================================================================
 
 export const BusinessProfileModel = types.model("BusinessProfile", {
-  id: types.string,
+  id: types.identifier,
   business_name: types.string,
   business_types: types.array(types.string),
   description: types.maybeNull(types.string),
