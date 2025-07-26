@@ -27,6 +27,10 @@ const mockBusinessProfileStore = {
   uploadLogo: jest.fn(),
 }
 
+const mockAuthenticationStore = {
+  userId: "test-user-id",
+}
+
 jest.mock("@/models", () => ({
   useStores: jest.fn(),
 }))
@@ -43,6 +47,7 @@ describe("BusinessProfileScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseStores.mockReturnValue({
+      authenticationStore: mockAuthenticationStore,
       businessProfileStore: mockBusinessProfileStore,
     } as any)
   })
