@@ -62,6 +62,30 @@ export async function updateBusinessProfile(
       }
     }
 
+    // Validate phone if provided
+    if (updates.phone !== undefined) {
+      const validation = validatePhone(updates.phone, false) // Phone is optional
+      if (!validation.success) {
+        return validation
+      }
+    }
+
+    // Validate website URL if provided
+    if (updates.website_url !== undefined) {
+      const validation = validateUrl(updates.website_url, false) // Website is optional
+      if (!validation.success) {
+        return validation
+      }
+    }
+
+    // Validate description length if provided
+    if (updates.description !== undefined) {
+      const validation = validateStringLength(updates.description, 0, 500, "description")
+      if (!validation.success) {
+        return validation
+      }
+    }
+
     const { data, error } = await supabase
       .from("business_profiles")
       .update(updates)

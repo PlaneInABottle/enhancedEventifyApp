@@ -208,7 +208,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
       {/* Error State */}
       {businessProfileStore.lastError && (
         <View style={themed($errorContainer)}>
-          <Text text={businessProfileStore.lastError} style={themed($errorText)} />
+          <Text tx={businessProfileStore.lastError as any} style={themed($errorText)} />
         </View>
       )}
 
@@ -368,14 +368,19 @@ const $loadingText: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
 })
 
 const $errorContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
-  backgroundColor: colors.palette.angry100,
-  padding: spacing.md,
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.lg,
+  marginHorizontal: spacing.lg,
   marginVertical: spacing.md,
-  borderRadius: spacing.xs,
+  backgroundColor: colors.palette.angry100,
+  borderRadius: spacing.md,
+  borderLeftWidth: 4,
+  borderLeftColor: colors.palette.angry500,
 })
 
 const $errorText: ThemedStyle<TextStyle> = ({ colors }) => ({
-  color: colors.palette.angry100,
+  color: colors.error,
+  textAlign: "center",
 })
 
 const $cardsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({

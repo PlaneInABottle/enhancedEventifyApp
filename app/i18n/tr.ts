@@ -78,6 +78,10 @@ const tr = {
     fileEmpty: "Lütfen bir dosya seçin",
     fileNotImage: "Dosya bir resim olmalıdır",
     fileTypeNotSupported: "Dosya türü desteklenmiyor. JPEG, PNG veya WebP kullanın",
+    // İş profili doğrulama hataları
+    businessNameRequired: "İş yeri adı gereklidir",
+    descriptionTooLong: "Açıklama 500 karakterden az olmalıdır",
+    descriptionTooShort: "Açıklama çok kısa",
   },
   loginScreen: {
     logIn: "Giriş Yap",

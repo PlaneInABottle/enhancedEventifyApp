@@ -77,6 +77,10 @@ const en = {
     fileEmpty: "Please select a file",
     fileNotImage: "File must be an image",
     fileTypeNotSupported: "File type not supported. Use JPEG, PNG, or WebP",
+    // Business profile validation errors
+    businessNameRequired: "Business name is required",
+    descriptionTooLong: "Description must be less than 500 characters",
+    descriptionTooShort: "Description is too short",
   },
   loginScreen: {
     logIn: "Log In",
