@@ -7,6 +7,7 @@ import { Screen } from "@/components/Screen"
 import { Button } from "@/components/Button"
 import { useStores } from "@/models/helpers/useStores"
 import { translate } from "@/i18n/translate"
+import { getMapBounds } from "@/services/map"
 import type { UserTabScreenProps } from "@/navigators/UserNavigator"
 
 interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> { }
@@ -29,15 +30,12 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
   const handleSearchArea = useCallback(async () => {
     if (!mapRef.current) return
 
-    const bounds = await mapRef.current.getVisibleBounds()
-    const [[west, south], [east, north]] = bounds
-
-    await mapStore.loadEventsInBounds({
-      north,
-      south,
-      east,
-      west,
-    })
+    try {
+      const bounds = await getMapBounds(mapRef)
+      await mapStore.loadEventsInBounds(bounds)
+    } catch (error) {
+      console.warn("Failed to get map bounds:", error)
+    }
   }, [mapStore])
 
   return (
