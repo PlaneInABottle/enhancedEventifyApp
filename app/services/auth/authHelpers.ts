@@ -1,9 +1,6 @@
 import { AuthError } from "@supabase/supabase-js"
 
-import type { TxKeyPath } from "@/i18n"
-import { translate } from "@/i18n/translate"
-
-import type { AuthErrorType, CustomAuthError } from "./authTypes"
+import type { CustomAuthError } from "./authTypes"
 
 /**
  * Authentication Helper Functions

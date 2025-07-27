@@ -1,5 +1,5 @@
 import { FC, useState, useEffect, useCallback } from "react"
-import { ViewStyle, View, TextStyle } from "react-native"
+import { ViewStyle, View, TextStyle, Platform } from "react-native"
 import * as ImagePicker from "expo-image-picker"
 import { observer } from "mobx-react-lite"
 
@@ -9,6 +9,7 @@ import { ProfileAvatarSection, ProfileInfoCard, ProfileField } from "@/component
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import {
@@ -19,9 +20,7 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { Alert } from "@/utils/alert"
 
-interface BusinessProfileScreenProps {
-  // TODO: Add proper navigation props when integrated
-}
+interface BusinessProfileScreenProps {}
 
 export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(() => {
   const { authenticationStore, businessProfileStore } = useStores()
@@ -36,6 +35,11 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
     phone: "",
     website_url: "",
   })
+
+  // Handle logout
+  const handleLogout = async () => {
+    await authenticationStore.signOut()
+  }
 
   // Load business profile when component mounts
   useEffect(() => {
@@ -188,7 +192,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
   }
 
   return (
-    <Screen preset="auto" contentContainerStyle={themed($container)} safeAreaEdges={["top"]}>
+    <Screen preset="auto" contentContainerStyle={themed($screenContainer)} safeAreaEdges={["top"]}>
       {/* Business Logo and Header Section */}
       <ProfileAvatarSection
         displayName={businessProfileStore.businessName}
@@ -346,25 +350,46 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
           </View>
         </View>
       )}
+
+      {/* Account Actions */}
+      <View style={themed($accountSection)}>
+        <ProfileInfoCard
+          titleTx="profile:themeSettings"
+          headerIcon="settings"
+          viewContent={<ThemeToggle />}
+        />
+
+        <ProfileInfoCard
+          titleTx="profile:accountActions"
+          headerIcon="more"
+          viewContent={
+            <Button
+              testID="logout-button"
+              tx="common:logOut"
+              style={themed($logoutButtonStyle)}
+              preset="default"
+              onPress={handleLogout}
+              disabled={authenticationStore.isLoading}
+            />
+          }
+        />
+      </View>
     </Screen>
   )
 })
 
-const $container: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingHorizontal: spacing.lg,
-  paddingTop: spacing.xl,
+const $screenContainer: ThemedStyle<ViewStyle> = ({ colors }) => ({
+  backgroundColor: colors.palette.neutral200,
 })
 
 const $loadingContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flex: 1,
-  justifyContent: "center",
+  paddingVertical: spacing.xl,
   alignItems: "center",
-  paddingVertical: spacing.xxl,
 })
 
-const $loadingText: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
-  color: colors.text,
-  marginTop: spacing.md,
+const $loadingText: ThemedStyle<TextStyle> = ({ colors }) => ({
+  textAlign: "center",
+  color: colors.textDim,
 })
 
 const $errorContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
@@ -384,7 +409,9 @@ const $errorText: ThemedStyle<TextStyle> = ({ colors }) => ({
 })
 
 const $cardsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingBottom: spacing.xxl,
+  paddingHorizontal: spacing.lg,
+  paddingBottom: spacing.xl,
+  paddingTop: spacing.md,
 })
 
 const $editField: ThemedStyle<ViewStyle> = ({ spacing }) => ({
@@ -393,20 +420,39 @@ const $editField: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 
 const $actionsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: spacing.lg,
-  marginBottom: spacing.xxl,
-  gap: spacing.md,
+  gap: spacing.lg,
+  marginTop: spacing.xl,
+  paddingTop: spacing.md,
 })
 
 const $actionButton: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
   flex: 1,
-  minHeight: 48,
   borderRadius: spacing.md,
-  shadowColor: colors.palette.neutral800,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
+  // Remove shadows entirely to prevent sharp edges on Android
+  ...(Platform.OS === "web"
+    ? ({
+        boxShadow: `0 1px 3px rgba(0, 0, 0, 0.05)`,
+      } as any)
+    : Platform.OS === "ios"
+      ? {
+          shadowColor: colors.palette.neutral700,
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.05,
+          shadowRadius: 1,
+        }
+      : {
+          // No shadow for Android - use subtle border instead
+          borderWidth: 1,
+          borderColor: colors.palette.neutral300,
+        }),
+})
+
+const $accountSection: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingHorizontal: spacing.lg,
+  paddingBottom: spacing.xxl,
+  paddingTop: spacing.md,
+})
+
+const $logoutButtonStyle: ThemedStyle<ViewStyle> = () => ({
+  // Logout button styling handled by ProfileInfoCard
 })
