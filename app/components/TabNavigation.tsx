@@ -1,14 +1,18 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, ViewStyle } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import { MapScreen } from "@/screens/MapScreen"
+
+// BREADCRUMB: Just added MapView import
+// TODO: Update MapTabScreen to use real map components next
 
 const Tab = createMaterialTopTabNavigator()
 
-const MapTabScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Map View Placeholder</Text>
-  </View>
-)
+// Wrapper to adapt props for MapScreen
+const MapTabScreen = (props: any) => <MapScreen {...props} />
+
+// BREADCRUMB: Created wrapper for MapScreen to avoid prop issues
+// TODO: Create EventListScreen for List tab next
 
 const ListTabScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -20,17 +24,27 @@ const ListTabScreen = () => (
 // TODO: Add Tab.Screen configurations next
 
 export interface TabNavigationProps {
-  // TODO: Add specific props as needed
+  // No props needed - component will manage its own state
 }
+
+// BREADCRUMB: Just simplified TabNavigationProps
+// TODO: Move map logic into MapTabScreen component next
 
 export const TabNavigation = (props: TabNavigationProps) => {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        swipeEnabled: false,
+      }}
+    >
       <Tab.Screen name="Map" component={MapTabScreen} />
       <Tab.Screen name="List" component={ListTabScreen} />
     </Tab.Navigator>
   )
 }
 
-// BREADCRUMB: Just completed basic TabNavigation with Map and List screens
-// TODO: Integrate this component into MapScreen next
+// BREADCRUMB: Just completed props passing to MapTabScreen
+// TODO: Update MapScreen to pass actual props to TabNavigation
+
+// BREADCRUMB: Just completed TabNavigation using existing MapScreen
+// TODO: Create EventListScreen for List tab next

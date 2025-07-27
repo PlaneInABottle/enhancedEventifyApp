@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { Icon } from "@/components/Icon"
+import { TabNavigation } from "@/components/TabNavigation"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import { MapScreen } from "@/screens/MapScreen"
@@ -16,7 +17,6 @@ import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
 export type UserTabParamList = {
   Map: undefined
-  Events: undefined
   Profile: undefined
   Moderate?: undefined // Optional tab for moderators
 }
@@ -64,22 +64,11 @@ export const UserNavigator = observer(function UserNavigator() {
     >
       <Tab.Screen
         name="Map"
-        component={MapScreen}
+        component={TabNavigation}
         options={{
           tabBarLabel: translate("common:map"),
           tabBarIcon: ({ focused }) => (
             <Icon icon="pin" color={focused ? colors.tint : colors.tintInactive} size={30} />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Events"
-        component={MapScreen} // TODO: Replace with EventDiscoveryScreen
-        options={{
-          tabBarLabel: translate("common:events"),
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="view" color={focused ? colors.tint : colors.tintInactive} size={30} />
           ),
         }}
       />

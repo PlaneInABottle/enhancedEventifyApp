@@ -5,13 +5,12 @@ import { observer } from "mobx-react-lite"
 
 import { Screen } from "@/components/Screen"
 import { Button } from "@/components/Button"
-import { TabNavigation } from "@/components/TabNavigation"
 import { useStores } from "@/models/helpers/useStores"
 import { translate } from "@/i18n/translate"
 import { getMapBounds } from "@/services/map"
 import type { UserTabScreenProps } from "@/navigators/UserNavigator"
 
-interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> { }
+interface MapScreenProps extends UserTabScreenProps<"Map" | "Moderate"> { }
 
 export const MapScreen: FC<MapScreenProps> = observer(() => {
   const mapRef = useRef<MapView>(null)
@@ -41,9 +40,6 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
 
   return (
     <Screen preset="fixed" contentContainerStyle={$screenContent}>
-      <TabNavigation />
-      {/* TODO: Move search button and map into MapTabScreen component */}
-      {/* Temporarily commented out original structure:
       <View style={$searchContainer}>
         <Button
           tx="map:searchThisArea"
@@ -59,7 +55,6 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
         styleURL="mapbox://styles/mapbox/streets-v12"
         scaleBarEnabled={false}
       />
-      */}
     </Screen>
   )
 })
