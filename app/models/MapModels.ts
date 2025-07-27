@@ -36,6 +36,12 @@ export const MapEventInstanceModel = types.model("MapEventInstance", {
   },
   
   get formattedStartTime() {
-    return new Date(self.start_datetime).toLocaleString()
+    return new Date(self.start_datetime).toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   },
 }))
