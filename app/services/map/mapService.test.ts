@@ -109,7 +109,7 @@ describe("MapService", () => {
       const result = await getEventsInBounds(bounds)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe("Unexpected error occurred")
+      expect(result.error).toBe("map:errorLoadingEvents")
     })
   })
 })

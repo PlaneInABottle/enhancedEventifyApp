@@ -28,7 +28,7 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
         west,
       })
     } catch (error) {
-      console.error("Failed to get map bounds:", error)
+      // Silent fail - map bounds detection error
     }
   }, [mapStore])
 

@@ -50,14 +50,13 @@ export const MapStore = types
         if (result.success && result.events) {
           self.setProp("events", result.events)
         } else {
-          self.setProp("lastError", result.error || "Failed to load events")
+          self.setProp("lastError", result.error || "map:errorLoadingEvents")
         }
 
         return result
       } catch (error) {
-        console.error("Error in loadEventsInBounds:", error)
-        self.setProp("lastError", "Unexpected error occurred")
-        return { success: false, error: "Unexpected error occurred" }
+        self.setProp("lastError", "map:errorLoadingEvents")
+        return { success: false, error: "map:errorLoadingEvents" }
       } finally {
         self.setProp("isLoading", false)
       }

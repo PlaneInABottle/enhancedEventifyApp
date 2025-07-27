@@ -23,10 +23,9 @@ export async function getEventsInBounds(bounds: MapBounds): Promise<MapEventsRes
     })
 
     if (error) {
-      console.error("Error fetching events in bounds:", error)
       return {
         success: false,
-        error: error.message || "Failed to fetch events",
+        error: error.message || "map:errorLoadingEvents",
       }
     }
 
@@ -35,10 +34,9 @@ export async function getEventsInBounds(bounds: MapBounds): Promise<MapEventsRes
       events: data as RawMapEventInstance[],
     }
   } catch (error) {
-    console.error("Unexpected error in getEventsInBounds:", error)
     return {
       success: false,
-      error: "Unexpected error occurred",
+      error: "map:errorLoadingEvents",
     }
   }
 }

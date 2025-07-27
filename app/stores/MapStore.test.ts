@@ -110,7 +110,7 @@ describe("MapStore", () => {
 
       expect(result.success).toBe(false)
       expect(store.isLoading).toBe(false)
-      expect(store.lastError).toBe("Unexpected error occurred")
+      expect(store.lastError).toBe("map:errorLoadingEvents")
     })
   })
 
