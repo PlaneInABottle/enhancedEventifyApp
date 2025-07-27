@@ -52,8 +52,8 @@ export interface CreateAddressRequest {
   country?: string
   postal_code?: string
   coordinates?: {
-    longitude: number
-    latitude: number
+    type: "Point"
+    coordinates: [number, number] // [longitude, latitude]
   }
 }
 
@@ -74,8 +74,8 @@ export interface UpdateAddressRequest {
   country?: string
   postal_code?: string
   coordinates?: {
-    longitude: number
-    latitude: number
+    type: "Point"
+    coordinates: [number, number] // [longitude, latitude]
   }
 }
 

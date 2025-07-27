@@ -99,6 +99,18 @@ export const StoreModel = types
   }))
 ```
 
+### Error Handling Pattern
+```typescript
+// NEVER use hardcoded error messages - use translation keys
+// Error messages exist in app/i18n/en.ts and app/i18n/tr.ts under 'errors' section
+
+// ❌ Bad - hardcoded
+return { success: false, error: "Venue not found" }
+
+// ✅ Good - use translation key  
+return { success: false, error: "errors.venueNotFound" }
+```
+
 ### Testing Pattern
 ```typescript
 // Modified TDD: Implement first, then test
