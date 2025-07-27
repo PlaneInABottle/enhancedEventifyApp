@@ -111,6 +111,19 @@ return { success: false, error: "Venue not found" }
 return { success: false, error: "errors.venueNotFound" }
 ```
 
+### Overengineering Detection Pattern
+```typescript
+// ❌ Bad - too many specific loading states
+isLoading, isCreating, isUpdating, isDeleting
+
+// ✅ Good - follow existing store patterns
+isLoading // Single state for all async operations
+
+// Before adding complexity, check existing stores:
+// - BusinessProfileStore: isLoading, isUpdating, isUploading
+// - Keep it simple and consistent
+```
+
 ### Testing Pattern
 ```typescript
 // Modified TDD: Implement first, then test
