@@ -1,11 +1,12 @@
-import { FC, useRef, useCallback } from "react"
-import { ViewStyle, View } from "react-native"
+import { FC, useRef, useCallback, useEffect } from "react"
+import { ViewStyle, View, Alert } from "react-native"
 import { MapView } from "@rnmapbox/maps"
 import { observer } from "mobx-react-lite"
 
 import { Screen } from "@/components/Screen"
 import { Button } from "@/components/Button"
 import { useStores } from "@/models/helpers/useStores"
+import { translate } from "@/i18n/translate"
 import type { UserTabScreenProps } from "@/navigators/UserNavigator"
 
 interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> { }
@@ -14,22 +15,29 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
   const mapRef = useRef<MapView>(null)
   const { mapStore } = useStores()
 
+  // Show alert when error occurs, then clear it
+  useEffect(() => {
+    if (mapStore.lastError) {
+      Alert.alert(
+        translate("map:errorLoadingEvents"),
+        translate("map:searchFailedMessage"),
+        [{ text: translate("common:ok"), onPress: () => mapStore.clearError() }]
+      )
+    }
+  }, [mapStore.lastError, mapStore])
+
   const handleSearchArea = useCallback(async () => {
     if (!mapRef.current) return
 
-    try {
-      const bounds = await mapRef.current.getVisibleBounds()
-      const [[west, south], [east, north]] = bounds
+    const bounds = await mapRef.current.getVisibleBounds()
+    const [[west, south], [east, north]] = bounds
 
-      await mapStore.loadEventsInBounds({
-        north,
-        south, 
-        east,
-        west,
-      })
-    } catch (error) {
-      // Silent fail - map bounds detection error
-    }
+    await mapStore.loadEventsInBounds({
+      north,
+      south, 
+      east,
+      west,
+    })
   }, [mapStore])
 
   return (
