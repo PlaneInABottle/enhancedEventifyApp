@@ -1,8 +1,8 @@
 import React from "react"
-import { render, screen, fireEvent, waitFor } from "@testing-library/react-native"
-import { NavigationContainer } from "@react-navigation/native"
 import * as ImagePicker from "expo-image-picker"
 import { PermissionStatus } from "expo-modules-core"
+import { NavigationContainer } from "@react-navigation/native"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react-native"
 
 import { useStores } from "@/models"
 import { ThemeProvider } from "@/theme/context"
@@ -55,9 +55,14 @@ jest.mock("@/utils/alert", () => ({
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 
 describe("UserProfileScreen", () => {
-  const mockRequestPermissions = ImagePicker.requestMediaLibraryPermissionsAsync as jest.MockedFunction<typeof ImagePicker.requestMediaLibraryPermissionsAsync>
-  const mockLaunchLibrary = ImagePicker.launchImageLibraryAsync as jest.MockedFunction<typeof ImagePicker.launchImageLibraryAsync>
-  
+  const mockRequestPermissions =
+    ImagePicker.requestMediaLibraryPermissionsAsync as jest.MockedFunction<
+      typeof ImagePicker.requestMediaLibraryPermissionsAsync
+    >
+  const mockLaunchLibrary = ImagePicker.launchImageLibraryAsync as jest.MockedFunction<
+    typeof ImagePicker.launchImageLibraryAsync
+  >
+
   const defaultProps = {
     navigation: { navigate: jest.fn() } as any,
     route: { key: "Profile", name: "Profile" as const },
@@ -113,7 +118,7 @@ describe("UserProfileScreen", () => {
       ...mockUserProfileStore,
       isUploading: true,
     }
-    
+
     mockUseStores.mockReturnValue({
       authenticationStore: mockAuthenticationStore,
       userProfileStore: uploadingStore,
@@ -142,7 +147,7 @@ describe("UserProfileScreen", () => {
       canAskAgain: true,
       expires: "never",
     })
-    
+
     render(
       <ThemeProvider>
         <NavigationContainer>
@@ -157,7 +162,7 @@ describe("UserProfileScreen", () => {
     await waitFor(() => {
       expect(Alert.simple).toHaveBeenCalledWith(
         "profile:permissionRequired",
-        "profile:photoLibraryPermissionMessage"
+        "profile:photoLibraryPermissionMessage",
       )
       expect(mockLaunchLibrary).not.toHaveBeenCalled()
     })
@@ -171,13 +176,13 @@ describe("UserProfileScreen", () => {
       canAskAgain: true,
       expires: "never",
     })
-    
+
     // Mock user canceling the picker
     mockLaunchLibrary.mockResolvedValue({
       canceled: true,
       assets: null,
     })
-    
+
     render(
       <ThemeProvider>
         <NavigationContainer>
@@ -207,16 +212,24 @@ describe("UserProfileScreen", () => {
       canAskAgain: true,
       expires: "never",
     })
-    
+
     // Mock image selection
     mockLaunchLibrary.mockResolvedValue({
       canceled: false,
-      assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
+      assets: [
+        {
+          uri: "file://test.jpg",
+          fileName: "test.jpg",
+          mimeType: "image/jpeg",
+          width: 400,
+          height: 400,
+        },
+      ],
     })
-    
+
     // Mock fetch to fail
     global.fetch = jest.fn().mockRejectedValue(new Error("Failed to fetch"))
-    
+
     render(
       <ThemeProvider>
         <NavigationContainer>
@@ -230,10 +243,7 @@ describe("UserProfileScreen", () => {
 
     await waitFor(() => {
       expect(mockUserProfileStore.uploadAvatar).not.toHaveBeenCalled()
-      expect(Alert.simple).toHaveBeenCalledWith(
-        "profile:error",
-        "Failed to fetch"
-      )
+      expect(Alert.simple).toHaveBeenCalledWith("profile:error", "Failed to fetch")
     })
   })
 
@@ -245,22 +255,30 @@ describe("UserProfileScreen", () => {
       canAskAgain: true,
       expires: "never",
     })
-    
+
     // Mock image selection
     mockLaunchLibrary.mockResolvedValue({
       canceled: false,
-      assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
+      assets: [
+        {
+          uri: "file://test.jpg",
+          fileName: "test.jpg",
+          mimeType: "image/jpeg",
+          width: 400,
+          height: 400,
+        },
+      ],
     })
-    
+
     // Mock successful fetch and arrayBuffer
     const mockArrayBuffer = new ArrayBuffer(8)
     global.fetch = jest.fn().mockResolvedValue({
       arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
     })
-    
+
     // Mock successful upload
     mockUserProfileStore.uploadAvatar.mockResolvedValue({ success: true })
-    
+
     render(
       <ThemeProvider>
         <NavigationContainer>
@@ -276,11 +294,11 @@ describe("UserProfileScreen", () => {
       expect(mockUserProfileStore.uploadAvatar).toHaveBeenCalledWith(
         "test-user-123",
         mockArrayBuffer,
-        "image/jpeg"
+        "image/jpeg",
       )
       expect(Alert.simple).toHaveBeenCalledWith(
         "profile:success",
-        "profile:avatarUploadedSuccessfully"
+        "profile:avatarUploadedSuccessfully",
       )
     })
   })
@@ -291,30 +309,38 @@ describe("UserProfileScreen", () => {
       // Mock permission granted
       mockRequestPermissions.mockResolvedValue({
         status: PermissionStatus.GRANTED,
-      granted: true,
-      canAskAgain: true,
-      expires: "never",
+        granted: true,
+        canAskAgain: true,
+        expires: "never",
       })
-      
+
       // Mock image selection
       mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
+        assets: [
+          {
+            uri: "file://test.jpg",
+            fileName: "test.jpg",
+            mimeType: "image/jpeg",
+            width: 400,
+            height: 400,
+          },
+        ],
       })
-      
+
       // Mock fetch returning proper ArrayBuffer (what actually happens in React Native)
-      const testData = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0]) // JPEG header
+      const testData = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]) // JPEG header
       const mockArrayBuffer = testData.buffer
       global.fetch = jest.fn().mockResolvedValue({
         arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
       })
-      
+
       // Mock successful upload
-      mockUserProfileStore.uploadAvatar.mockResolvedValue({ 
+      mockUserProfileStore.uploadAvatar.mockResolvedValue({
         success: true,
-        avatarUrl: "https://example.com/avatar.jpg"
+        avatarUrl: "https://example.com/avatar.jpg",
       })
-      
+
       render(
         <ThemeProvider>
           <NavigationContainer>
@@ -331,7 +357,7 @@ describe("UserProfileScreen", () => {
         expect(mockUserProfileStore.uploadAvatar).toHaveBeenCalledWith(
           "test-user-123",
           mockArrayBuffer,
-          "image/jpeg"
+          "image/jpeg",
         )
       })
     })
@@ -340,29 +366,37 @@ describe("UserProfileScreen", () => {
       // Mock permission granted
       mockRequestPermissions.mockResolvedValue({
         status: PermissionStatus.GRANTED,
-      granted: true,
-      canAskAgain: true,
-      expires: "never",
+        granted: true,
+        canAskAgain: true,
+        expires: "never",
       })
-      
+
       // Mock image selection
       mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
+        assets: [
+          {
+            uri: "file://test.jpg",
+            fileName: "test.jpg",
+            mimeType: "image/jpeg",
+            width: 400,
+            height: 400,
+          },
+        ],
       })
-      
+
       // Mock successful fetch
       const mockArrayBuffer = new ArrayBuffer(8)
       global.fetch = jest.fn().mockResolvedValue({
         arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
       })
-      
+
       // Mock upload service returning specific error (like we experienced)
-      mockUserProfileStore.uploadAvatar.mockResolvedValue({ 
+      mockUserProfileStore.uploadAvatar.mockResolvedValue({
         success: false,
-        error: "errors:fileTooLarge"
+        error: "errors:fileTooLarge",
       })
-      
+
       render(
         <ThemeProvider>
           <NavigationContainer>
@@ -375,10 +409,7 @@ describe("UserProfileScreen", () => {
       fireEvent.press(avatarButton)
 
       await waitFor(() => {
-        expect(Alert.simple).toHaveBeenCalledWith(
-          "profile:error",
-          "errors:fileTooLarge"
-        )
+        expect(Alert.simple).toHaveBeenCalledWith("profile:error", "errors:fileTooLarge")
       })
     })
 
@@ -386,29 +417,37 @@ describe("UserProfileScreen", () => {
       // Mock permission granted
       mockRequestPermissions.mockResolvedValue({
         status: PermissionStatus.GRANTED,
-      granted: true,
-      canAskAgain: true,
-      expires: "never",
+        granted: true,
+        canAskAgain: true,
+        expires: "never",
       })
-      
+
       // Mock image selection
       mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://empty.jpg", fileName: "empty.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
+        assets: [
+          {
+            uri: "file://empty.jpg",
+            fileName: "empty.jpg",
+            mimeType: "image/jpeg",
+            width: 400,
+            height: 400,
+          },
+        ],
       })
-      
+
       // Mock fetch returning empty ArrayBuffer (corrupted/empty file)
       const emptyArrayBuffer = new ArrayBuffer(0)
       global.fetch = jest.fn().mockResolvedValue({
         arrayBuffer: jest.fn().mockResolvedValue(emptyArrayBuffer),
       })
-      
+
       // Mock upload service detecting empty file
-      mockUserProfileStore.uploadAvatar.mockResolvedValue({ 
+      mockUserProfileStore.uploadAvatar.mockResolvedValue({
         success: false,
-        error: "errors:invalidFile"
+        error: "errors:invalidFile",
       })
-      
+
       render(
         <ThemeProvider>
           <NavigationContainer>
@@ -424,12 +463,9 @@ describe("UserProfileScreen", () => {
         expect(mockUserProfileStore.uploadAvatar).toHaveBeenCalledWith(
           "test-user-123",
           emptyArrayBuffer,
-          "image/jpeg"
+          "image/jpeg",
         )
-        expect(Alert.simple).toHaveBeenCalledWith(
-          "profile:error",
-          "errors:invalidFile"
-        )
+        expect(Alert.simple).toHaveBeenCalledWith("profile:error", "errors:invalidFile")
       })
     })
 
@@ -437,26 +473,26 @@ describe("UserProfileScreen", () => {
       // Mock permission granted
       mockRequestPermissions.mockResolvedValue({
         status: PermissionStatus.GRANTED,
-      granted: true,
-      canAskAgain: true,
-      expires: "never",
+        granted: true,
+        canAskAgain: true,
+        expires: "never",
       })
-      
+
       // Mock image selection without mimeType (happens on some devices)
       mockLaunchLibrary.mockResolvedValue({
         canceled: false,
         assets: [{ uri: "file://test.jpg", fileName: "test.jpg", width: 400, height: 400 }], // No mimeType
       })
-      
+
       // Mock successful fetch
       const mockArrayBuffer = new ArrayBuffer(8)
       global.fetch = jest.fn().mockResolvedValue({
         arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
       })
-      
+
       // Mock successful upload
       mockUserProfileStore.uploadAvatar.mockResolvedValue({ success: true })
-      
+
       render(
         <ThemeProvider>
           <NavigationContainer>
@@ -473,7 +509,7 @@ describe("UserProfileScreen", () => {
         expect(mockUserProfileStore.uploadAvatar).toHaveBeenCalledWith(
           "test-user-123",
           mockArrayBuffer,
-          "image/jpeg"
+          "image/jpeg",
         )
       })
     })
@@ -482,26 +518,34 @@ describe("UserProfileScreen", () => {
       // Mock permission granted
       mockRequestPermissions.mockResolvedValue({
         status: PermissionStatus.GRANTED,
-      granted: true,
-      canAskAgain: true,
-      expires: "never",
+        granted: true,
+        canAskAgain: true,
+        expires: "never",
       })
-      
+
       // Mock image selection
       mockLaunchLibrary.mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file://test.jpg", fileName: "test.jpg", mimeType: "image/jpeg", width: 400, height: 400 }],
+        assets: [
+          {
+            uri: "file://test.jpg",
+            fileName: "test.jpg",
+            mimeType: "image/jpeg",
+            width: 400,
+            height: 400,
+          },
+        ],
       })
-      
+
       // Mock successful fetch
       const mockArrayBuffer = new ArrayBuffer(8)
       global.fetch = jest.fn().mockResolvedValue({
         arrayBuffer: jest.fn().mockResolvedValue(mockArrayBuffer),
       })
-      
+
       // Mock successful upload
       mockUserProfileStore.uploadAvatar.mockResolvedValue({ success: true })
-      
+
       render(
         <ThemeProvider>
           <NavigationContainer>
@@ -515,12 +559,12 @@ describe("UserProfileScreen", () => {
 
       // Verify clearError was called before upload
       expect(mockUserProfileStore.clearError).toHaveBeenCalled()
-      
+
       await waitFor(() => {
         expect(mockUserProfileStore.uploadAvatar).toHaveBeenCalledWith(
           "test-user-123",
           mockArrayBuffer,
-          "image/jpeg"
+          "image/jpeg",
         )
       })
     })

@@ -1,6 +1,5 @@
-import type { AuthError } from "@supabase/supabase-js"
-
 import { supabase } from "@/clients/supabase/SupabaseClient"
+import * as validationUtils from "@/utils/validation"
 
 import * as authHelpers from "./authHelpers"
 import { signIn, signUp } from "./authService"
@@ -19,15 +18,20 @@ jest.mock("@/clients/supabase/SupabaseClient", () => ({
   },
 }))
 
-// Mock the auth helpers
-jest.mock("./authHelpers", () => ({
+// Mock the validation utilities
+jest.mock("@/utils/validation", () => ({
   validateEmail: jest.fn(),
   validatePassword: jest.fn(),
   validatePasswordConfirmation: jest.fn(),
+}))
+
+// Mock the auth helpers
+jest.mock("./authHelpers", () => ({
   mapAuthError: jest.fn(),
 }))
 
 const mockSupabase = supabase as any
+const mockValidationUtils = validationUtils as jest.Mocked<typeof validationUtils>
 const mockAuthHelpers = authHelpers as jest.Mocked<typeof authHelpers>
 
 describe("authService", () => {
@@ -42,11 +46,11 @@ describe("authService", () => {
     }
 
     it("should return error when email validation fails", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({
-        isValid: false,
+      mockValidationUtils.validateEmail.mockReturnValue({
+        success: false,
         error: "errors:invalidEmail",
       })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
 
       const result = await signIn(validCredentials)
 
@@ -56,9 +60,9 @@ describe("authService", () => {
     })
 
     it("should return error when password validation fails", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({
-        isValid: false,
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({
+        success: false,
         error: "errors:passwordRequired",
       })
 
@@ -70,8 +74,8 @@ describe("authService", () => {
     })
 
     it("should return success when credentials are valid", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
 
       const mockUser = {
         id: "user-123",
@@ -107,8 +111,8 @@ describe("authService", () => {
     })
 
     it("should handle Supabase auth errors", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
 
       const mockError = {
         status: 400,
@@ -136,8 +140,8 @@ describe("authService", () => {
     })
 
     it("should return error when Supabase returns null user/session", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
 
       mockSupabase.auth.signInWithPassword.mockResolvedValue({
         data: { user: null, session: null },
@@ -151,8 +155,8 @@ describe("authService", () => {
     })
 
     it("should handle unexpected errors gracefully", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
 
       mockSupabase.auth.signInWithPassword.mockRejectedValue(new Error("Network error"))
 
@@ -172,12 +176,12 @@ describe("authService", () => {
     }
 
     it("should return error when email validation fails", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({
-        isValid: false,
+      mockValidationUtils.validateEmail.mockReturnValue({
+        success: false,
         error: "errors:invalidEmail",
       })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockValidationUtils.validatePasswordConfirmation.mockReturnValue({ success: true })
 
       const result = await signUp(validCredentials)
 
@@ -187,12 +191,12 @@ describe("authService", () => {
     })
 
     it("should return error when password validation fails", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({
-        isValid: false,
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({
+        success: false,
         error: "errors:passwordRequired",
       })
-      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+      mockValidationUtils.validatePasswordConfirmation.mockReturnValue({ success: true })
 
       const result = await signUp(validCredentials)
 
@@ -202,10 +206,10 @@ describe("authService", () => {
     })
 
     it("should return error when password confirmation validation fails", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({
-        isValid: false,
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockValidationUtils.validatePasswordConfirmation.mockReturnValue({
+        success: false,
         error: "errors:passwordMismatch",
       })
 
@@ -217,9 +221,9 @@ describe("authService", () => {
     })
 
     it("should return success when credentials are valid and email verification not required", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockValidationUtils.validatePasswordConfirmation.mockReturnValue({ success: true })
 
       const mockUser = {
         id: "user-123",
@@ -264,9 +268,9 @@ describe("authService", () => {
     })
 
     it("should return success when credentials are valid and email verification required", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockValidationUtils.validatePasswordConfirmation.mockReturnValue({ success: true })
 
       const mockUser = {
         id: "user-123",
@@ -297,9 +301,9 @@ describe("authService", () => {
     })
 
     it("should handle business user type correctly", async () => {
-      mockAuthHelpers.validateEmail.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePassword.mockReturnValue({ isValid: true })
-      mockAuthHelpers.validatePasswordConfirmation.mockReturnValue({ isValid: true })
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockValidationUtils.validatePasswordConfirmation.mockReturnValue({ success: true })
 
       const businessCredentials = {
         email: "business@example.com",

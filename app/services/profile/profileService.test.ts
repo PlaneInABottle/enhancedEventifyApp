@@ -285,7 +285,8 @@ describe("profileService", () => {
       const arrayBuffer = new ArrayBuffer(1024 * 1024)
       const mimeType = "image/jpeg"
       const publicUrl = "https://example.com/new-avatar.jpg"
-      const existingAvatarUrl = "https://example.com/storage/v1/object/public/avatars/user-123/old-avatar-user-123-123456.jpg"
+      const existingAvatarUrl =
+        "https://example.com/storage/v1/object/public/avatars/user-123/old-avatar-user-123-123456.jpg"
 
       // Mock getUserProfile to return existing avatar
       const mockProfileResponse = {

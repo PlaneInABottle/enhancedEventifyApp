@@ -146,9 +146,9 @@ export const UserProfileScreen: FC<UserProfileScreenProps> = observer(() => {
 
         // Upload avatar using the store
         const uploadResult = await userProfileStore.uploadAvatar(
-          authenticationStore.userId, 
+          authenticationStore.userId,
           arrayBuffer,
-          asset.mimeType || 'image/jpeg'
+          asset.mimeType || "image/jpeg",
         )
 
         if (uploadResult.success) {
@@ -158,15 +158,18 @@ export const UserProfileScreen: FC<UserProfileScreenProps> = observer(() => {
           )
         } else {
           Alert.simple(
-            translate("profile:error"), 
-            uploadResult.error ? translate(uploadResult.error as any) : translate("profile:avatarUploadFailed")
+            translate("profile:error"),
+            uploadResult.error
+              ? translate(uploadResult.error as any)
+              : translate("profile:avatarUploadFailed"),
           )
         }
       }
     } catch (error) {
       console.error("Avatar upload error:", error)
       // Show more specific error message if available
-      const errorMessage = error instanceof Error ? error.message : translate("profile:avatarUploadFailed")
+      const errorMessage =
+        error instanceof Error ? error.message : translate("profile:avatarUploadFailed")
       Alert.simple(translate("profile:error"), errorMessage)
     }
   }

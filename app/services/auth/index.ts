@@ -21,12 +21,7 @@ export type {
 } from "./authTypes"
 
 // Helper functions
-export {
-  validateEmail,
-  validatePassword,
-  validatePasswordConfirmation,
-  mapAuthError,
-} from "./authHelpers"
+export { mapAuthError } from "./authHelpers"
 
 // Service functions
 export { signIn, signUp, buildUserFromSession } from "./authService"

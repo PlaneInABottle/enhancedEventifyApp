@@ -1,20 +1,15 @@
 import { jwtDecode } from "jwt-decode"
 
 import { supabase } from "@/clients/supabase/SupabaseClient"
+import { validateEmail, validatePassword, validatePasswordConfirmation } from "@/utils/validation"
 
-import {
-  validateEmail,
-  validatePassword,
-  validatePasswordConfirmation,
-  mapAuthError,
-} from "./authHelpers"
+import { mapAuthError } from "./authHelpers"
 import type {
   SignInCredentials,
   SignUpCredentials,
   AuthResult,
   SignUpResult,
   AuthUser,
-  CustomAuthError,
 } from "./authTypes"
 
 /**
@@ -87,20 +82,14 @@ export async function signIn(credentials: SignInCredentials): Promise<AuthResult
   try {
     // Validate email
     const emailValidation = validateEmail(credentials.email)
-    if (!emailValidation.isValid) {
-      return {
-        success: false,
-        error: emailValidation.error,
-      }
+    if (!emailValidation.success) {
+      return emailValidation
     }
 
     // Validate password
     const passwordValidation = validatePassword(credentials.password)
-    if (!passwordValidation.isValid) {
-      return {
-        success: false,
-        error: passwordValidation.error,
-      }
+    if (!passwordValidation.success) {
+      return passwordValidation
     }
 
     // Attempt sign in with Supabase
@@ -159,20 +148,14 @@ export async function signUp(credentials: SignUpCredentials): Promise<SignUpResu
   try {
     // Validate email
     const emailValidation = validateEmail(credentials.email)
-    if (!emailValidation.isValid) {
-      return {
-        success: false,
-        error: emailValidation.error,
-      }
+    if (!emailValidation.success) {
+      return emailValidation
     }
 
     // Validate password
     const passwordValidation = validatePassword(credentials.password)
-    if (!passwordValidation.isValid) {
-      return {
-        success: false,
-        error: passwordValidation.error,
-      }
+    if (!passwordValidation.success) {
+      return passwordValidation
     }
 
     // Validate password confirmation
@@ -180,11 +163,8 @@ export async function signUp(credentials: SignUpCredentials): Promise<SignUpResu
       credentials.password,
       credentials.confirmPassword,
     )
-    if (!passwordConfirmationValidation.isValid) {
-      return {
-        success: false,
-        error: passwordConfirmationValidation.error,
-      }
+    if (!passwordConfirmationValidation.success) {
+      return passwordConfirmationValidation
     }
 
     // Attempt sign up with Supabase
