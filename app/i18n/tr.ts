@@ -70,6 +70,14 @@ const tr = {
     fileTooLarge: "Dosya boyutu izin verilen maksimum limiti aşıyor",
     storageError: "Depolama işlemi başarısız oldu",
     uploadFailed: "Dosya yükleme başarısız oldu",
+    // Ortak doğrulama hataları
+    phoneRequired: "Telefon numarası gereklidir",
+    phoneInvalid: "Geçersiz telefon numarası formatı",
+    urlRequired: "URL gereklidir",
+    urlInvalid: "Geçersiz URL formatı",
+    fileEmpty: "Lütfen bir dosya seçin",
+    fileNotImage: "Dosya bir resim olmalıdır",
+    fileTypeNotSupported: "Dosya türü desteklenmiyor. JPEG, PNG veya WebP kullanın",
   },
   loginScreen: {
     logIn: "Giriş Yap",
@@ -237,6 +245,17 @@ const tr = {
     logoUploadedSuccessfully: "Logo başarıyla yüklendi",
     logoUploadFailed: "Logo yüklenemedi",
     businessNameRequired: "İşletme adı gereklidir",
+    businessNameTooShort: "İşletme adı en az 2 karakter olmalıdır",
+    businessNameTooLong: "İşletme adı 100 karakterden az olmalıdır",
+    businessTypesRequired: "En az bir işletme türü seçilmelidir",
+    businessTypesTooMany: "En fazla 5 işletme türü seçilebilir",
+    phoneInvalid: "Geçersiz telefon numarası formatı",
+    websiteInvalid: "Geçersiz web sitesi URL'si",
+    descriptionTooLong: "Açıklama 500 karakterden az olmalıdır",
+    fileEmpty: "Lütfen bir dosya seçin",
+    fileNotImage: "Dosya bir resim olmalıdır",
+    fileTooLarge: "Dosya boyutu 5MB'dan küçük olmalıdır",
+    fileTypeNotSupported: "Dosya türü desteklenmiyor. JPEG, PNG veya WebP kullanın",
   },
 
   businessTypes: {

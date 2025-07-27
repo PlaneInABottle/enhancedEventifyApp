@@ -69,6 +69,14 @@ const en = {
     fileTooLarge: "File size exceeds the maximum allowed limit",
     storageError: "Storage operation failed",
     uploadFailed: "File upload failed",
+    // Common validation errors
+    phoneRequired: "Phone number is required",
+    phoneInvalid: "Invalid phone number format",
+    urlRequired: "URL is required",
+    urlInvalid: "Invalid URL format",
+    fileEmpty: "Please select a file",
+    fileNotImage: "File must be an image",
+    fileTypeNotSupported: "File type not supported. Use JPEG, PNG, or WebP",
   },
   loginScreen: {
     logIn: "Log In",
@@ -236,6 +244,17 @@ const en = {
     logoUploadedSuccessfully: "Logo uploaded successfully",
     logoUploadFailed: "Failed to upload logo",
     businessNameRequired: "Business name is required",
+    businessNameTooShort: "Business name must be at least 2 characters",
+    businessNameTooLong: "Business name must be less than 100 characters",
+    businessTypesRequired: "At least one business type is required",
+    businessTypesTooMany: "Maximum 5 business types allowed",
+    phoneInvalid: "Invalid phone number format",
+    websiteInvalid: "Invalid website URL",
+    descriptionTooLong: "Description must be less than 500 characters",
+    fileEmpty: "Please select a file",
+    fileNotImage: "File must be an image",
+    fileTooLarge: "File size must be less than 5MB",
+    fileTypeNotSupported: "File type not supported. Use JPEG, PNG, or WebP",
   },
 
   businessTypes: {
