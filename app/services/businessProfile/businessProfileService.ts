@@ -1,4 +1,5 @@
 import { supabase } from "@/clients/supabase/SupabaseClient"
+import { validateRequired, validateStringLength, validatePhone, validateUrl, validateImageUpload } from "@/utils/validation"
 
 import type {
   BusinessProfile,
@@ -47,6 +48,14 @@ export async function updateBusinessProfile(
   updates: UpdateBusinessProfileRequest,
 ): Promise<BusinessProfileResult> {
   try {
+    // Validate business name if provided
+    if (updates.business_name !== undefined) {
+      const validation = validateRequired(updates.business_name, "businessName")
+      if (!validation.success) {
+        return validation
+      }
+    }
+    
     const { data, error } = await supabase
       .from("business_profiles")
       .update(updates)
@@ -73,18 +82,10 @@ export async function uploadLogo(
   mimeType: string,
 ): Promise<LogoUploadResult> {
   try {
-    // Validate inputs
-    if (!arrayBuffer || arrayBuffer.byteLength === 0) {
-      return { success: false, error: "Invalid file" }
-    }
-
-    if (!mimeType.startsWith("image/")) {
-      return { success: false, error: "Invalid file type" }
-    }
-
-    // Validate file size (5MB limit)
-    if (arrayBuffer.byteLength > 5 * 1024 * 1024) {
-      return { success: false, error: "File too large" }
+    // Validate the upload
+    const validation = validateImageUpload(arrayBuffer, mimeType)
+    if (!validation.success) {
+      return validation
     }
 
     // Get current business profile to check for existing logo
