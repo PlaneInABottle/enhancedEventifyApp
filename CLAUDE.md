@@ -158,6 +158,21 @@ echo "Review code quality. Analyze ONLY ProfileScreen.tsx" |
   gemini -m gemini-2.5-flash
 ```
 
+## Session Documentation
+
+**Check for existing SESSION.md:**
+```bash
+# Always check for active session documentation first
+ls SESSION*.md 2>/dev/null || echo "No active session"
+cat SESSION.md  # Read current session context if exists
+```
+
+**Session handoff workflow:**
+- Read existing SESSION.md for current feature context
+- Update Context7 research findings as you discover them
+- Document technical decisions and implementation breadcrumbs
+- Use global SESSION.md template when starting new complex features
+
 ## Project Memory
 
 ### Key Decisions
