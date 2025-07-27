@@ -184,5 +184,33 @@ cat SESSION.md  # Read current session context if exists
 - **i18n missing keys**: Check both en.ts and tr.ts when adding translations
 - **Supabase RLS**: Test with actual user roles, not admin token
 
+### React Native Specific Patterns
+
+**Navigation Prop Issues:**
+```typescript
+// Common issue: TypeScript prop mismatch between navigator types
+// Solution: Simple wrapper component
+const WrappedScreen = (props: any) => <OriginalScreen {...props} />
+```
+
+**Nested Navigator Patterns:**
+- **Gesture Conflicts**: Always add `swipeEnabled: false` when maps/gestures conflict with tab swipers
+- **Architecture**: BottomTab → TopTab → Screens (not Screen → TopTab)
+- **Props Flow**: React Navigation automatically provides navigation/route props
+
+**Component Reuse Guidelines:**
+- ✅ **First choice**: Reuse existing screen with wrapper if prop mismatch
+- ✅ **Second choice**: Extract common logic into shared component  
+- ❌ **Last resort**: Duplicate screen functionality
+
+**Common TypeScript Fixes:**
+```typescript
+// Prop adapter for navigation mismatches
+const ComponentWrapper = (props: any) => <OriginalComponent {...props} />
+
+// Optional navigation props
+interface ScreenProps extends Partial<UserTabScreenProps<"Screen">> {}
+```
+
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*
