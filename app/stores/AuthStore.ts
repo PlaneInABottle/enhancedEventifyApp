@@ -178,13 +178,11 @@ export const AuthStore = types
 
       try {
         yield supabase.auth.signOut()
+        // onAuthStateChange will handle clearing user state
       } catch (error) {
-        // Ignore server errors - we'll force logout anyway
+        console.error("AuthStore.signOut error:", error)
+        self.setProp("lastError", "errors:unknownError")
       } finally {
-        // Always clear local state regardless of server response
-        self.setProp("user", null)
-        self.setProp("isAuthenticated", false)
-        self.setProp("lastError", null)
         self.setProp("isLoading", false)
       }
     }),
