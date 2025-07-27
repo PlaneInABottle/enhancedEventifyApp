@@ -34,7 +34,7 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
 
     await mapStore.loadEventsInBounds({
       north,
-      south, 
+      south,
       east,
       west,
     })
@@ -50,7 +50,7 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
           style={$searchButton}
         />
       </View>
-      
+
       <MapView
         ref={mapRef}
         style={$map}
@@ -67,7 +67,7 @@ const $screenContent: ViewStyle = {
 
 const $searchContainer: ViewStyle = {
   position: "absolute",
-  top: 20,
+  top: '5%',
   left: 20,
   right: 20,
   zIndex: 1,
