@@ -35,17 +35,15 @@ export function validateEmail(email: string): ValidationResult {
  */
 export function validatePhone(phone: string, isRequired: boolean = false): ValidationResult {
   if (!phone || !phone.trim()) {
-    return isRequired 
-      ? { success: false, error: "errors:phoneRequired" }
-      : { success: true }
+    return isRequired ? { success: false, error: "errors:phoneRequired" } : { success: true }
   }
-  
+
   // Basic phone validation - allows international formats
   const phoneRegex = /^[\+]?[1-9][\d\s\-\(\)]{0,20}$/
   if (!phoneRegex.test(phone.trim())) {
     return { success: false, error: "errors:phoneInvalid" }
   }
-  
+
   return { success: true }
 }
 
@@ -54,20 +52,18 @@ export function validatePhone(phone: string, isRequired: boolean = false): Valid
  */
 export function validateUrl(url: string, isRequired: boolean = false): ValidationResult {
   if (!url || !url.trim()) {
-    return isRequired 
-      ? { success: false, error: "errors:urlRequired" }
-      : { success: true }
+    return isRequired ? { success: false, error: "errors:urlRequired" } : { success: true }
   }
-  
+
   try {
     // Add protocol if missing
-    const urlToValidate = url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`
+    const urlToValidate = url.trim().startsWith("http") ? url.trim() : `https://${url.trim()}`
     const urlObj = new URL(urlToValidate)
-    
-    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+
+    if (!["http:", "https:"].includes(urlObj.protocol)) {
       return { success: false, error: "errors:urlInvalid" }
     }
-    
+
     return { success: true }
   } catch {
     return { success: false, error: "errors:urlInvalid" }
@@ -81,18 +77,18 @@ export function validateStringLength(
   value: string,
   minLength?: number,
   maxLength?: number,
-  fieldName: string = "field"
+  fieldName: string = "field",
 ): ValidationResult {
   const length = value.trim().length
-  
+
   if (minLength !== undefined && length < minLength) {
     return { success: false, error: `errors:${fieldName}TooShort` as TxKeyPath }
   }
-  
+
   if (maxLength !== undefined && length > maxLength) {
     return { success: false, error: `errors:${fieldName}TooLong` as TxKeyPath }
   }
-  
+
   return { success: true }
 }
 
@@ -100,16 +96,16 @@ export function validateStringLength(
  * Validates required field
  */
 export function validateRequired(value: any, fieldName: string = "field"): ValidationResult {
-  const isEmpty = 
-    value === null || 
-    value === undefined || 
-    (typeof value === 'string' && !value.trim()) ||
+  const isEmpty =
+    value === null ||
+    value === undefined ||
+    (typeof value === "string" && !value.trim()) ||
     (Array.isArray(value) && value.length === 0)
-    
+
   if (isEmpty) {
     return { success: false, error: `errors:${fieldName}Required` as TxKeyPath }
   }
-  
+
   return { success: true }
 }
 
@@ -120,29 +116,29 @@ export function validateImageUpload(
   arrayBuffer: ArrayBuffer,
   mimeType: string,
   maxSizeMB: number = 5,
-  supportedTypes: string[] = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  supportedTypes: string[] = ["image/jpeg", "image/jpg", "image/png", "image/webp"],
 ): ValidationResult {
   // Check file exists
   if (!arrayBuffer || arrayBuffer.byteLength === 0) {
     return { success: false, error: "errors:fileEmpty" }
   }
-  
+
   // Check mime type
   if (!mimeType.startsWith("image/")) {
     return { success: false, error: "errors:fileNotImage" }
   }
-  
+
   // Check file size
   const maxSizeBytes = maxSizeMB * 1024 * 1024
   if (arrayBuffer.byteLength > maxSizeBytes) {
     return { success: false, error: "errors:fileTooLarge" }
   }
-  
+
   // Check supported types
   if (!supportedTypes.includes(mimeType)) {
     return { success: false, error: "errors:fileTypeNotSupported" }
   }
-  
+
   return { success: true }
 }
 

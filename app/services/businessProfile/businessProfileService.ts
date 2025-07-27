@@ -1,5 +1,11 @@
 import { supabase } from "@/clients/supabase/SupabaseClient"
-import { validateRequired, validateStringLength, validatePhone, validateUrl, validateImageUpload } from "@/utils/validation"
+import {
+  validateRequired,
+  validateStringLength,
+  validatePhone,
+  validateUrl,
+  validateImageUpload,
+} from "@/utils/validation"
 
 import type {
   BusinessProfile,
@@ -55,7 +61,7 @@ export async function updateBusinessProfile(
         return validation
       }
     }
-    
+
     const { data, error } = await supabase
       .from("business_profiles")
       .update(updates)

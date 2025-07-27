@@ -152,9 +152,10 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
     }
     // Compare arrays properly instead of using JSON.stringify
     const currentTypes = [...businessProfileStore.businessTypes] // Create mutable copy
-    const hasTypesChanged = editForm.business_types.length !== currentTypes.length || 
+    const hasTypesChanged =
+      editForm.business_types.length !== currentTypes.length ||
       editForm.business_types.some((type: BusinessType) => !currentTypes.includes(type))
-    
+
     if (hasTypesChanged) {
       updates.business_types = editForm.business_types
     }
@@ -229,8 +230,8 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
                 <ProfileField
                   labelTx="profile:businessTypes"
                   value={businessProfileStore.businessTypes
-                    .map(type => {
-                      const option = businessTypeOptions.find(opt => opt.value === type)
+                    .map((type) => {
+                      const option = businessTypeOptions.find((opt) => opt.value === type)
                       return option ? translate(option.labelTx as any) : type
                     })
                     .join(", ")}
