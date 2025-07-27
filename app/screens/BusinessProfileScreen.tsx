@@ -142,11 +142,7 @@ export const BusinessProfileScreen: FC<BusinessProfileScreenProps> = observer(()
       return
     }
 
-    // Basic validation
-    if (!editForm.business_name.trim()) {
-      Alert.simple(translate("profile:error"), translate("profile:businessNameRequired"))
-      return
-    }
+    // Validation is now handled in the service layer
 
     const updates: UpdateBusinessProfileRequest = {}
 
