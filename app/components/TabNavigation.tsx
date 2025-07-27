@@ -1,10 +1,14 @@
 import React from 'react'
-import { View, Text, ViewStyle, FlatList } from 'react-native'
+import { View, FlatList, ViewStyle, TextStyle } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { MapScreen } from "@/screens/MapScreen"
+import { Screen } from "@/components/Screen"
+import { Text } from "@/components/Text"
 import { EventCard } from "@/components/EventCard"
 import { useStores } from "@/models/helpers/useStores"
+import { useAppTheme } from "@/theme/context"
 import { observer } from 'mobx-react-lite'
+import type { ThemedStyle } from "@/theme/types"
 
 // BREADCRUMB: Just added MapView import
 // TODO: Update MapTabScreen to use real map components next
@@ -19,6 +23,7 @@ const MapTabScreen = (props: any) => <MapScreen {...props} />
 
 const ListTabScreen = observer(() => {
   const { mapStore } = useStores()
+  const { themed } = useAppTheme()
 
   const loadTestEvents = () => {
     // Temporary test data to verify UI components work  
@@ -31,13 +36,13 @@ const ListTabScreen = observer(() => {
         end_datetime: "2025-01-28T22:00:00Z",
         event_instance_status: "active",
         max_attendees: 100,
-        event_title: "Test Concert",
-        event_description: "A great test event",
-        venue_name: "Test Venue",
+        event_title: "Jazz Night at Downtown",
+        event_description: "Experience an incredible evening of smooth jazz with local artists in an intimate venue setting",
+        venue_name: "Blue Note Cafe",
         venue_capacity: 200,
         coordinates: { type: "Point" as const, coordinates: [29.0, 41.0] },
-        full_address: "123 Test Street",
-        city: "Test City"
+        full_address: "123 Music Street, Downtown",
+        city: "Istanbul"
       },
       {
         instance_id: "test-2",
@@ -47,26 +52,46 @@ const ListTabScreen = observer(() => {
         end_datetime: "2025-01-29T23:00:00Z",
         event_instance_status: "active",
         max_attendees: 50,
-        event_title: "Test Workshop", 
-        event_description: "Learn something new",
-        venue_name: "Learning Center",
+        event_title: "Photography Workshop", 
+        event_description: "Learn advanced portrait photography techniques from professional photographers",
+        venue_name: "Creative Studio",
         venue_capacity: 75,
         coordinates: { type: "Point" as const, coordinates: [29.1, 41.1] },
-        full_address: "456 Learning Ave",
-        city: "Test City"
+        full_address: "456 Art Avenue, Beyoğlu",
+        city: "Istanbul"
+      },
+      {
+        instance_id: "test-3",
+        event_id: "event-3",
+        venue_id: "venue-3", 
+        start_datetime: "2025-01-30T18:00:00Z",
+        end_datetime: "2025-01-30T21:00:00Z",
+        event_instance_status: "active",
+        max_attendees: 150,
+        event_title: "Food & Wine Tasting",
+        event_description: "Discover local flavors and international wines",
+        venue_name: "Rooftop Restaurant",
+        venue_capacity: 200,
+        coordinates: { type: "Point" as const, coordinates: [28.9, 41.05] },
+        full_address: "789 Taste Boulevard, Kadıköy",
+        city: "Istanbul"
       }
     ]
     mapStore.setEvents(testEvents as any)
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <Screen preset="fixed" contentContainerStyle={themed($screenContainer)}>
       {mapStore.events.length === 0 && (
-        <View style={{ padding: 20, alignItems: 'center' }}>
-          <Text>No events found</Text>
-          <Text style={{ marginBottom: 16, fontSize: 12 }}>Load test events to verify the UI:</Text>
+        <View style={themed($emptyStateContainer)}>
+          <Text preset="subheading" style={themed($emptyStateTitle)}>
+            No events found
+          </Text>
+          <Text size="sm" style={themed($emptyStateSubtitle)}>
+            Load test events to verify the UI:
+          </Text>
           <Text 
-            style={{ color: 'blue', textDecorationLine: 'underline' }}
+            style={themed($loadButton)}
             onPress={loadTestEvents}
           >
             Load Test Events
@@ -78,8 +103,9 @@ const ListTabScreen = observer(() => {
         renderItem={({ item }) => <EventCard event={item} />}
         keyExtractor={(item) => item.instance_id}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={themed($listContainer)}
       />
-    </View>
+    </Screen>
   )
 })
 
@@ -109,5 +135,36 @@ export const TabNavigation = (props: TabNavigationProps) => {
 // BREADCRUMB: Just completed props passing to MapTabScreen
 // TODO: Update MapScreen to pass actual props to TabNavigation
 
-// BREADCRUMB: Just completed TabNavigation using existing MapScreen
-// TODO: Create EventListScreen for List tab next
+const $screenContainer: ThemedStyle<ViewStyle> = (theme) => ({
+  flex: 1,
+  backgroundColor: theme.colors.background,
+})
+
+const $emptyStateContainer: ThemedStyle<ViewStyle> = (theme) => ({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: theme.spacing.xl,
+})
+
+const $emptyStateTitle: ThemedStyle<ViewStyle> = (theme) => ({
+  textAlign: 'center',
+  marginBottom: theme.spacing.sm,
+})
+
+const $emptyStateSubtitle: ThemedStyle<TextStyle> = (theme) => ({
+  textAlign: 'center',
+  color: theme.colors.textDim,
+  marginBottom: theme.spacing.lg,
+})
+
+const $loadButton: ThemedStyle<TextStyle> = (theme) => ({
+  color: theme.colors.tint,
+  textDecorationLine: 'underline',
+  fontWeight: '600',
+})
+
+const $listContainer: ThemedStyle<ViewStyle> = (theme) => ({
+  paddingTop: theme.spacing.sm,
+  paddingBottom: theme.spacing.xl,
+})

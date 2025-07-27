@@ -1,6 +1,8 @@
 import React from 'react'
-import { View, ViewStyle } from 'react-native'
+import { View, ViewStyle, TextStyle, Platform } from 'react-native'
 import { Text } from "@/components/Text"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
 
 import { MapEventInstanceModel } from "@/models/MapModels"
 
@@ -9,27 +11,84 @@ export interface EventCardProps {
 }
 
 export const EventCard = ({ event }: EventCardProps) => {
+  const { themed } = useAppTheme()
+  
   return (
-    <View style={$container}>
-      <Text preset="subheading">{event.event_title}</Text>
-      <Text>{event.venue_name}</Text>
-      <Text size="sm">{event.formattedStartTime}</Text>
+    <View style={themed($container)}>
+      {/* Image placeholder for future image support */}
+      <View style={themed($imagePlaceholder)} />
+      
+      <View style={themed($content)}>
+        <Text preset="subheading" style={themed($title)} numberOfLines={2}>
+          {event.event_title}
+        </Text>
+        
+        <View style={themed($venueInfo)}>
+          <Text style={themed($venue)} numberOfLines={1}>
+            {event.venue_name}
+          </Text>
+          <Text size="sm" style={themed($dateTime)}>
+            {event.formattedStartTime}
+          </Text>
+        </View>
+        
+        {event.event_description && (
+          <Text size="sm" style={themed($description)} numberOfLines={2}>
+            {event.event_description}
+          </Text>
+        )}
+      </View>
     </View>
   )
 }
 
-const $container: ViewStyle = {
-  padding: 16,
-  marginVertical: 8,
-  marginHorizontal: 16,
-  backgroundColor: '#ffffff',
-  borderRadius: 8,
-  elevation: 2,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.2,
-  shadowRadius: 2,
-}
+const $container: ThemedStyle<ViewStyle> = (theme) => ({
+  marginVertical: theme.spacing.sm,
+  marginHorizontal: theme.spacing.lg,
+  backgroundColor: theme.colors.palette.neutral100,
+  borderRadius: theme.spacing.sm,
+  borderWidth: 1,
+  borderColor: theme.colors.palette.neutral300,
+  overflow: 'hidden',
+  ...(Platform.OS === "web"
+    ? { boxShadow: `0 2px 8px rgba(0, 0, 0, 0.08)` }
+    : {
+        shadowColor: theme.colors.palette.neutral800,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 4,
+      }),
+})
 
-// BREADCRUMB: Just added container style for EventCard
-// TODO: Add Text import and event content display next
+const $imagePlaceholder: ThemedStyle<ViewStyle> = (theme) => ({
+  height: 120,
+  backgroundColor: theme.colors.palette.neutral300,
+})
+
+const $content: ThemedStyle<ViewStyle> = (theme) => ({
+  padding: theme.spacing.lg,
+})
+
+const $title: ThemedStyle<ViewStyle> = (theme) => ({
+  marginBottom: theme.spacing.xs,
+})
+
+const $venueInfo: ThemedStyle<ViewStyle> = (theme) => ({
+  marginBottom: theme.spacing.sm,
+})
+
+const $venue: ThemedStyle<TextStyle> = (theme) => ({
+  color: theme.colors.textDim,
+  marginBottom: theme.spacing.xxs,
+})
+
+const $dateTime: ThemedStyle<TextStyle> = (theme) => ({
+  color: theme.colors.tint,
+  fontWeight: '600',
+})
+
+const $description: ThemedStyle<TextStyle> = (theme) => ({
+  color: theme.colors.textDim,
+  lineHeight: 18,
+})
