@@ -212,5 +212,45 @@ const ComponentWrapper = (props: any) => <OriginalComponent {...props} />
 interface ScreenProps extends Partial<UserTabScreenProps<"Screen">> {}
 ```
 
+### React Native Theming Best Practices
+
+**When creating new components:**
+- ✅ **Always use ThemedStyle<ViewStyle|TextStyle>** instead of static styles
+- ✅ **Platform-specific shadows**: `Platform.OS === "web" ? { boxShadow } : { shadowColor, elevation }`
+- ✅ **Color patterns**: `theme.colors.palette.neutral100` for backgrounds, `theme.colors.textDim` for secondary text
+- ✅ **Spacing consistency**: Use `theme.spacing.lg` instead of hardcoded pixels
+- ✅ **Import structure**: `import type { ThemedStyle } from "@/theme/types"`
+
+**Theming Pattern:**
+```typescript
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
+
+const Component = () => {
+  const { themed } = useAppTheme()
+  return <View style={themed($container)} />
+}
+
+const $container: ThemedStyle<ViewStyle> = (theme) => ({
+  backgroundColor: theme.colors.palette.neutral100,
+  padding: theme.spacing.lg,
+  ...(Platform.OS === "web"
+    ? { boxShadow: `0 2px 8px rgba(0, 0, 0, 0.08)` }
+    : {
+        shadowColor: theme.colors.palette.neutral800,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 4,
+      }),
+})
+```
+
+**Common mistakes prevented:**
+- Using hardcoded colors that break in dark mode
+- Inconsistent spacing not matching design system
+- Missing platform-specific shadow handling
+- Wrong import paths for ThemedStyle type
+
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*
