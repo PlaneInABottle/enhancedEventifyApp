@@ -208,7 +208,7 @@ describe("uploadLogo", () => {
     const result = await uploadLogo("test-id", emptyBuffer, "image/png")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("Invalid file")
+    expect(result.error).toBe("errors:fileEmpty")
   })
 
   it("should handle storage upload error", async () => {
@@ -232,7 +232,7 @@ describe("uploadLogo", () => {
     const result = await uploadLogo("test-id", mockArrayBuffer, "application/pdf")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("Invalid file type")
+    expect(result.error).toBe("errors:fileNotImage")
   })
 
   it("should reject file exceeding 5MB limit", async () => {
@@ -240,6 +240,6 @@ describe("uploadLogo", () => {
     const result = await uploadLogo("test-id", largeBuffer, "image/png")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("File too large")
+    expect(result.error).toBe("errors:fileTooLarge")
   })
 })
