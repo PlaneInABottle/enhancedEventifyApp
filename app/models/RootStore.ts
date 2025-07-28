@@ -4,6 +4,7 @@ import { AuthStore } from "@/stores/AuthStore"
 import { BusinessProfileStore } from "@/stores/BusinessProfileStore"
 import { UserProfileStore } from "@/stores/UserProfileStore"
 import { MapStore } from "@/stores/MapStore"
+import { VenueStore } from "@/stores/VenueStore"
 
 import { EpisodeStoreModel } from "./EpisodeStore" // @demo remove-current-line
 
@@ -15,6 +16,7 @@ export const RootStoreModel = types.model("RootStore").props({
   userProfileStore: types.optional(UserProfileStore, {}),
   mapStore: types.optional(MapStore, {}),
   businessProfileStore: types.optional(BusinessProfileStore, {}),
+  venueStore: types.optional(VenueStore, {}),
   episodeStore: types.optional(EpisodeStoreModel, {}), // @demo remove-current-line
 })
 

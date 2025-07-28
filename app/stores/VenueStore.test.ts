@@ -50,7 +50,7 @@ describe("VenueStore", () => {
         address: {
           id: "address-1",
           full_address: "Test Address 1",
-          city: "İstanbul",
+          city: "İstanbul" as const,
           country: "Turkey",
           postal_code: "34000",
           coordinates: null,
@@ -199,7 +199,7 @@ describe("VenueStore", () => {
       address: {
         id: "address-1",
         full_address: "Test Address",
-        city: "İstanbul",
+        city: "İstanbul" as const,
         country: "Turkey",
         postal_code: "34000",
         coordinates: null,
