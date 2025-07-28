@@ -45,14 +45,7 @@ export async function getVenueById(venueId: string): Promise<VenueServiceResult>
 export async function getVenuesByBusiness(businessId: string): Promise<VenueListResult> {
   try {
     const { data, error } = await supabase
-      .from("venues")
-      .select(`
-        *,
-        address:addresses(*)
-      `)
-      .eq("business_id", businessId)
-      .eq("is_active", true)
-      .order("name")
+      .rpc("get_venues_by_business", { business_id_param: businessId })
 
     if (error) {
       return { success: false, error: error.message }
