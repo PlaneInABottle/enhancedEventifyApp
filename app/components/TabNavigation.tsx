@@ -7,6 +7,7 @@ import { Text } from "@/components/Text"
 import { EventCard } from "@/components/EventCard"
 import { useStores } from "@/models/helpers/useStores"
 import { useAppTheme } from "@/theme/context"
+import { translate } from "@/i18n/translate"
 import { observer } from 'mobx-react-lite'
 import type { ThemedStyle } from "@/theme/types"
 
@@ -23,10 +24,8 @@ const ListTabScreen = observer(() => {
     <Screen preset="fixed" contentContainerStyle={themed($screenContainer)}>
       {mapStore.events.length === 0 && (
         <View style={themed($emptyState)}>
-          <Text preset="subheading">No events found</Text>
-          <Text size="sm" style={themed($emptySubtitle)}>
-            Try adjusting the map view to load events from the area
-          </Text>
+          <Text preset="subheading" tx="eventListing:noEventsTitle" />
+          <Text size="sm" style={themed($emptySubtitle)} tx="eventListing:noEventsSubtitle" />
         </View>
       )}
       <FlatList
@@ -51,8 +50,16 @@ export const TabNavigation = (props: TabNavigationProps) => {
         swipeEnabled: false,
       }}
     >
-      <Tab.Screen name="Map" component={MapTabScreen} />
-      <Tab.Screen name="List" component={ListTabScreen} />
+      <Tab.Screen 
+        name="Map" 
+        component={MapTabScreen}
+        options={{ title: translate("eventListing:mapTab") }}
+      />
+      <Tab.Screen 
+        name="List" 
+        component={ListTabScreen}
+        options={{ title: translate("eventListing:listTab") }}
+      />
     </Tab.Navigator>
   )
 }

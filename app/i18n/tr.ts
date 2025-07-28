@@ -198,6 +198,12 @@ const tr = {
     errorLoadingEvents: "Etkinlikler yüklenirken hata",
     searchFailedMessage: "Bu alanda etkinlik arama başarısız. Lütfen tekrar deneyin.",
   },
+  eventListing: {
+    noEventsTitle: "Etkinlik bulunamadı",
+    noEventsSubtitle: "Bölgedeki etkinlikleri yüklemek için harita görünümünü ayarlayın",
+    listTab: "Liste",
+    mapTab: "Harita",
+  },
   profile: {
     userProfile: "Kullanıcı Profili",
     profileInformation: "Profil Bilgileri",

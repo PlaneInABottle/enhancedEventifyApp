@@ -198,6 +198,12 @@ const en = {
     errorLoadingEvents: "Error loading events",
     searchFailedMessage: "Failed to search events in this area. Please try again.",
   },
+  eventListing: {
+    noEventsTitle: "No events found",
+    noEventsSubtitle: "Try adjusting the map view to load events from the area",
+    listTab: "List",
+    mapTab: "Map",
+  },
   profile: {
     userProfile: "User Profile",
     profileInformation: "Profile Information",
