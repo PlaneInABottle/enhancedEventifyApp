@@ -252,5 +252,30 @@ const $container: ThemedStyle<ViewStyle> = (theme) => ({
 - Missing platform-specific shadow handling
 - Wrong import paths for ThemedStyle type
 
+### React Native I18n Best Practices
+
+**When adding new UI text:**
+- ✅ **Never use hardcoded strings** - Always use translation keys from the start
+- ✅ **Namespace organization**: Group related keys (e.g., `eventListing:`, `map:`, `profile:`)
+- ✅ **Consistent key naming**: Use camelCase for translation keys
+- ✅ **Complete coverage**: Add both English and Turkish translations simultaneously
+- ✅ **Proper syntax**: Use `tx="namespace:key"` for Text components, `translate("namespace:key")` for strings
+
+**Translation Key Patterns:**
+```typescript
+// Add to both en.ts and tr.ts
+featureName: {
+  actionButton: "Action Text" / "İşlem Metni",
+  emptyStateTitle: "No items found" / "Öğe bulunamadı",
+  emptyStateSubtitle: "Try adjusting..." / "Ayarlamayı deneyin...",
+}
+```
+
+**Common mistakes prevented:**
+- Using hardcoded text that breaks localization
+- Inconsistent translation key formats
+- Missing Turkish translations
+- Wrong tx prop syntax (use `:` not `.` for namespaces)
+
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*
