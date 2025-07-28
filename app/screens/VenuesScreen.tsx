@@ -6,6 +6,7 @@ import { Button } from "@/components/Button"
 import { ListView } from "@/components/ListView"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
+import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
@@ -27,17 +28,19 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
     <View style={themed($venueCard)}>
       <Text style={themed($venueName)}>{item.name}</Text>
       <Text style={themed($venueDescription)}>{item.description}</Text>
-      <Text style={themed($venueCapacity)}>Capacity: {item.capacity}</Text>
+      <Text style={themed($venueCapacity)}>
+        {translate("common:capacity")}: {item.capacity}
+      </Text>
       <Text style={themed($venueAddress)}>
-        {item.address?.full_address || "Address not available"}
+        {item.address?.full_address || translate("venuesScreen:addressNotAvailable")}
       </Text>
     </View>
   )
 
   const renderEmptyList = () => (
     <View style={themed($emptyContainer)}>
-      <Text>No venues found</Text>
-      <Text style={themed($emptySubtext)}>Add your first venue to get started</Text>
+      <Text tx="venuesScreen:noVenuesFound" />
+      <Text tx="venuesScreen:noVenuesSubtext" style={themed($emptySubtext)} />
     </View>
   )
 
@@ -45,16 +48,14 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
     <Screen preset="fixed" safeAreaEdges={["top"]} contentContainerStyle={themed($screenContainer)}>
       <View style={themed($header)}>
         <Text preset="heading" style={themed($title)}>
-          Venues ({venueStore.venues.length})
+          {translate("venuesScreen:title")} ({venueStore.venues.length})
         </Text>
-        <Button preset="filled">
-          Add Venue
-        </Button>
+        <Button preset="filled" tx="common:addVenue" />
       </View>
       
       {venueStore.isLoading ? (
         <View style={themed($loadingContainer)}>
-          <Text>Loading venues...</Text>
+          <Text tx="venuesScreen:loadingVenues" />
         </View>
       ) : (
         <ListView

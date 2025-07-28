@@ -15,6 +15,9 @@ const en = {
     yes: "Yes",
     no: "No",
     chooseOption: "Choose an option",
+    loading: "Loading...",
+    capacity: "Capacity",
+    addVenue: "Add Venue",
   },
   welcomeScreen: {
     postscript:
@@ -81,6 +84,14 @@ const en = {
     businessNameRequired: "Business name is required",
     descriptionTooLong: "Description must be less than 500 characters",
     descriptionTooShort: "Description is too short",
+    fetchVenuesFailed: "Failed to load venues",
+  },
+  venuesScreen: {
+    title: "Venues",
+    noVenuesFound: "No venues found",
+    noVenuesSubtext: "Add your first venue to get started",
+    loadingVenues: "Loading venues...",
+    addressNotAvailable: "Address not available",
   },
   loginScreen: {
     logIn: "Log In",

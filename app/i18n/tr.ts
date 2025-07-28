@@ -15,6 +15,9 @@ const tr = {
     yes: "Evet",
     no: "Hayır",
     chooseOption: "Bir seçenek seçin",
+    loading: "Yükleniyor...",
+    capacity: "Kapasite",
+    addVenue: "Mekan Ekle",
   },
   welcomeScreen: {
     postscript:
@@ -82,6 +85,14 @@ const tr = {
     businessNameRequired: "İş yeri adı gereklidir",
     descriptionTooLong: "Açıklama 500 karakterden az olmalıdır",
     descriptionTooShort: "Açıklama çok kısa",
+    fetchVenuesFailed: "Mekanlar yüklenemedi",
+  },
+  venuesScreen: {
+    title: "Mekanlar",
+    noVenuesFound: "Mekan bulunamadı",
+    noVenuesSubtext: "Başlamak için ilk mekanınızı ekleyin",
+    loadingVenues: "Mekanlar yükleniyor...",
+    addressNotAvailable: "Adres mevcut değil",
   },
   loginScreen: {
     logIn: "Giriş Yap",
