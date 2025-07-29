@@ -277,5 +277,57 @@ featureName: {
 - Missing Turkish translations
 - Wrong tx prop syntax (use `:` not `.` for namespaces)
 
+## Common Issues & Solutions
+
+### React Native Specific Issues
+
+**"TypeScript errors after changes"**
+```bash
+npx tsc --noEmit                  # See all errors
+npm ls @types/react-native        # Check RN type versions
+rm -rf node_modules && npm i      # Clean reinstall
+```
+
+**"Tests passing locally but failing in CI"**
+- Check for timing dependencies: `await waitFor(() => ...)`
+- Look for platform differences: `Platform.OS` checks
+- Ensure all mocks are properly reset: `jest.clearAllMocks()`
+- Verify React Native mocks in jest.setup.js
+
+**"Import errors after moving files"**
+```bash
+# Update all imports automatically
+grep -r "old/path" . --exclude-dir=node_modules | cut -d: -f1 | xargs sed -i 's|old/path|new/path|g'
+# Update TypeScript paths in tsconfig.json
+```
+
+**"Metro bundler issues"**
+```bash
+npx react-native start --reset-cache   # Clear Metro cache
+rm -rf $TMPDIR/metro-*                 # Clear Metro temp files
+cd ios && pod install && cd ..         # Reinstall iOS deps
+```
+
+**"Dependency version conflicts"**
+```bash
+npm ls packagename               # See all versions in tree
+npm dedupe                       # Flatten duplicates
+npx react-native doctor          # Check RN setup
+```
+
+### Expo-Specific Issues
+
+**"Expo Go not updating"**
+```bash
+expo start -c                    # Clear cache
+rm -rf .expo                     # Remove local expo cache
+expo prebuild --clean            # Clean prebuild artifacts
+```
+
+**"Platform-specific styling issues"**
+- Always test on both iOS and Android
+- Use Platform.select() for platform differences
+- Check shadow properties (iOS) vs elevation (Android)
+
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*
