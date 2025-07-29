@@ -1,37 +1,36 @@
-import React, { memo } from 'react'
+import React from 'react'
 import { View, ViewStyle, TextStyle, TouchableOpacity } from 'react-native'
-import { PointAnnotation } from '@rnmapbox/maps'
 import { Text } from '@/components/Text'
 import { useAppTheme } from '@/theme/context'
 import type { ThemedStyle } from '@/theme/types'
 import type { VenueWithEvents } from '@/stores/MapStore'
 
-interface VenuePinProps {
+interface VenuePinContentProps {
   venue: VenueWithEvents
-  onPress: (venue: VenueWithEvents) => void
+  onPress?: () => void
 }
 
-export const VenuePin = memo<VenuePinProps>(({ venue, onPress }: VenuePinProps) => {
+export const VenuePinContent = ({ venue, onPress }: VenuePinContentProps) => {
   const { themed } = useAppTheme()
   const eventCount = venue.events.length
   const isMultipleEvents = eventCount > 1
 
-  return (
-    <PointAnnotation
-      id={venue.venue_id}
-      coordinate={[venue.longitude, venue.latitude]}
-      onSelected={() => onPress(venue)}
-    >
-      <View style={themed(isMultipleEvents ? $multiEventPin : $singleEventPin)}>
-        <Text 
-          text={eventCount.toString()} 
-          style={themed($pinText)}
-          size="xs"
-        />
-      </View>
-    </PointAnnotation>
+  const content = (
+    <View style={themed(isMultipleEvents ? $multiEventPin : $singleEventPin)}>
+      <Text 
+        text={eventCount.toString()} 
+        style={themed($pinText)}
+        size="xs"
+      />
+    </View>
   )
-})
+
+  return onPress ? (
+    <TouchableOpacity onPress={onPress}>
+      {content}
+    </TouchableOpacity>
+  ) : content
+}
 
 const $singleEventPin: ThemedStyle<ViewStyle> = (theme) => ({
   width: 24,

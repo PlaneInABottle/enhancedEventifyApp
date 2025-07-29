@@ -36,16 +36,38 @@ app/
 **Essential Commands:**
 ```bash
 # Development
-expo start              # Start dev server
-npm run ios            # Run on iOS simulator
-npm run android        # Run on Android emulator
-npm run web            # Run on web browser
+bun start               # Start dev server (expo start --dev-client)
+bun run ios             # Run on iOS simulator
+bun run android         # Run on Android emulator
+bun run web             # Run on web browser
 
 # Quality Checks (Run before committing)
-npx tsc --noEmit       # TypeScript check
-npm run lint           # ESLint check
-npm test               # Run all tests
-npm run test:watch     # Watch mode for TDD
+bun run compile         # TypeScript check (tsc --noEmit)
+bun run lint            # ESLint check with auto-fix
+bun run lint:check      # ESLint check without fixing
+bun test                # Run all tests
+bun run test:watch      # Watch mode for TDD
+
+# Build Commands
+bun run bundle:web      # Export web build
+bun run serve:web       # Serve web build locally
+bun run prebuild:clean  # Clean prebuild
+
+# Testing
+bun run test:maestro        # Run Maestro mobile app tests
+
+# EAS Build Commands (Local builds)
+bun run build:ios:sim      # iOS simulator build
+bun run build:ios:dev      # iOS device development
+bun run build:ios:preview  # iOS preview build
+bun run build:ios:prod     # iOS production build
+bun run build:android:sim  # Android simulator build
+bun run build:android:dev  # Android device development
+bun run build:android:preview # Android preview build
+bun run build:android:prod    # Android production build
+
+# Android Development Setup
+bun run adb                # Setup ADB port forwarding
 
 # Database Testing (pgTAP with CRITICAL rollback requirement)
 # ALWAYS run with rollback - tests modify database state
@@ -103,7 +125,7 @@ export const StoreModel = types
 ```typescript
 // Modified TDD: Implement first, then test
 // 1. Write complete function
-// 2. Run npx tsc --noEmit
+// 2. Run bun run compile
 // 3. Write comprehensive tests
 describe('ComponentName', () => {
   it('renders correctly', () => {
@@ -133,7 +155,7 @@ Use `mcp__supabase__*` tools for database operations instead of CLI commands
 ```bash
 # Create test file: ComponentName.test.tsx
 # Run in watch mode while developing
-npm run test:watch ComponentName
+bun run test:watch ComponentName
 
 # Always mock these:
 jest.mock('@/theme/context')
@@ -283,9 +305,9 @@ featureName: {
 
 **"TypeScript errors after changes"**
 ```bash
-npx tsc --noEmit                  # See all errors
-npm ls @types/react-native        # Check RN type versions
-rm -rf node_modules && npm i      # Clean reinstall
+bun run compile                   # See all errors (tsc --noEmit)
+bun pm ls @types/react-native     # Check RN type versions
+rm -rf node_modules && bun i      # Clean reinstall
 ```
 
 **"Tests passing locally but failing in CI"**
@@ -310,8 +332,8 @@ cd ios && pod install && cd ..         # Reinstall iOS deps
 
 **"Dependency version conflicts"**
 ```bash
-npm ls packagename               # See all versions in tree
-npm dedupe                       # Flatten duplicates
+bun pm ls packagename            # See all versions in tree
+bun run align-deps               # Fix Expo dependencies
 npx react-native doctor          # Check RN setup
 ```
 

@@ -1,11 +1,11 @@
-import { FC, useRef, useCallback, useEffect, useState, useMemo } from "react"
+import { FC, useRef, useCallback, useEffect, useState } from "react"
 import { ViewStyle, View, Alert } from "react-native"
-import { MapView } from "@rnmapbox/maps"
+import { MapView, MarkerView } from "@rnmapbox/maps"
 import { observer } from "mobx-react-lite"
 
 import { Screen } from "@/components/Screen"
 import { Button } from "@/components/Button"
-import { VenuePin } from "@/components/VenuePin"
+import { VenuePinContent } from "@/components/VenuePinContent"
 import { EventListModal } from "@/components/EventListModal"
 import { useStores } from "@/models/helpers/useStores"
 import { translate } from "@/i18n/translate"
@@ -59,6 +59,7 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
     setSelectedVenue(null)
   }, [])
 
+
   return (
     <Screen preset="fixed" contentContainerStyle={$screenContent}>
       <View style={$searchContainer}>
@@ -77,13 +78,19 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
         scaleBarEnabled={false}
       >
         {mapStore.venuesWithEvents.map((venue) => (
-          <VenuePin
+          <MarkerView
             key={venue.venue_id}
-            venue={venue}
-            onPress={handleVenuePress}
-          />
+            coordinate={[venue.longitude, venue.latitude]}
+            allowOverlap={true}
+          >
+            <VenuePinContent 
+              venue={venue} 
+              onPress={() => handleVenuePress(venue)} 
+            />
+          </MarkerView>
         ))}
       </MapView>
+
 
       <EventListModal
         visible={modalVisible}

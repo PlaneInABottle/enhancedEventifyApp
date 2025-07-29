@@ -26,7 +26,7 @@ export async function getMapBounds(mapRef: any): Promise<MapBounds> {
     return { north, south, east, west }
   }
 
-  // Web (@rnmapbox/maps) - the actual mapbox-gl instance is nested
+  // Web (@rnmapbox/maps) - attempt to access web map instance
   const webMap = mapComponent.map
   if (webMap && typeof webMap.getBounds === 'function') {
     const bounds = webMap.getBounds()
