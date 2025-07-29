@@ -35,6 +35,9 @@ const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 const mockMapStore = {
   isLoading: false,
   loadEventsInBounds: jest.fn(),
+  venuesWithEvents: [],
+  lastError: null,
+  clearError: jest.fn(),
 }
 
 describe("MapScreen", () => {
