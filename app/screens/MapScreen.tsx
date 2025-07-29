@@ -1,5 +1,5 @@
 import { FC, useRef, useCallback, useEffect, useState } from "react"
-import { ViewStyle, View, Alert } from "react-native"
+import { View, Alert, ViewStyle } from "react-native"
 import { MapView, MarkerView } from "@rnmapbox/maps"
 import { observer } from "mobx-react-lite"
 
@@ -8,14 +8,17 @@ import { Button } from "@/components/Button"
 import { VenuePinContent } from "@/components/VenuePinContent"
 import { EventListModal } from "@/components/EventListModal"
 import { useStores } from "@/models/helpers/useStores"
+import { useAppTheme } from "@/theme/context"
 import { translate } from "@/i18n/translate"
 import { getMapBounds } from "@/services/map"
 import type { UserTabScreenProps } from "@/navigators/UserNavigator"
 import type { VenueWithEvents } from "@/stores/MapStore"
+import type { ThemedStyle } from "@/theme/types"
 
 interface MapScreenProps extends UserTabScreenProps<"Map" | "Moderate"> { }
 
 export const MapScreen: FC<MapScreenProps> = observer(() => {
+  const { themed } = useAppTheme()
   const mapRef = useRef<MapView>(null)
   const { mapStore } = useStores()
   const [selectedVenue, setSelectedVenue] = useState<VenueWithEvents | null>(null)
@@ -61,19 +64,19 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
 
 
   return (
-    <Screen preset="fixed" contentContainerStyle={$screenContent}>
-      <View style={$searchContainer}>
+    <Screen preset="fixed" contentContainerStyle={themed($screenContent)}>
+      <View style={themed($searchContainer)}>
         <Button
           tx="map:searchThisArea"
           onPress={handleSearchArea}
           disabled={mapStore.isLoading}
-          style={$searchButton}
+          style={themed($searchButton)}
         />
       </View>
 
       <MapView
         ref={mapRef}
-        style={$map}
+        style={themed($map)}
         styleURL="mapbox://styles/mapbox/streets-v12"
         scaleBarEnabled={false}
       >
@@ -101,22 +104,22 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
   )
 })
 
-const $screenContent: ViewStyle = {
+const $screenContent: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
-}
+})
 
-const $searchContainer: ViewStyle = {
+const $searchContainer: ThemedStyle<ViewStyle> = () => ({
   position: "absolute",
   top: '5%',
   left: 20,
   right: 20,
   zIndex: 1,
-}
+})
 
-const $searchButton: ViewStyle = {
+const $searchButton: ThemedStyle<ViewStyle> = () => ({
   alignSelf: "center",
-}
+})
 
-const $map: ViewStyle = {
+const $map: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
-}
+})

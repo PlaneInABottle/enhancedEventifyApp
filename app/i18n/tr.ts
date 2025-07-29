@@ -5,6 +5,7 @@ const tr = {
     ok: "Tamam!",
     cancel: "İptal",
     back: "Geri",
+    close: "Kapat",
     logOut: "Çıkış Yap",
     error: "Hata",
     map: "Harita",
@@ -198,6 +199,7 @@ const tr = {
     noEventsFound: "Bu alanda etkinlik bulunamadı",
     errorLoadingEvents: "Etkinlikler yüklenirken hata",
     searchFailedMessage: "Bu alanda etkinlik arama başarısız. Lütfen tekrar deneyin.",
+    eventCount: "{{count}} Etkinlik",
   },
   eventListing: {
     noEventsTitle: "Etkinlik bulunamadı",

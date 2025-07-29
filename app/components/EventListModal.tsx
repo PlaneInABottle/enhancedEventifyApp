@@ -46,7 +46,7 @@ export const EventListModal = ({ visible, onClose, venue }: EventListModalProps)
             onPress={onClose}
             style={themed($closeButton)}
           >
-            <Text text="Close" style={themed($closeText)} />
+            <Text tx="common:close" style={themed($closeText)} />
           </TouchableOpacity>
         </View>
 
@@ -54,7 +54,8 @@ export const EventListModal = ({ visible, onClose, venue }: EventListModalProps)
         <View style={themed($eventsContainer)}>
           <Text 
             preset="subheading" 
-            text={`${venue.events.length} ${venue.events.length === 1 ? 'Event' : 'Events'}`}
+            tx="map:eventCount"
+            txOptions={{ count: venue.events.length }}
             style={themed($eventsTitle)}
           />
           

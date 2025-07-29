@@ -5,6 +5,7 @@ const en = {
     ok: "OK!",
     cancel: "Cancel",
     back: "Back",
+    close: "Close",
     logOut: "Log Out",
     error: "Error",
     map: "Map",
@@ -198,6 +199,7 @@ const en = {
     noEventsFound: "No events found in this area",
     errorLoadingEvents: "Error loading events",
     searchFailedMessage: "Failed to search events in this area. Please try again.",
+    eventCount: "{{count}} Event",
   },
   eventListing: {
     noEventsTitle: "No events found",
