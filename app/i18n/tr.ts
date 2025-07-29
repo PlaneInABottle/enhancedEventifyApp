@@ -6,6 +6,7 @@ const tr = {
     cancel: "İptal",
     back: "Geri",
     logOut: "Çıkış Yap",
+    error: "Hata",
     map: "Harita",
     events: "Etkinlikler",
     profile: "Profil",

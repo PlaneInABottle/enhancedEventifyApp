@@ -6,6 +6,7 @@ const en = {
     cancel: "Cancel",
     back: "Back",
     logOut: "Log Out",
+    error: "Error",
     map: "Map",
     events: "Events",
     profile: "Profile",
