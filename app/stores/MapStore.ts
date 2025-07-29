@@ -26,6 +26,31 @@ export const MapStore = types
     get hasEvents() {
       return self.events.length > 0
     },
+
+    get venuesWithEvents() {
+      const venueMap = new Map()
+      
+      self.events.forEach(event => {
+        const venueKey = event.venue_id
+        
+        if (!venueMap.has(venueKey)) {
+          venueMap.set(venueKey, {
+            venue_id: event.venue_id,
+            venue_name: event.venue_name,
+            full_address: event.full_address,
+            city: event.city,
+            coordinates: event.coordinates,
+            longitude: event.longitude,
+            latitude: event.latitude,
+            events: []
+          })
+        }
+        
+        venueMap.get(venueKey).events.push(event)
+      })
+      
+      return Array.from(venueMap.values())
+    },
   }))
   .actions((self) => ({
     clearError() {
@@ -62,3 +87,15 @@ export const MapStore = types
       }
     }),
   }))
+
+// Export type for venue objects returned by venuesWithEvents computed property
+export type VenueWithEvents = {
+  venue_id: string
+  venue_name: string
+  full_address: string
+  city: string
+  coordinates: typeof MapEventInstanceModel.Type.coordinates
+  longitude: number
+  latitude: number
+  events: typeof MapEventInstanceModel.Type[]
+}

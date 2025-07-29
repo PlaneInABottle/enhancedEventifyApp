@@ -4,10 +4,42 @@ import { types } from "mobx-state-tree"
  * Map Models for Geographic Event Display
  */
 
-// Basic coordinates model for GeoJSON Point
+// Basic coordinates model for GeoJSON Point with validation
 export const CoordinatesModel = types.model("Coordinates", {
   type: types.literal("Point"),
-  coordinates: types.array(types.number), // [longitude, latitude]
+  coordinates: types.refinement(
+    types.array(types.number),
+    (coordinates) => {
+      // Validate coordinates exist and are array
+      if (!coordinates || !Array.isArray(coordinates)) {
+        return false
+      }
+      
+      // Validate array length
+      if (coordinates.length !== 2) {
+        return false
+      }
+      
+      const [longitude, latitude] = coordinates
+      
+      // Validate both values are numbers
+      if (typeof longitude !== 'number' || typeof latitude !== 'number') {
+        return false
+      }
+      
+      // Validate longitude range (-180 to 180)
+      if (longitude < -180 || longitude > 180) {
+        return false
+      }
+      
+      // Validate latitude range (-90 to 90)
+      if (latitude < -90 || latitude > 90) {
+        return false
+      }
+      
+      return true
+    }
+  ), // [longitude, latitude]
 })
 
 // Basic MapEventInstance model matching Supabase function output
