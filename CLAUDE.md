@@ -351,5 +351,34 @@ expo prebuild --clean            # Clean prebuild artifacts
 - Use Platform.select() for platform differences
 - Check shadow properties (iOS) vs elevation (Android)
 
+### React Native Web Cross-Platform Components
+
+**Before implementing platform-specific solutions:**
+1. **Check for universal components first** - Many @rnmapbox/maps components work cross-platform
+2. **Use Context7 to research library compatibility** - Always check official docs before assuming platform limitations
+3. **Prefer MarkerView over PointAnnotation** - MarkerView works on both native and web
+4. **Avoid direct mapbox-gl access** - Internal `_map` properties are unreliable across versions
+
+**Common Web Compatibility Issues:**
+- `PointAnnotation` undefined on web → Use `MarkerView` 
+- Platform.OS checks often unnecessary → Try universal components first
+- Direct map instance access fails → Use official component APIs
+
+**Example Pattern:**
+```typescript
+// ❌ Complex platform-specific approach
+{Platform.OS === 'web' ? <WebPins /> : <NativePins />}
+
+// ✅ Simple universal approach  
+<MarkerView coordinate={[lng, lat]}>
+  <SharedComponent />
+</MarkerView>
+```
+
+**Lessons from venue pins implementation:**
+- Always research @rnmapbox/maps documentation via Context7 before assuming web limitations
+- MarkerView + shared content component is cleaner than platform-specific rendering
+- Avoid accessing internal `mapRef.current._map` - use official component APIs
+
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*
