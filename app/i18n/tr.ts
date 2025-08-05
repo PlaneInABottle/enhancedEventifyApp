@@ -88,6 +88,9 @@ const tr = {
     businessIdNotAvailable: "İşletme bilgisi mevcut değil. Lütfen profili kontrol edin",
     createVenueFailed: "Mekan oluşturulamadı. Lütfen tekrar deneyin",
     updateVenueFailed: "Mekan güncellenemedi. Lütfen tekrar deneyin",
+    fetchVenueFailed: "Mekan bilgisi alınamadı. Lütfen tekrar deneyin",
+    createAddressFailed: "Adres oluşturulamadı. Lütfen tekrar deneyin",
+    deleteVenueFailed: "Mekan silinemedi. Lütfen tekrar deneyin",
     // Ortak doğrulama hataları
     phoneRequired: "Telefon numarası gereklidir",
     phoneInvalid: "Geçersiz telefon numarası formatı",

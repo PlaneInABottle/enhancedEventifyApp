@@ -66,16 +66,19 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
         // Transform form data to UpdateVenueRequest
         const updateData: UpdateVenueRequest = {
           name: formData.name,
-          description: formData.description || undefined,
-          capacity: formData.capacity ? Number(formData.capacity) : undefined,
+          description: formData.description || null,
+          capacity: formData.capacity ? Number(formData.capacity) : null,
           address: {
-            full_address: formData.address.full_address || undefined,
-            city: formData.address.city || undefined,
-            postal_code: formData.address.postal_code || undefined,
+            full_address: formData.address.full_address || null,
+            city: formData.address.city,
+            postal_code: formData.address.postal_code || null,
             coordinates: formData.address.coordinates
               ? {
                   type: "Point",
-                  coordinates: [formData.address.coordinates.longitude, formData.address.coordinates.latitude],
+                  coordinates: [
+                    formData.address.coordinates.longitude,
+                    formData.address.coordinates.latitude,
+                  ],
                 }
               : undefined,
           },
@@ -86,17 +89,20 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
         // Transform form data to CreateVenueRequest
         const createData: CreateVenueRequest = {
           name: formData.name,
-          description: formData.description || undefined,
-          capacity: formData.capacity ? Number(formData.capacity) : undefined,
+          description: formData.description || null,
+          capacity: formData.capacity ? Number(formData.capacity) : null,
           address: {
-            full_address: formData.address.full_address || undefined,
-            city: formData.address.city || undefined,
-            postal_code: formData.address.postal_code || undefined,
+            full_address: formData.address.full_address || null,
+            city: formData.address.city,
+            postal_code: formData.address.postal_code || null,
             country: "Turkey", // Default country
             coordinates: formData.address.coordinates
               ? {
                   type: "Point",
-                  coordinates: [formData.address.coordinates.longitude, formData.address.coordinates.latitude],
+                  coordinates: [
+                    formData.address.coordinates.longitude,
+                    formData.address.coordinates.latitude,
+                  ],
                 }
               : undefined,
           },

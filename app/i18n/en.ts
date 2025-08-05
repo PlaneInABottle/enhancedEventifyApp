@@ -87,6 +87,9 @@ const en = {
     businessIdNotAvailable: "Business information not available. Please check your profile",
     createVenueFailed: "Failed to create venue. Please try again",
     updateVenueFailed: "Failed to update venue. Please try again",
+    fetchVenueFailed: "Failed to fetch venue. Please try again",
+    createAddressFailed: "Failed to create address. Please try again",
+    deleteVenueFailed: "Failed to delete venue. Please try again",
     // Common validation errors
     phoneRequired: "Phone number is required",
     phoneInvalid: "Invalid phone number format",

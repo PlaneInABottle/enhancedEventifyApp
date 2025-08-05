@@ -47,10 +47,10 @@ export interface Venue {
 // ============================================================================
 
 export interface CreateAddressRequest {
-  full_address?: string
+  full_address?: string | null
   city?: TurkishCity
   country?: string
-  postal_code?: string
+  postal_code?: string | null
   coordinates?: {
     type: "Point"
     coordinates: [number, number] // [longitude, latitude]
@@ -59,8 +59,8 @@ export interface CreateAddressRequest {
 
 export interface CreateVenueRequest {
   name: string
-  description?: string
-  capacity?: number
+  description?: string | null
+  capacity?: number | null
   address: CreateAddressRequest
 }
 
@@ -69,10 +69,10 @@ export interface CreateVenueRequest {
 // ============================================================================
 
 export interface UpdateAddressRequest {
-  full_address?: string
+  full_address?: string | null
   city?: TurkishCity
   country?: string
-  postal_code?: string
+  postal_code?: string | null
   coordinates?: {
     type: "Point"
     coordinates: [number, number] // [longitude, latitude]
@@ -81,8 +81,8 @@ export interface UpdateAddressRequest {
 
 export interface UpdateVenueRequest {
   name?: string
-  description?: string
-  capacity?: number
+  description?: string | null
+  capacity?: number | null
   is_active?: boolean
   address?: UpdateAddressRequest
 }

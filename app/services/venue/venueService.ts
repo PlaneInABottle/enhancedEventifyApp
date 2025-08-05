@@ -32,7 +32,7 @@ export async function getVenueById(venueId: string): Promise<VenueServiceResult>
       .single()
 
     if (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: "errors.fetchVenueFailed" }
     }
 
     return { success: true, venue: data as Venue }
@@ -51,12 +51,12 @@ export async function getVenuesByBusiness(businessId: string): Promise<VenueList
     })
 
     if (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: "errors.fetchVenueFailed" }
     }
 
     return { success: true, venues: data as Venue[] }
   } catch (error) {
-    return { success: false, error: "errors.fetchVenuesFailed" }
+    return { success: false, error: "errors.fetchVenueFailed" }
   }
 }
 
@@ -81,7 +81,7 @@ export async function createVenue(
       .single()
 
     if (addressError) {
-      return { success: false, error: addressError.message }
+      return { success: false, error: "errors.createAddressFailed" }
     }
 
     // Then create the venue
@@ -103,7 +103,7 @@ export async function createVenue(
       .single()
 
     if (venueError) {
-      return { success: false, error: venueError.message }
+      return { success: false, error: "errors.createVenueFailed" }
     }
 
     return { success: true, venue: venue as Venue }
@@ -138,7 +138,7 @@ export async function updateVenue(
           .eq("id", venue.address_id)
 
         if (addressError) {
-          return { success: false, error: addressError.message }
+          return { success: false, error: "errors.createAddressFailed" }
         }
       }
     }
@@ -164,7 +164,7 @@ export async function updateVenue(
       .single()
 
     if (venueError) {
-      return { success: false, error: venueError.message }
+      return { success: false, error: "errors.updateVenueFailed" }
     }
 
     return { success: true, venue: venue as Venue }
@@ -191,7 +191,7 @@ export async function deleteVenue(venueId: string): Promise<VenueServiceResult> 
       .single()
 
     if (venueError) {
-      return { success: false, error: venueError.message }
+      return { success: false, error: "errors.deleteVenueFailed" }
     }
 
     return { success: true, venue: venue as Venue }

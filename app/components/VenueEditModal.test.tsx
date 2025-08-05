@@ -16,7 +16,11 @@ jest.mock("react-native-safe-area-context", () => ({
 jest.mock("@rnmapbox/maps", () => ({
   MapView: ({ children, ...props }: any) => {
     const MockMapView = require("react-native").View
-    return <MockMapView testID="map-view" {...props}>{children}</MockMapView>
+    return (
+      <MockMapView testID="map-view" {...props}>
+        {children}
+      </MockMapView>
+    )
   },
   PointAnnotation: ({ children, onDragEnd, ...props }: any) => {
     const MockPressable = require("react-native").Pressable
@@ -26,7 +30,7 @@ jest.mock("@rnmapbox/maps", () => ({
         onPress={() => {
           if (onDragEnd) {
             onDragEnd({
-              geometry: { coordinates: [29.0, 41.0] }
+              geometry: { coordinates: [29.0, 41.0] },
             })
           }
         }}
