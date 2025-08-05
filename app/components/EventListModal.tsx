@@ -3,6 +3,7 @@ import { View, ViewStyle, TextStyle, Modal, TouchableOpacity } from 'react-nativ
 import { Text } from '@/components/Text'
 import { EventCard } from '@/components/EventCard'
 import { ListView } from '@/components/ListView'
+import { ReportButton } from '@/components/ReportButton'
 import { useAppTheme } from '@/theme/context'
 import type { ThemedStyle } from '@/theme/types'
 import type { VenueWithEvents } from '@/stores/MapStore'
@@ -40,6 +41,14 @@ export const EventListModal = ({ visible, onClose, venue }: EventListModalProps)
               style={themed($cityText)}
               text={venue.city}
             />
+            
+            <View style={themed($venueActions)}>
+              <ReportButton 
+                contentType="venue" 
+                contentId={venue.venue_id}
+                style={$reportButton}
+              />
+            </View>
           </View>
           
           <TouchableOpacity 
@@ -125,4 +134,14 @@ const $eventsTitle: ThemedStyle<ViewStyle> = (theme) => ({
 
 const $listContainer: ThemedStyle<ViewStyle> = (theme) => ({
   paddingBottom: theme.spacing.xl,
+})
+
+const $venueActions: ThemedStyle<ViewStyle> = (theme) => ({
+  marginTop: theme.spacing.sm,
+  alignItems: 'flex-start',
+})
+
+const $reportButton: ThemedStyle<ViewStyle> = (theme) => ({
+  paddingHorizontal: theme.spacing.sm,
+  paddingVertical: theme.spacing.xs,
 })

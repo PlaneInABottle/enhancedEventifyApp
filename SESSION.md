@@ -157,4 +157,103 @@ MapScreen
 
 ---
 
-*This document tracks our feature development session and provides context for future AI sessions*
+# Content Reporting System Session
+
+## Session Context
+Date: 2025-08-05
+Feature: Content Reporting/Moderation System for React Native + Supabase
+Status: Database Complete, Building Components
+
+## MVP Implementation Results
+
+### ✅ Database Layer Complete
+**Migration:** `create_content_reports_system` + `add_content_reports_rls_policies`
+
+#### content_reports table
+```sql
+- id (uuid, primary key)
+- reporter_id (uuid, references auth.users)
+- content_type (enum: 'event', 'venue', 'business', 'user')
+- content_id (uuid) - ID of reported content
+- reason (enum: 'inappropriate_content', 'spam', 'misleading', 'offensive', 'other')
+- description (text, optional)
+- status (enum: 'pending', 'reviewing', 'resolved', 'dismissed')
+- resolved_by (uuid, references auth.users, nullable)
+- resolved_at (timestamptz, nullable)
+- action_taken (text, nullable)
+- created_at/updated_at (timestamptz)
+- UNIQUE(reporter_id, content_type, content_id) - prevents duplicate reports
+```
+
+#### Security & Performance
+- **RLS Policies**: Users see own reports, moderators/admins see all
+- **Indexes**: status, content lookup, created_at for efficient queries
+- **No custom API needed**: Direct Supabase client access with RLS
+
+### Architecture Decisions
+
+#### Supabase-First Approach
+```typescript
+// Submit report - no API endpoints needed
+const { error } = await supabase
+  .from('content_reports')
+  .insert({ content_type: 'event', content_id: eventId, reason: 'spam' })
+
+// Get user's reports
+const { data } = await supabase
+  .from('content_reports')
+  .select('*')
+  .eq('reporter_id', user.id)
+```
+
+#### MVP Simplifications
+- **Gemini feedback incorporated**: Added essential indexes, kept schema simple
+- **Skipped overengineering**: No metadata JSONB, severity enum, or complex workflows
+- **Handle orphaned content_id at app level**: Acceptable tradeoff for MVP
+- **Direct database access**: Leverages Supabase strengths vs custom API
+
+### Implementation Plan
+
+#### Phase 1: Report Button Component ⬅️ Current
+- ReportButton component for EventCard, VenueCard, BusinessCard
+- ReportModal with reason selection and optional description
+- Integration with existing themed components
+
+#### Phase 2: Moderation Dashboard
+- Admin/Moderator screen with pending reports
+- Quick actions: resolve, dismiss, take action
+- Real-time updates using Supabase subscriptions
+
+#### Phase 3: Polish
+- Report status indicators on content
+- User's report history view
+- Basic auto-moderation (hide after X reports)
+
+### Technical Integration
+
+#### Component Pattern
+```typescript
+// Existing pattern in app/components/
+const ReportButton = observer(function ReportButton(props: ReportButtonProps) {
+  const { themed } = useAppTheme()
+  const { authStore } = useStores()
+  
+  // Supabase integration here
+})
+```
+
+#### Navigation Integration
+- Add to existing navigator structure
+- Moderator dashboard in admin section
+- User report history in profile section
+
+### Current Status
+- ✅ Database schema and security complete
+- ✅ Architecture validated with Gemini
+- 🔄 Building ReportButton component next
+- ⏳ Moderation dashboard pending
+- ⏳ UI integration pending
+
+---
+
+*This document tracks our feature development sessions and provides context for future AI sessions*

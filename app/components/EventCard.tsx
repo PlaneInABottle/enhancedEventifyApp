@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, ViewStyle, TextStyle, Platform } from 'react-native'
 import { Text } from "@/components/Text"
+import { ReportButton } from "@/components/ReportButton"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
@@ -37,6 +38,14 @@ export const EventCard = ({ event }: EventCardProps) => {
             {event.event_description}
           </Text>
         )}
+        
+        <View style={themed($actions)}>
+          <ReportButton 
+            contentType="event" 
+            contentId={event.event_id}
+            style={$reportButton}
+          />
+        </View>
       </View>
     </View>
   )
@@ -91,4 +100,18 @@ const $dateTime: ThemedStyle<TextStyle> = (theme) => ({
 const $description: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.textDim,
   lineHeight: 18,
+})
+
+const $actions: ThemedStyle<ViewStyle> = (theme) => ({
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+  marginTop: theme.spacing.sm,
+  paddingTop: theme.spacing.sm,
+  borderTopWidth: 1,
+  borderTopColor: theme.colors.palette.neutral200,
+})
+
+const $reportButton: ThemedStyle<ViewStyle> = (theme) => ({
+  paddingHorizontal: theme.spacing.sm,
+  paddingVertical: theme.spacing.xs,
 })
