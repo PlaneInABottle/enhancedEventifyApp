@@ -10,7 +10,7 @@ erDiagram
     auth_users ||--o{ user_addresses : "has_many"
     auth_users ||--o{ orders : "has_many"
     auth_users ||--o{ user_roles : "has_many"
-    auth_users ||--o{ reports : "reports_as"
+    auth_users ||--o{ content_reports : "reports_as"
 
     %% User Tables
     auth_users {
@@ -572,17 +572,17 @@ erDiagram
     }
 
     %% Reporting & Moderation
-    reports {
+    content_reports {
         uuid id PK
         uuid reporter_id FK "auth_users.id"
-        uuid reported_id
-        report_type reported_type
-        report_category category
-        text reason
+        uuid content_id
+        content_type content_type
+        report_reason reason
         text description
         report_status status
-        uuid reviewed_by FK "auth_users.id"
-        timestamp reviewed_at
+        uuid resolved_by FK "auth_users.id"
+        timestamp resolved_at
+        text action_taken
         timestamp created_at
         timestamp updated_at
     }
@@ -657,7 +657,7 @@ erDiagram
     %% Media & Content (Polymorphic with Integrity)
     media ||--o{ auth_users : "uploaded_by"
     favorites ||--o{ user_profiles : "created_by"
-    reports ||--o{ auth_users : "reported_by"
+    content_reports ||--o{ auth_users : "reported_by"
     notifications ||--o{ auth_users : "sent_to"
     entity_types ||--o{ media : "validates"
     entity_types ||--o{ reviews : "validates"
