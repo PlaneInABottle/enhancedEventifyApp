@@ -1,10 +1,10 @@
 # Enhanced Eventify App - Venue Management Session
 
 ## Session Overview
-**Focus:** Form validation implementation and production readiness improvements
+**Focus:** Geolocation selection implementation with @rnmapbox/maps
 **Last Updated:** 2025-01-27
 
-## Current Status: Production Ready ✅
+## Current Status: Implementing Location Picker 🗺️
 
 ### **Recently Completed:**
 1. ✅ **Comprehensive Form Validation Implementation**
@@ -131,33 +131,72 @@ app/i18n/
 - Comprehensive test mocking strategy
 - Translation-first error message architecture
 
-## Next Session Action Plan
+## Current Implementation: Location Picker with @rnmapbox/maps
 
-### **Phase 1: Complete Production Readiness** 
-1. **Implement Loading States**
-   - Add isSubmitting state to VenuesScreen
-   - Pass loading state to VenueEditModal
-   - Disable form during submission
-   - Add visual loading indicators
+### **New Feature: Independent Address Entry + Mapbox Location Picker**
 
-2. **Add User-Facing Error Messages**
-   - Replace console.error with user-visible messages
-   - Implement error state management
-   - Add error display component (toast/modal/inline)
-   - Handle all failure scenarios with proper UX
+#### **Requirements:**
+- Users enter address details (for business contact info)
+- Users separately pick coordinates from map (for precise location/discovery)
+- These two inputs are independent - no geocoding connection required
+- Leverage existing @rnmapbox/maps infrastructure from MapScreen
 
-### **Phase 2: Polish & Optimization**
-3. **Add Validation Debouncing**
-   - Implement 300ms debounce for validation feedback
-   - Optimize re-render performance during typing
+#### **Approved Plan:**
 
-4. **Configuration Externalization**
-   - Move validation limits to constants file
-   - Make default values configurable
+### **Phase 1: LocationPickerModal Component (Day 1)**
+1. **Create LocationPickerModal**
+   - Follow VenueEditModal structure and styling patterns
+   - Use existing @rnmapbox/maps MapView component
+   - Implement draggable marker/point annotation for location selection
+   - Modal layout: Header + MapView + Action buttons (Save/Cancel)
 
-5. **Security Hardening**
-   - Verify server-side validation alignment
-   - Add additional client-side security checks
+2. **Map Configuration**
+   - Use same styleURL: "mapbox://styles/mapbox/streets-v12" 
+   - Set initial center to Istanbul (Turkish default)
+   - Allow pinch/zoom/pan gestures for navigation
+   - Add draggable point annotation for coordinate selection
+
+3. **Location Selection Logic**
+   - Track selected coordinates in component state
+   - Update coordinates when user drags marker or taps map
+   - "Use Current Location" button using expo-location
+   - Show coordinates in modal for confirmation
+
+### **Phase 2: Integration with VenueEditModal (Day 2)**
+1. **Add Location Picker Button**
+   - Add "Pick Location on Map" button in address section
+   - Place after postal code field, before form submission
+   - Use existing Button component with secondary styling
+   - Show status: "Location selected" or "No location selected"
+
+2. **Update VenueEditModal State**
+   - Add `coordinates: { latitude: number, longitude: number } | null` to form state
+   - Add `locationModalVisible: boolean` for modal control
+   - Follow existing modal state management patterns
+   - Update form validation to include coordinates (optional)
+
+3. **Coordinate Storage & Display**
+   - Update VenueEditFormData interface to include coordinates
+   - Pass coordinates to save handlers (VenuesScreen)
+   - Store coordinates in PostGIS format in backend
+   - Display selected coordinates in readable format
+
+### **Phase 3: Backend Integration (Day 2)**
+1. **Update API Types**
+   - Add coordinates to CreateVenueRequest/UpdateVenueRequest
+   - Ensure coordinates stored as PostGIS Point in database
+   - Update VenueStore methods to handle coordinate data
+
+2. **Map Display Integration**
+   - Future: Use stored coordinates to display venues on MapScreen
+   - Leverage existing coordinate format: [longitude, latitude]
+   - Integrate with existing map bounds and event display system
+
+### **Technical Architecture**
+- **New Components:** LocationPickerModal.tsx
+- **Updated Components:** VenueEditModal.tsx, VenuesScreen.tsx
+- **Integration Points:** Reuse @rnmapbox/maps setup, follow modal patterns
+- **Benefits:** Independent address/coordinate inputs, leverages existing infrastructure
 
 ## Current Todo Status
 ```
@@ -175,10 +214,10 @@ app/i18n/
 ✅ Add edit button/functionality to venue cards
 ✅ Fix tests to use proper IVenue type
 ✅ Connect edit modal to VenueStore updateVenue action
-✅ Add form validation for venue editing (COMPLETED)
-🔄 Add loading states during form submission (HIGH PRIORITY)
-🔄 Add user-facing error messages (HIGH PRIORITY)
-⏭️ Implement geolocation selection method (MEDIUM)
+✅ Add form validation for venue editing
+✅ Add loading states during form submission
+✅ Add user-facing error messages
+🔄 Implement geolocation selection method (IN PROGRESS - Location Picker with @rnmapbox/maps)
 ⏭️ Add venue creation functionality (LOW)
 ```
 

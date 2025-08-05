@@ -4,6 +4,7 @@ const en = {
   common: {
     ok: "OK!",
     cancel: "Cancel",
+    save: "Save",
     back: "Back",
     logOut: "Log Out",
     map: "Map",
@@ -318,6 +319,12 @@ const en = {
     cafe: "Cafe",
     eventOrganizer: "Event Organizer",
     other: "Other",
+  },
+
+  locationPicker: {
+    title: "Pick Location",
+    selectedLocation: "Selected: {{latitude}}, {{longitude}}",
+    dragToSelect: "Drag the marker to select a location",
   },
 
   ...demoEn,

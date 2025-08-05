@@ -4,6 +4,7 @@ const tr = {
   common: {
     ok: "Tamam!",
     cancel: "İptal",
+    save: "Kaydet",
     back: "Geri",
     logOut: "Çıkış Yap",
     map: "Harita",
@@ -319,6 +320,12 @@ const tr = {
     cafe: "Kafe",
     eventOrganizer: "Etkinlik Organizatörü",
     other: "Diğer",
+  },
+
+  locationPicker: {
+    title: "Konum Seç",
+    selectedLocation: "Seçilen: {{latitude}}, {{longitude}}",
+    dragToSelect: "Konum seçmek için işaretçiyi sürükleyin",
   },
 
   ...demoTr,
