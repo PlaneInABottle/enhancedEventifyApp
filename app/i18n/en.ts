@@ -17,6 +17,18 @@ const en = {
     yes: "Yes",
     no: "No",
     chooseOption: "Choose an option",
+    report: "Report",
+  },
+  report: {
+    title: "Report Content",
+    selectReason: "Why are you reporting this?",
+    inappropriateContent: "Inappropriate content",
+    spam: "Spam",
+    misleading: "Misleading information",
+    offensive: "Offensive content",
+    other: "Other",
+    descriptionLabel: "Please provide more details (minimum 10 characters):",
+    submitReport: "Submit Report",
   },
   welcomeScreen: {
     postscript:

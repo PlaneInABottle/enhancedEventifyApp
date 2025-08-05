@@ -17,6 +17,18 @@ const tr = {
     yes: "Evet",
     no: "Hayır",
     chooseOption: "Bir seçenek seçin",
+    report: "Şikayet Et",
+  },
+  report: {
+    title: "İçerik Şikayeti",
+    selectReason: "Neden şikayet ediyorsunuz?",
+    inappropriateContent: "Uygunsuz içerik",
+    spam: "Spam",
+    misleading: "Yanıltıcı bilgi",
+    offensive: "Saldırgan içerik",
+    other: "Diğer",
+    descriptionLabel: "Lütfen daha fazla detay verin (minimum 10 karakter):",
+    submitReport: "Şikayeti Gönder",
   },
   welcomeScreen: {
     postscript:
