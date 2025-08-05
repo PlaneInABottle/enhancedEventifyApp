@@ -9,10 +9,10 @@ import { Text } from "@/components/Text"
 import { VenueEditModal, VenueEditFormData } from "@/components/VenueEditModal"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
 import type { IVenue } from "@/models/VenueModels"
 import type { CreateVenueRequest, UpdateVenueRequest } from "@/services/venue/venueTypes"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
 
 interface VenuesScreenProps {}
 
@@ -72,6 +72,12 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
             full_address: formData.address.full_address || undefined,
             city: formData.address.city || undefined,
             postal_code: formData.address.postal_code || undefined,
+            coordinates: formData.address.coordinates
+              ? {
+                  type: "Point",
+                  coordinates: [formData.address.coordinates.longitude, formData.address.coordinates.latitude],
+                }
+              : undefined,
           },
         }
 
@@ -87,12 +93,18 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
             city: formData.address.city || undefined,
             postal_code: formData.address.postal_code || undefined,
             country: "Turkey", // Default country
+            coordinates: formData.address.coordinates
+              ? {
+                  type: "Point",
+                  coordinates: [formData.address.coordinates.longitude, formData.address.coordinates.latitude],
+                }
+              : undefined,
           },
         }
 
         await venueStore.createVenue(businessId, createData)
       }
-      
+
       handleCloseModal()
     } catch (error) {
       console.error("Failed to save venue:", error)
@@ -139,7 +151,7 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
         </Text>
         <Button preset="filled" tx="common:addVenue" onPress={handleAddVenue} />
       </View>
-      
+
       {venueStore.isLoading ? (
         <View style={themed($loadingContainer)}>
           <Text tx="venuesScreen:loadingVenues" />

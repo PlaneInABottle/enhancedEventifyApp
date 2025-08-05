@@ -1,12 +1,5 @@
 import React, { FC, useState, useCallback, useEffect } from "react"
-import {
-  View,
-  ViewStyle,
-  TextStyle,
-  Modal,
-  Pressable,
-  Platform,
-} from "react-native"
+import { View, ViewStyle, TextStyle, Modal, Pressable, Platform } from "react-native"
 import { MapView, PointAnnotation } from "@rnmapbox/maps"
 
 import { Button } from "@/components/Button"
@@ -51,9 +44,9 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
   initialCoordinates,
 }) => {
   const { themed } = useAppTheme()
-  
+
   const [selectedCoordinates, setSelectedCoordinates] = useState<Coordinates>(
-    initialCoordinates || defaultCoordinates
+    initialCoordinates || defaultCoordinates,
   )
 
   // Sync state when modal opens or initialCoordinates change
@@ -79,12 +72,15 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
     })
   }, [])
 
-  const onMarkerPositionUpdate = useCallback((feature: any) => {
-    if (feature.geometry?.coordinates) {
-      const coordinates = feature.geometry.coordinates as [number, number]
-      handleMarkerDrag(coordinates)
-    }
-  }, [handleMarkerDrag])
+  const onMarkerPositionUpdate = useCallback(
+    (feature: any) => {
+      if (feature.geometry?.coordinates) {
+        const coordinates = feature.geometry.coordinates as [number, number]
+        handleMarkerDrag(coordinates)
+      }
+    },
+    [handleMarkerDrag],
+  )
 
   return (
     <Modal
@@ -134,10 +130,7 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
               }}
               style={themed($coordinatesText)}
             />
-            <Text
-              tx="locationPicker:dragToSelect"
-              style={themed($instructionText)}
-            />
+            <Text tx="locationPicker:dragToSelect" style={themed($instructionText)} />
           </View>
 
           {/* Action Buttons */}

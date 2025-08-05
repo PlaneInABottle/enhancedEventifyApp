@@ -1,9 +1,10 @@
 import React from "react"
 import { render, screen } from "@testing-library/react-native"
 
-import { MapScreen } from "./MapScreen"
 import { useStores } from "@/models/helpers/useStores"
 import { ThemeProvider } from "@/theme/context"
+
+import { MapScreen } from "./MapScreen"
 
 // Mock dependencies
 jest.mock("@/models/helpers/useStores")
@@ -54,7 +55,7 @@ describe("MapScreen", () => {
     render(
       <ThemeProvider>
         <MapScreen {...mockProps} />
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     expect(screen.getByText("Search This Area")).toBeOnTheScreen()
@@ -68,7 +69,7 @@ describe("MapScreen", () => {
     render(
       <ThemeProvider>
         <MapScreen {...mockProps} />
-      </ThemeProvider>
+      </ThemeProvider>,
     )
 
     const searchButton = screen.getByText("Search This Area")

@@ -125,6 +125,8 @@ const en = {
     cityPlaceholder: "Select city",
     postalCode: "Postal Code",
     postalCodePlaceholder: "Postal code (optional)",
+    pickLocationOnMap: "Pick Location on Map",
+    selectedCoordinates: "Location: {{latitude}}, {{longitude}}",
     saveChanges: "Save Changes",
   },
   loginScreen: {

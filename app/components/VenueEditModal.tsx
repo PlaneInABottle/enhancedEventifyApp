@@ -1,24 +1,17 @@
 import React, { FC, useState, useCallback, useEffect, useMemo } from "react"
-import {
-  View,
-  ViewStyle,
-  TextStyle,
-  Modal,
-  ScrollView,
-  Pressable,
-  Platform,
-} from "react-native"
+import { View, ViewStyle, TextStyle, Modal, ScrollView, Pressable, Platform } from "react-native"
 
 import { Button } from "@/components/Button"
 import { Dropdown } from "@/components/Dropdown"
+import { LocationPickerModal } from "@/components/LocationPickerModal"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
 import { createTurkishCityOptions } from "@/constants/cities"
+import type { TxKeyPath } from "@/i18n"
+import type { IVenue } from "@/models/VenueModels"
 import type { TurkishCity } from "@/services/profile/profileTypes"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
-import type { IVenue } from "@/models/VenueModels"
-import type { TxKeyPath } from "@/i18n"
 
 interface VenueEditModalProps {
   /**
@@ -55,6 +48,7 @@ export interface VenueEditFormData {
     full_address: string
     city: TurkishCity
     postal_code: string
+    coordinates?: { latitude: number; longitude: number }
   }
 }
 
@@ -85,6 +79,10 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
           // Cast to TurkishCity for type compatibility, assuming backend data is valid
           city: (venue.address?.city as TurkishCity) || "İstanbul",
           postal_code: venue.address?.postal_code || "",
+          // Extract coordinates from PostGIS format [lon, lat] to {lat, lon}
+          coordinates: venue.address?.latitude && venue.address?.longitude
+            ? { latitude: venue.address.latitude, longitude: venue.address.longitude }
+            : undefined,
         },
       }
     }
@@ -96,6 +94,7 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
         full_address: "",
         city: "İstanbul",
         postal_code: "",
+        coordinates: undefined,
       },
     }
   }, [venue])
@@ -103,6 +102,9 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
   // Form state
   const [formData, setFormData] = useState<VenueEditFormData>(getInitialFormData())
   const [errors, setErrors] = useState<VenueFormErrors>({})
+  
+  // Location picker state
+  const [locationPickerVisible, setLocationPickerVisible] = useState(false)
 
   // Reset form data when venue prop changes
   useEffect(() => {
@@ -155,28 +157,34 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
   }, [formData])
 
   // Generic form field handler
-  const updateFormField = useCallback((field: keyof VenueEditFormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clear error for this field when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }))
-    }
-  }, [errors])
+  const updateFormField = useCallback(
+    (field: keyof VenueEditFormData, value: any) => {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+      // Clear error for this field when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }))
+      }
+    },
+    [errors],
+  )
 
   // Address field handler
-  const updateAddressField = useCallback((field: keyof VenueEditFormData["address"], value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      address: { ...prev.address, [field]: value },
-    }))
-    // Clear error for this address field when user starts typing (only for fields that can have errors)
-    if (field !== "city" && errors.address?.[field as keyof VenueFormErrors["address"]]) {
-      setErrors((prev) => ({
+  const updateAddressField = useCallback(
+    (field: keyof VenueEditFormData["address"], value: any) => {
+      setFormData((prev) => ({
         ...prev,
-        address: { ...prev.address, [field]: undefined },
+        address: { ...prev.address, [field]: value },
       }))
-    }
-  }, [errors])
+      // Clear error for this address field when user starts typing (only for fields that can have errors)
+      if (field !== "city" && field !== "coordinates" && errors.address?.[field as keyof VenueFormErrors["address"]]) {
+        setErrors((prev) => ({
+          ...prev,
+          address: { ...prev.address, [field]: undefined },
+        }))
+      }
+    },
+    [errors],
+  )
 
   // Handle save
   const handleSave = () => {
@@ -187,12 +195,27 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
     // If validation fails, errors are already set and will be displayed
   }
 
+  // Location picker handlers
+  const handleLocationPickerOpen = useCallback(() => {
+    setLocationPickerVisible(true)
+  }, [])
+
+  const handleLocationPickerClose = useCallback(() => {
+    setLocationPickerVisible(false)
+  }, [])
+
+  const handleLocationPickerSave = useCallback((coordinates: { latitude: number; longitude: number }) => {
+    updateAddressField("coordinates", coordinates)
+    setLocationPickerVisible(false)
+  }, [updateAddressField])
+
   // City options for dropdown (memoized for performance)
   const cityOptions = useMemo(() => createTurkishCityOptions("Other"), [])
 
   if (!visible) return null
 
   return (
+    <>
     <Modal
       visible={visible}
       transparent
@@ -211,8 +234,12 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
           <ScrollView style={themed($formContainer)} showsVerticalScrollIndicator={false}>
             {/* Basic Info Section */}
             <View style={themed($section)}>
-              <Text preset="subheading" tx="venueModal:basicInformation" style={themed($sectionTitle)} />
-              
+              <Text
+                preset="subheading"
+                tx="venueModal:basicInformation"
+                style={themed($sectionTitle)}
+              />
+
               <TextField
                 labelTx="venueModal:venueName"
                 placeholderTx="venueModal:venueNamePlaceholder"
@@ -254,7 +281,7 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
             {/* Address Section */}
             <View style={themed($section)}>
               <Text preset="subheading" tx="venueModal:address" style={themed($sectionTitle)} />
-              
+
               <TextField
                 labelTx="venueModal:fullAddress"
                 placeholderTx="venueModal:fullAddressPlaceholder"
@@ -280,7 +307,9 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 labelTx="venueModal:postalCode"
                 placeholderTx="venueModal:postalCodePlaceholder"
                 value={formData.address.postal_code}
-                onChangeText={(text) => updateAddressField("postal_code", text.replace(/[^0-9]/g, ""))}
+                onChangeText={(text) =>
+                  updateAddressField("postal_code", text.replace(/[^0-9]/g, ""))
+                }
                 keyboardType="numeric"
                 maxLength={5}
                 returnKeyType="done"
@@ -288,17 +317,35 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 status={errors.address?.postal_code ? "error" : undefined}
                 helperTx={errors.address?.postal_code as TxKeyPath | undefined}
               />
+
+              {/* Location Picker Section */}
+              <View style={themed($locationSection)}>
+                <Button
+                  tx="venueModal:pickLocationOnMap"
+                  preset="default"
+                  onPress={handleLocationPickerOpen}
+                  style={themed($locationButton)}
+                />
+                
+                {formData.address.coordinates && (
+                  <Text
+                    tx="venueModal:selectedCoordinates"
+                    txOptions={{
+                      latitude: formData.address.coordinates.latitude.toFixed(6),
+                      longitude: formData.address.coordinates.longitude.toFixed(6),
+                    }}
+                    style={themed($coordinatesDisplay)}
+                    preset="formHelper"
+                  />
+                )}
+              </View>
             </View>
           </ScrollView>
 
           {/* Error Message */}
           {errorMessage && (
             <View style={themed($errorContainer)}>
-              <Text
-                tx={errorMessage as TxKeyPath}
-                style={themed($errorText)}
-                preset="formHelper"
-              />
+              <Text tx={errorMessage as TxKeyPath} style={themed($errorText)} preset="formHelper" />
             </View>
           )}
 
@@ -322,6 +369,14 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
         </Pressable>
       </Pressable>
     </Modal>
+
+    <LocationPickerModal
+      visible={locationPickerVisible}
+      onClose={handleLocationPickerClose}
+      onSave={handleLocationPickerSave}
+      initialCoordinates={formData.address.coordinates}
+    />
+  </>
   )
 }
 
@@ -402,6 +457,20 @@ const $errorContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
 const $errorText: ThemedStyle<TextStyle> = ({ colors }) => ({
   color: colors.error,
   textAlign: "center",
+})
+
+const $locationSection: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginTop: spacing.md,
+  gap: spacing.sm,
+})
+
+const $locationButton: ThemedStyle<ViewStyle> = () => ({
+  alignSelf: "flex-start",
+})
+
+const $coordinatesDisplay: ThemedStyle<TextStyle> = ({ colors }) => ({
+  color: colors.textDim,
+  fontStyle: "italic",
 })
 
 // TODO: Connect to VenueStore and add to VenuesScreen next

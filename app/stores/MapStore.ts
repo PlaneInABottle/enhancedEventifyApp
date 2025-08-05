@@ -22,7 +22,7 @@ export const MapStore = types
     get eventCount() {
       return self.events.length
     },
-    
+
     get hasEvents() {
       return self.events.length > 0
     },
@@ -32,7 +32,7 @@ export const MapStore = types
       self.setProp("lastError", null)
     },
 
-    setEvents(events: typeof MapEventInstanceModel.Type[]) {
+    setEvents(events: (typeof MapEventInstanceModel.Type)[]) {
       self.setProp("events", events)
     },
 

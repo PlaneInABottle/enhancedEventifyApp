@@ -1,5 +1,6 @@
-import { MapStore } from "./MapStore"
 import { getEventsInBounds } from "@/services/map"
+
+import { MapStore } from "./MapStore"
 
 // Mock the map service
 jest.mock("@/services/map", () => ({

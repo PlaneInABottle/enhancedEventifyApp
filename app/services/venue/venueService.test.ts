@@ -69,7 +69,7 @@ describe("getVenueById", () => {
       `)
     expect(mockEq).toHaveBeenCalledWith("id", "venue-1")
     expect(mockChain.single).toHaveBeenCalled()
-    
+
     expect(result).toEqual({
       success: true,
       venue: mockVenue,
@@ -96,7 +96,6 @@ describe("getVenueById", () => {
       error: "Database connection failed",
     })
   })
-
 })
 
 describe("getVenuesByBusiness", () => {
@@ -148,13 +147,12 @@ describe("getVenuesByBusiness", () => {
     expect(mockEq1).toHaveBeenCalledWith("business_id", "business-1")
     expect(mockEq2).toHaveBeenCalledWith("is_active", true)
     expect(mockOrder).toHaveBeenCalledWith("name")
-    
+
     expect(result).toEqual({
       success: true,
       venues: mockVenues,
     })
   })
-
 })
 
 describe("createVenue", () => {
@@ -194,7 +192,7 @@ describe("createVenue", () => {
     const mockAddressSelect = jest.fn().mockReturnValue(mockAddressChain)
     const mockAddressInsert = jest.fn().mockReturnValue({ select: mockAddressSelect })
 
-    // Setup mock for venue creation  
+    // Setup mock for venue creation
     const mockVenueChain = {
       single: jest.fn().mockResolvedValue({ data: mockVenue, error: null }),
     }
@@ -257,7 +255,6 @@ describe("createVenue", () => {
       venue: mockVenue,
     })
   })
-
 })
 
 // TODO: Add updateVenue and deleteVenue tests next

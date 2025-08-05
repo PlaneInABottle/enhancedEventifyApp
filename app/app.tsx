@@ -19,10 +19,10 @@ if (__DEV__) {
 import "./utils/gestureHandler"
 
 import { useEffect, useState } from "react"
-import Mapbox from "@rnmapbox/maps"
 import { useFonts } from "expo-font"
 import * as Linking from "expo-linking"
 import * as SplashScreen from "expo-splash-screen"
+import Mapbox from "@rnmapbox/maps"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 

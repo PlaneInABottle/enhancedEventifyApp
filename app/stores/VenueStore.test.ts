@@ -1,5 +1,6 @@
-import { VenueStore } from "./VenueStore"
 import * as venueService from "@/services/venue/venueService"
+
+import { VenueStore } from "./VenueStore"
 
 // Mock the venue service
 jest.mock("@/services/venue/venueService", () => ({
@@ -130,7 +131,7 @@ describe("VenueStore", () => {
     it("should clear error state", () => {
       store.setProp("lastError", "Test error")
       expect(store.lastError).toBe("Test error")
-      
+
       store.clearError()
       expect(store.lastError).toBeNull()
     })
@@ -144,7 +145,7 @@ describe("VenueStore", () => {
 
     it("should add venue to store", () => {
       expect(store.venueCount).toBe(0)
-      
+
       store.addVenue(sampleVenue)
       expect(store.venueCount).toBe(1)
       expect(store.venues[0]).toEqual(sampleVenue)
@@ -152,26 +153,26 @@ describe("VenueStore", () => {
 
     it("should update venue in store", () => {
       store.addVenue(sampleVenue)
-      
+
       const updatedVenue = { ...sampleVenue, name: "Updated Venue" }
       store.updateVenueInStore("venue-1", updatedVenue)
-      
+
       expect(store.venues[0].name).toBe("Updated Venue")
     })
 
     it("should not update non-existent venue", () => {
       store.addVenue(sampleVenue)
-      
+
       const updatedVenue = { ...sampleVenue, name: "Updated Venue" }
       store.updateVenueInStore("non-existent", updatedVenue)
-      
+
       expect(store.venues[0].name).toBe("Test Venue") // Unchanged
     })
 
     it("should remove venue from store", () => {
       store.addVenue(sampleVenue)
       expect(store.venueCount).toBe(1)
-      
+
       store.removeVenueFromStore("venue-1")
       expect(store.venueCount).toBe(0)
     })
@@ -179,7 +180,7 @@ describe("VenueStore", () => {
     it("should not remove non-existent venue", () => {
       store.addVenue(sampleVenue)
       expect(store.venueCount).toBe(1)
-      
+
       store.removeVenueFromStore("non-existent")
       expect(store.venueCount).toBe(1) // Unchanged
     })

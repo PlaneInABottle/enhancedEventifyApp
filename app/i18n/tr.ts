@@ -126,6 +126,8 @@ const tr = {
     cityPlaceholder: "Şehir seçin",
     postalCode: "Posta Kodu",
     postalCodePlaceholder: "Posta kodu (isteğe bağlı)",
+    pickLocationOnMap: "Haritadan Konum Seç",
+    selectedCoordinates: "Konum: {{latitude}}, {{longitude}}",
     saveChanges: "Değişiklikleri Kaydet",
   },
   loginScreen: {

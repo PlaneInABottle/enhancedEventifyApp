@@ -1,14 +1,41 @@
 import React from "react"
 import { render, screen, fireEvent } from "@testing-library/react-native"
 
-import { ThemeProvider } from "@/theme/context"
-import { VenueEditModal } from "./VenueEditModal"
 import type { IVenue } from "@/models/VenueModels"
+import { ThemeProvider } from "@/theme/context"
+
+import { VenueEditModal } from "./VenueEditModal"
 
 // Mock SafeAreaProvider
 jest.mock("react-native-safe-area-context", () => ({
   SafeAreaProvider: ({ children }: any) => children,
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}))
+
+// Mock @rnmapbox/maps
+jest.mock("@rnmapbox/maps", () => ({
+  MapView: ({ children, ...props }: any) => {
+    const MockMapView = require("react-native").View
+    return <MockMapView testID="map-view" {...props}>{children}</MockMapView>
+  },
+  PointAnnotation: ({ children, onDragEnd, ...props }: any) => {
+    const MockPressable = require("react-native").Pressable
+    return (
+      <MockPressable
+        testID="point-annotation"
+        onPress={() => {
+          if (onDragEnd) {
+            onDragEnd({
+              geometry: { coordinates: [29.0, 41.0] }
+            })
+          }
+        }}
+        {...props}
+      >
+        {children}
+      </MockPressable>
+    )
+  },
 }))
 
 // Mock Turkish cities
@@ -22,7 +49,7 @@ jest.mock("@/constants/cities", () => ({
 
 // Mock translate function
 jest.mock("@/i18n/translate", () => ({
-  translate: (key: string) => {
+  translate: (key: string, options?: any) => {
     const translations: Record<string, string> = {
       "venueModal:addTitle": "Add New Venue",
       "venueModal:editTitle": "Edit Venue",
@@ -40,6 +67,8 @@ jest.mock("@/i18n/translate", () => ({
       "venueModal:cityPlaceholder": "Select city",
       "venueModal:postalCode": "Postal Code",
       "venueModal:postalCodePlaceholder": "Postal code (optional)",
+      "venueModal:pickLocationOnMap": "Pick Location on Map",
+      "venueModal:selectedCoordinates": `Location: ${options?.latitude || "41.008200"}, ${options?.longitude || "28.978400"}`,
       "venueModal:saveChanges": "Save Changes",
       "common:cancel": "Cancel",
       // Validation error messages
@@ -229,7 +258,10 @@ describe("VenueEditModal", () => {
 
       // Fill out the form
       fireEvent.changeText(screen.getByPlaceholderText("Enter venue name"), "Test Venue")
-      fireEvent.changeText(screen.getByPlaceholderText("Describe your venue (optional)"), "Test Description")
+      fireEvent.changeText(
+        screen.getByPlaceholderText("Describe your venue (optional)"),
+        "Test Description",
+      )
       fireEvent.changeText(screen.getByPlaceholderText("Maximum capacity (optional)"), "150")
       fireEvent.changeText(screen.getByPlaceholderText("Enter full address"), "123 Test St")
       fireEvent.changeText(screen.getByPlaceholderText("Postal code (optional)"), "12345")
@@ -493,6 +525,37 @@ describe("VenueEditModal", () => {
       fireEvent.changeText(capacityInput, "0")
 
       expect(screen.getByDisplayValue("0")).toBeOnTheScreen()
+    })
+  })
+
+  describe("Location Picker Integration", () => {
+    test("renders location picker button", () => {
+      renderVenueEditModal()
+
+      expect(screen.getByText("Pick Location on Map")).toBeOnTheScreen()
+    })
+
+    test("does not show coordinates when none are selected", () => {
+      renderVenueEditModal()
+
+      expect(screen.queryByText(/Location:/)).not.toBeOnTheScreen()
+    })
+
+    test("shows coordinates when venue has location data", () => {
+      const venueWithLocation = {
+        ...mockVenue,
+        address: {
+          ...mockVenue.address,
+          latitude: 41.0082,
+          longitude: 28.9784,
+        },
+      } as unknown as IVenue
+
+      renderVenueEditModal({
+        venue: venueWithLocation,
+      })
+
+      expect(screen.getByText("Location: 41.008200, 28.978400")).toBeOnTheScreen()
     })
   })
 })

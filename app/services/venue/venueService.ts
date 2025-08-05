@@ -22,10 +22,12 @@ export async function getVenueById(venueId: string): Promise<VenueServiceResult>
   try {
     const { data, error } = await supabase
       .from("venues")
-      .select(`
+      .select(
+        `
         *,
         address:addresses(*)
-      `)
+      `,
+      )
       .eq("id", venueId)
       .single()
 
@@ -44,8 +46,9 @@ export async function getVenueById(venueId: string): Promise<VenueServiceResult>
  */
 export async function getVenuesByBusiness(businessId: string): Promise<VenueListResult> {
   try {
-    const { data, error } = await supabase
-      .rpc("get_venues_by_business", { business_id_param: businessId })
+    const { data, error } = await supabase.rpc("get_venues_by_business", {
+      business_id_param: businessId,
+    })
 
     if (error) {
       return { success: false, error: error.message }
@@ -91,10 +94,12 @@ export async function createVenue(
         description: venueData.description || null,
         capacity: venueData.capacity || null,
       })
-      .select(`
+      .select(
+        `
         *,
         address:addresses(*)
-      `)
+      `,
+      )
       .single()
 
     if (venueError) {
@@ -150,10 +155,12 @@ export async function updateVenue(
       .from("venues")
       .update(venueUpdates)
       .eq("id", venueId)
-      .select(`
+      .select(
+        `
         *,
         address:addresses(*)
-      `)
+      `,
+      )
       .single()
 
     if (venueError) {
@@ -175,10 +182,12 @@ export async function deleteVenue(venueId: string): Promise<VenueServiceResult> 
       .from("venues")
       .update({ is_active: false })
       .eq("id", venueId)
-      .select(`
+      .select(
+        `
         *,
         address:addresses(*)
-      `)
+      `,
+      )
       .single()
 
     if (venueError) {
