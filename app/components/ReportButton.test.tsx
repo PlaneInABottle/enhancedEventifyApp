@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, waitFor } from '@testing-library/react-native'
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native'
 import { Alert } from 'react-native'
 
 import { ReportButton } from './ReportButton'
@@ -18,17 +18,36 @@ jest.mock('@/theme/context', () => ({
     themed: (style: any) => style,
   }),
 }))
-jest.mock('./ReportModal', () => ({
-  ReportModal: ({ visible, onSubmit }: any) => {
-    if (!visible) return null
-    return (
-      <div
-        data-testid="report-modal"
-        onClick={() => onSubmit('spam', 'Test description')}
-      />
-    )
-  },
-}))
+// Mock ReportModal to avoid complex modal testing
+jest.mock('./ReportModal', () => {
+  const React = require('react')
+  const { View } = require('react-native')
+  return {
+    ReportModal: ({ visible, onSubmit }: any) => {
+      if (!visible) return null
+      // Automatically submit when modal becomes visible for testing
+      React.useEffect(() => {
+        if (visible) {
+          // Simulate user selecting spam and submitting
+          setTimeout(() => onSubmit('spam', 'Test description'), 0)
+        }
+      }, [visible, onSubmit])
+      return React.createElement(View, { testID: 'report-modal' })
+    },
+  }
+})
+
+const MockedView = ({ children, testID, onPress, ...props }: any) => {
+  return (
+    <div 
+      data-testid={testID}
+      onClick={onPress}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
 
 const mockSupabase = supabase as jest.Mocked<typeof supabase>
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
@@ -56,17 +75,19 @@ describe('ReportButton', () => {
       <ReportButton contentType="event" contentId="event-123" />
     )
     
-    expect(getByText('Report')).toBeTruthy()
+    expect(getByText('common:report')).toBeTruthy()
   })
 
-  it('opens modal when button is pressed', () => {
+  it('opens modal when button is pressed', async () => {
     const { getByText, queryByTestId } = render(
       <ReportButton contentType="event" contentId="event-123" />
     )
     
     expect(queryByTestId('report-modal')).toBeFalsy()
     
-    fireEvent.press(getByText('Report'))
+    await act(async () => {
+      fireEvent.press(getByText('common:report'))
+    })
     
     expect(queryByTestId('report-modal')).toBeTruthy()
   })
@@ -75,17 +96,13 @@ describe('ReportButton', () => {
     const mockInsert = jest.fn().mockResolvedValue({ error: null })
     mockSupabase.from.mockReturnValue({ insert: mockInsert } as any)
 
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <ReportButton contentType="event" contentId="event-123" />
     )
     
-    fireEvent.press(getByText('Report'))
-    
-    // Simulate modal submission
-    const modal = document.querySelector('[data-testid="report-modal"]')
-    if (modal) {
-      fireEvent.press(modal)
-    }
+    await act(async () => {
+      fireEvent.press(getByText('common:report'))
+    })
 
     await waitFor(() => {
       expect(mockInsert).toHaveBeenCalledWith({
@@ -109,17 +126,13 @@ describe('ReportButton', () => {
     })
     mockSupabase.from.mockReturnValue({ insert: mockInsert } as any)
 
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <ReportButton contentType="event" contentId="event-123" />
     )
     
-    fireEvent.press(getByText('Report'))
-    
-    // Simulate modal submission
-    const modal = document.querySelector('[data-testid="report-modal"]')
-    if (modal) {
-      fireEvent.press(modal)
-    }
+    await act(async () => {
+      fireEvent.press(getByText('common:report'))
+    })
 
     await waitFor(() => {
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -135,17 +148,13 @@ describe('ReportButton', () => {
     })
     mockSupabase.from.mockReturnValue({ insert: mockInsert } as any)
 
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <ReportButton contentType="event" contentId="event-123" />
     )
     
-    fireEvent.press(getByText('Report'))
-    
-    // Simulate modal submission
-    const modal = document.querySelector('[data-testid="report-modal"]')
-    if (modal) {
-      fireEvent.press(modal)
-    }
+    await act(async () => {
+      fireEvent.press(getByText('common:report'))
+    })
 
     await waitFor(() => {
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -160,17 +169,13 @@ describe('ReportButton', () => {
       authenticationStore: { user: null } 
     } as any)
 
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <ReportButton contentType="event" contentId="event-123" />
     )
     
-    fireEvent.press(getByText('Report'))
-    
-    // Simulate modal submission
-    const modal = document.querySelector('[data-testid="report-modal"]')
-    if (modal) {
-      fireEvent.press(modal)
-    }
+    await act(async () => {
+      fireEvent.press(getByText('common:report'))
+    })
 
     await waitFor(() => {
       expect(Alert.alert).toHaveBeenCalledWith(

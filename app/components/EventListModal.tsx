@@ -1,12 +1,13 @@
-import React from 'react'
-import { View, ViewStyle, TextStyle, Modal, TouchableOpacity } from 'react-native'
-import { Text } from '@/components/Text'
-import { EventCard } from '@/components/EventCard'
-import { ListView } from '@/components/ListView'
-import { ReportButton } from '@/components/ReportButton'
-import { useAppTheme } from '@/theme/context'
-import type { ThemedStyle } from '@/theme/types'
-import type { VenueWithEvents } from '@/stores/MapStore'
+import { FC } from "react"
+import { View, ViewStyle, TextStyle, Modal, TouchableOpacity } from "react-native"
+
+import { EventCard } from "@/components/EventCard"
+import { ListView } from "@/components/ListView"
+import { ReportButton } from "@/components/ReportButton"
+import { Text } from "@/components/Text"
+import type { VenueWithEvents } from "@/stores/MapStore"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
 
 interface EventListModalProps {
   visible: boolean
@@ -14,7 +15,7 @@ interface EventListModalProps {
   venue: VenueWithEvents | null
 }
 
-export const EventListModal = ({ visible, onClose, venue }: EventListModalProps) => {
+export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venue }) => {
   const { themed } = useAppTheme()
 
   if (!venue) return null
@@ -31,43 +32,28 @@ export const EventListModal = ({ visible, onClose, venue }: EventListModalProps)
         <View style={themed($header)}>
           <View style={themed($headerContent)}>
             <Text preset="heading" text={venue.venue_name} />
-            <Text 
-              size="sm" 
-              style={themed($addressText)}
-              text={venue.full_address}
-            />
-            <Text 
-              size="xs" 
-              style={themed($cityText)}
-              text={venue.city}
-            />
-            
+            <Text size="sm" style={themed($addressText)} text={venue.full_address} />
+            <Text size="xs" style={themed($cityText)} text={venue.city} />
+
             <View style={themed($venueActions)}>
-              <ReportButton 
-                contentType="venue" 
-                contentId={venue.venue_id}
-                style={$reportButton}
-              />
+              <ReportButton contentType="venue" contentId={venue.venue_id} style={$reportButton} />
             </View>
           </View>
-          
-          <TouchableOpacity 
-            onPress={onClose}
-            style={themed($closeButton)}
-          >
+
+          <TouchableOpacity onPress={onClose} style={themed($closeButton)}>
             <Text tx="common:close" style={themed($closeText)} />
           </TouchableOpacity>
         </View>
 
         {/* Events List */}
         <View style={themed($eventsContainer)}>
-          <Text 
-            preset="subheading" 
+          <Text
+            preset="subheading"
             tx="map:eventCount"
             txOptions={{ count: venue.events.length }}
             style={themed($eventsTitle)}
           />
-          
+
           <ListView
             data={venue.events}
             renderItem={({ item }) => <EventCard event={item} />}
@@ -91,9 +77,9 @@ const $header: ThemedStyle<ViewStyle> = (theme) => ({
   padding: theme.spacing.lg,
   borderBottomWidth: 1,
   borderBottomColor: theme.colors.separator,
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'flex-start',
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
 })
 
 const $headerContent: ThemedStyle<ViewStyle> = () => ({
@@ -120,7 +106,7 @@ const $closeButton: ThemedStyle<ViewStyle> = (theme) => ({
 
 const $closeText: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.text,
-  fontWeight: '600',
+  fontWeight: "600",
 })
 
 const $eventsContainer: ThemedStyle<ViewStyle> = (theme) => ({
@@ -138,7 +124,7 @@ const $listContainer: ThemedStyle<ViewStyle> = (theme) => ({
 
 const $venueActions: ThemedStyle<ViewStyle> = (theme) => ({
   marginTop: theme.spacing.sm,
-  alignItems: 'flex-start',
+  alignItems: "flex-start",
 })
 
 const $reportButton: ThemedStyle<ViewStyle> = (theme) => ({

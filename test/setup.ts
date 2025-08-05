@@ -77,6 +77,55 @@ jest.mock("@supabase/supabase-js", () => ({
   })),
 }))
 
+// Mock Supabase client specifically to prevent env var errors
+jest.mock("../app/clients/supabase/SupabaseClient", () => ({
+  __esModule: true,
+  default: {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+    })),
+  },
+  supabase: {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+    })),
+  },
+}))
+
+jest.mock("../app/clients/supabase", () => ({
+  __esModule: true,
+  default: {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+    })),
+  },
+  supabase: {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      delete: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn(),
+    })),
+  },
+}))
+
 // Mock react-native-keyboard-controller
 jest.mock("react-native-keyboard-controller", () => ({
   KeyboardAwareScrollView: ({ children }: any) => children,
