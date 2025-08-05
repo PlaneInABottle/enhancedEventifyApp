@@ -8,12 +8,13 @@ import { useAppTheme } from '@/theme/context'
 import { useStores } from '@/models'
 import { supabase } from '@/clients/supabase'
 import type { ThemedStyle } from '@/theme/types'
+import type { ReportReason, ContentType } from '@/types/report'
 
 export interface ReportButtonProps {
   /**
    * Type of content being reported
    */
-  contentType: 'event' | 'venue' | 'business' | 'user'
+  contentType: ContentType
   /**
    * ID of the content being reported
    */
@@ -32,7 +33,7 @@ export const ReportButton = observer(function ReportButton(props: ReportButtonPr
   const [modalVisible, setModalVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleReport = async (reason: string, description?: string) => {
+  const handleReport = async (reason: ReportReason, description?: string) => {
     if (!authenticationStore.user?.id) {
       Alert.alert('Error', 'You must be logged in to report content')
       return
@@ -42,12 +43,12 @@ export const ReportButton = observer(function ReportButton(props: ReportButtonPr
     
     try {
       const { error } = await supabase
-        .from('content_reports')
+        .from('reports')
         .insert({
           reporter_id: authenticationStore.user.id,
-          content_type: contentType,
-          content_id: contentId,
-          reason: reason as any, // Type assertion for enum
+          reported_type: contentType,
+          reported_id: contentId,
+          category: reason,
           description: description || null,
         })
 
@@ -76,7 +77,10 @@ export const ReportButton = observer(function ReportButton(props: ReportButtonPr
       <Button
         tx="common:report"
         preset="default"
-        style={[themed($button), $styleOverride && themed($styleOverride)].filter(Boolean)}
+        style={themed((theme) => ({
+          ...$button(theme),
+          ...($styleOverride ? $styleOverride(theme) : {}),
+        }))}
         onPress={() => setModalVisible(true)}
       />
       

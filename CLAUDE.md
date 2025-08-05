@@ -162,6 +162,52 @@ jest.mock('@/theme/context')
 jest.mock('@/i18n/translate')
 ```
 
+### React Native Test Patterns ✅
+**Button Component Mocking:**
+```typescript
+jest.mock('./Button', () => {
+  const React = require('react')
+  const { TouchableOpacity, Text } = require('react-native')
+  return {
+    Button: ({ tx, onPress, disabled, ...props }: any) => {
+      const mockText: Record<string, string> = {
+        'report:submitReport': 'Submit Report',
+        'common:cancel': 'Cancel',
+      }
+      return React.createElement(TouchableOpacity, {
+        onPress,
+        disabled,
+        testID: tx ? `button-${tx}` : 'button',
+        accessibilityRole: 'button',
+        ...props
+      }, React.createElement(Text, {}, tx ? mockText[tx] : 'Button'))
+    },
+  }
+})
+```
+
+**Text Content Matching:**
+```typescript
+// ❌ Exact matching fails with concatenated DOM
+expect(root).toHaveTextContent('Report Content')
+
+// ✅ Use regex for partial matching
+expect(root).toHaveTextContent(/Report Content/)
+```
+
+**Async Test Handling:**
+```typescript
+// Always wrap async operations in act()
+await act(async () => {
+  fireEvent.press(getByText('Submit'))
+})
+
+// Use waitFor for async assertions
+await waitFor(() => {
+  expect(mockFunction).toHaveBeenCalled()
+})
+```
+
 ## MCP Integration
 
 **Database (Supabase):** Use `mcp__supabase__*` for migrations, queries, and branch management

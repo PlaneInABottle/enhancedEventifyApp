@@ -15,6 +15,7 @@ import { Button } from './Button'
 import { TextField } from './TextField'
 import { useAppTheme } from '@/theme/context'
 import type { ThemedStyle } from '@/theme/types'
+import type { ReportReason } from '@/types/report'
 
 export interface ReportModalProps {
   /**
@@ -28,7 +29,7 @@ export interface ReportModalProps {
   /**
    * Called when report is submitted
    */
-  onSubmit: (reason: string, description?: string) => void
+  onSubmit: (reason: ReportReason, description?: string) => void
   /**
    * Whether the form is currently submitting
    */
@@ -47,7 +48,7 @@ export const ReportModal = observer(function ReportModal(props: ReportModalProps
   const { visible, onClose, onSubmit, isSubmitting } = props
   const { themed } = useAppTheme()
   
-  const [selectedReason, setSelectedReason] = useState<string>('')
+  const [selectedReason, setSelectedReason] = useState<ReportReason | ''>('')
   const [description, setDescription] = useState('')
 
   const handleSubmit = () => {
@@ -81,6 +82,7 @@ export const ReportModal = observer(function ReportModal(props: ReportModalProps
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
+      testID="report-modal"
     >
       <View style={themed($container)}>
         <View style={themed($header)}>
@@ -102,7 +104,10 @@ export const ReportModal = observer(function ReportModal(props: ReportModalProps
             {REPORT_REASONS.map((reason) => (
               <TouchableOpacity
                 key={reason.key}
-                style={[themed($reasonOption), selectedReason === reason.key && themed($reasonSelected)].filter(Boolean)}
+                style={themed((theme) => ({
+                  ...$reasonOption(theme),
+                  ...(selectedReason === reason.key ? $reasonSelected(theme) : {}),
+                }))}
                 onPress={() => setSelectedReason(reason.key)}
                 disabled={isSubmitting}
                 accessibilityRole="radio"
@@ -110,7 +115,10 @@ export const ReportModal = observer(function ReportModal(props: ReportModalProps
                 accessibilityLabel={`Select ${reason.key.replace('_', ' ')} as report reason`}
               >
                 <View style={themed($radioContainer)}>
-                  <View style={[themed($radio), selectedReason === reason.key && themed($radioSelected)].filter(Boolean)} />
+                  <View style={themed((theme) => ({
+                    ...$radio(theme),
+                    ...(selectedReason === reason.key ? $radioSelected(theme) : {}),
+                  }))} />
                 </View>
                 <Text tx={reason.labelTx} style={themed($reasonText)} />
               </TouchableOpacity>
