@@ -107,9 +107,9 @@ describe('ReportButton', () => {
     await waitFor(() => {
       expect(mockInsert).toHaveBeenCalledWith({
         reporter_id: 'user-123',
-        reported_type: 'event',
-        reported_id: 'event-123',
-        category: 'spam',
+        content_type: 'event',
+        content_id: 'event-123',
+        reason: 'spam',
         description: 'Test description',
       })
     })

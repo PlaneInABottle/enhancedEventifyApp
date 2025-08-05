@@ -43,12 +43,12 @@ export const ReportButton = observer(function ReportButton(props: ReportButtonPr
     
     try {
       const { error } = await supabase
-        .from('reports')
+        .from('content_reports')
         .insert({
           reporter_id: authenticationStore.user.id,
-          reported_type: contentType,
-          reported_id: contentId,
-          category: reason,
+          content_type: contentType,
+          content_id: contentId,
+          reason: reason,
           description: description || null,
         })
 
