@@ -110,10 +110,6 @@ describe('ReportModal', () => {
     expect(root).toHaveTextContent(/Other/)
   })
 
-  // Skip this test as it's testing internal state changes that are covered by integration tests
-  it.skip('shows description field when "other" is selected', () => {
-    // This functionality is tested via integration tests with ReportButton
-  })
 
   it('calls onSubmit with selected reason', () => {
     const { getByTestId, getByLabelText } = render(<ReportModal {...defaultProps} />)
@@ -150,15 +146,5 @@ describe('ReportModal', () => {
     fireEvent.press(getByTestId('button-report:submitReport'))
     
     expect(defaultProps.onSubmit).not.toHaveBeenCalled()
-  })
-
-  // Skip this test as it requires complex state management that's better tested via integration
-  it.skip('validates description for "other" reason', () => {
-    // This validation is tested via integration tests with ReportButton
-  })
-
-  // Skip this test as it requires complex state management that's better tested via integration
-  it.skip('submits with valid description for "other" reason', () => {
-    // This functionality is tested via integration tests with ReportButton
   })
 })
