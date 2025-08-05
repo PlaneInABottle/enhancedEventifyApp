@@ -18,6 +18,7 @@ const en = {
     loading: "Loading...",
     capacity: "Capacity",
     addVenue: "Add Venue",
+    edit: "Edit",
   },
   welcomeScreen: {
     postscript:
@@ -71,7 +72,20 @@ const en = {
     invalidFileType: "Invalid file type. Please use JPEG, PNG, GIF or WebP",
     fileTooLarge: "File size exceeds the maximum allowed limit",
     storageError: "Storage operation failed",
+    // Venue validation errors
+    venueNameRequired: "Venue name is required",
+    venueNameTooShort: "Venue name must be at least 2 characters long",
+    venueNameTooLong: "Venue name cannot exceed 100 characters",
+    venueDescriptionTooLong: "Description cannot exceed 500 characters",
+    venueCapacityInvalid: "Capacity must be a valid positive number",
+    venueCapacityTooLarge: "Capacity cannot exceed 100,000",
+    addressTooLong: "Address cannot exceed 200 characters",
+    postalCodeInvalid: "Postal code must be exactly 5 digits",
     uploadFailed: "File upload failed",
+    // Business and venue operation errors
+    businessIdNotAvailable: "Business information not available. Please check your profile",
+    createVenueFailed: "Failed to create venue. Please try again",
+    updateVenueFailed: "Failed to update venue. Please try again",
     // Common validation errors
     phoneRequired: "Phone number is required",
     phoneInvalid: "Invalid phone number format",

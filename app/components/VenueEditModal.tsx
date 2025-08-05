@@ -17,25 +17,8 @@ import { createTurkishCityOptions } from "@/constants/cities"
 import type { TurkishCity } from "@/services/profile/profileTypes"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
-
-interface Venue {
-  id: string
-  name: string
-  description: string | null
-  capacity: number | null
-  address: {
-    full_address: string
-    city: TurkishCity
-    postal_code: string
-  }
-  coordinates: {
-    type: "Point"
-    coordinates: [number, number]
-  }
-  created_at: string
-  updated_at: string
-  business_id: string
-}
+import type { IVenue } from "@/models/VenueModels"
+import type { TxKeyPath } from "@/i18n"
 
 interface VenueEditModalProps {
   /**
@@ -53,10 +36,18 @@ interface VenueEditModalProps {
   /**
    * Venue to edit (null for creating new venue)
    */
-  venue: Venue | null
+  venue: IVenue | null
+  /**
+   * Whether the form is currently being submitted
+   */
+  isSubmitting?: boolean
+  /**
+   * Error message to display (translation key)
+   */
+  errorMessage?: string | null
 }
 
-interface VenueEditFormData {
+export interface VenueEditFormData {
   name: string
   description: string
   capacity: string
@@ -67,8 +58,18 @@ interface VenueEditFormData {
   }
 }
 
+export interface VenueFormErrors {
+  name?: string
+  description?: string
+  capacity?: string
+  address?: {
+    full_address?: string
+    postal_code?: string
+  }
+}
+
 export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
-  const { visible, onClose, onSave, venue } = props
+  const { visible, onClose, onSave, venue, isSubmitting = false, errorMessage } = props
   const { themed } = useAppTheme()
 
   // Initialize form data from venue prop or defaults
@@ -79,9 +80,11 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
         description: venue.description || "",
         capacity: venue.capacity?.toString() || "",
         address: {
-          full_address: venue.address.full_address,
-          city: venue.address.city,
-          postal_code: venue.address.postal_code,
+          // Safely access address properties, default to empty string if address or property is null
+          full_address: venue.address?.full_address || "",
+          // Cast to TurkishCity for type compatibility, assuming backend data is valid
+          city: (venue.address?.city as TurkishCity) || "İstanbul",
+          postal_code: venue.address?.postal_code || "",
         },
       }
     }
@@ -99,16 +102,66 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
 
   // Form state
   const [formData, setFormData] = useState<VenueEditFormData>(getInitialFormData())
+  const [errors, setErrors] = useState<VenueFormErrors>({})
 
   // Reset form data when venue prop changes
   useEffect(() => {
     setFormData(getInitialFormData())
+    setErrors({}) // Clear errors when form resets
   }, [getInitialFormData])
+
+  // Validation functions
+  const validateForm = useCallback((): boolean => {
+    const newErrors: VenueFormErrors = {}
+
+    // Required field: name
+    if (!formData.name.trim()) {
+      newErrors.name = "errors.venueNameRequired"
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = "errors.venueNameTooShort"
+    } else if (formData.name.trim().length > 100) {
+      newErrors.name = "errors.venueNameTooLong"
+    }
+
+    // Optional description validation
+    if (formData.description && formData.description.length > 500) {
+      newErrors.description = "errors.venueDescriptionTooLong"
+    }
+
+    // Optional capacity validation
+    if (formData.capacity) {
+      const capacityNum = Number(formData.capacity)
+      if (isNaN(capacityNum) || capacityNum < 1) {
+        newErrors.capacity = "errors.venueCapacityInvalid"
+      } else if (capacityNum > 100000) {
+        newErrors.capacity = "errors.venueCapacityTooLarge"
+      }
+    }
+
+    // Optional address validations
+    if (formData.address.full_address && formData.address.full_address.length > 200) {
+      newErrors.address = { ...newErrors.address, full_address: "errors.addressTooLong" }
+    }
+
+    if (formData.address.postal_code) {
+      const postalCode = formData.address.postal_code.trim()
+      if (postalCode.length !== 5) {
+        newErrors.address = { ...newErrors.address, postal_code: "errors.postalCodeInvalid" }
+      }
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }, [formData])
 
   // Generic form field handler
   const updateFormField = useCallback((field: keyof VenueEditFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-  }, [])
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+  }, [errors])
 
   // Address field handler
   const updateAddressField = useCallback((field: keyof VenueEditFormData["address"], value: string) => {
@@ -116,12 +169,22 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
       ...prev,
       address: { ...prev.address, [field]: value },
     }))
-  }, [])
+    // Clear error for this address field when user starts typing (only for fields that can have errors)
+    if (field !== "city" && errors.address?.[field as keyof VenueFormErrors["address"]]) {
+      setErrors((prev) => ({
+        ...prev,
+        address: { ...prev.address, [field]: undefined },
+      }))
+    }
+  }, [errors])
 
   // Handle save
   const handleSave = () => {
-    onSave(formData)
-    onClose()
+    if (validateForm()) {
+      onSave(formData)
+      // Note: onClose() is handled by parent component after async save completes
+    }
+    // If validation fails, errors are already set and will be displayed
   }
 
   // City options for dropdown (memoized for performance)
@@ -158,6 +221,8 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 autoCapitalize="words"
                 returnKeyType="next"
                 containerStyle={themed($fieldContainer)}
+                status={errors.name ? "error" : undefined}
+                helperTx={errors.name as TxKeyPath | undefined}
               />
 
               <TextField
@@ -169,6 +234,8 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 numberOfLines={3}
                 autoCapitalize="sentences"
                 containerStyle={themed($fieldContainer)}
+                status={errors.description ? "error" : undefined}
+                helperTx={errors.description as TxKeyPath | undefined}
               />
 
               <TextField
@@ -179,6 +246,8 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 keyboardType="numeric"
                 returnKeyType="next"
                 containerStyle={themed($fieldContainer)}
+                status={errors.capacity ? "error" : undefined}
+                helperTx={errors.capacity as TxKeyPath | undefined}
               />
             </View>
 
@@ -194,6 +263,8 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 autoCapitalize="words"
                 returnKeyType="next"
                 containerStyle={themed($fieldContainer)}
+                status={errors.address?.full_address ? "error" : undefined}
+                helperTx={errors.address?.full_address as TxKeyPath | undefined}
               />
 
               <Dropdown
@@ -214,9 +285,22 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
                 maxLength={5}
                 returnKeyType="done"
                 containerStyle={themed($fieldContainer)}
+                status={errors.address?.postal_code ? "error" : undefined}
+                helperTx={errors.address?.postal_code as TxKeyPath | undefined}
               />
             </View>
           </ScrollView>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <View style={themed($errorContainer)}>
+              <Text
+                tx={errorMessage as TxKeyPath}
+                style={themed($errorText)}
+                preset="formHelper"
+              />
+            </View>
+          )}
 
           {/* Action Buttons */}
           <View style={themed($buttonContainer)}>
@@ -225,12 +309,14 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
               tx="common:cancel"
               onPress={onClose}
               style={themed($cancelButton)}
+              disabled={isSubmitting}
             />
             <Button
               preset="filled"
-              tx="venueModal:saveChanges"
+              tx={isSubmitting ? "common:loading" : "venueModal:saveChanges"}
               onPress={handleSave}
               style={themed($saveButton)}
+              disabled={isSubmitting}
             />
           </View>
         </Pressable>
@@ -303,6 +389,19 @@ const $cancelButton: ThemedStyle<ViewStyle> = () => ({
 
 const $saveButton: ThemedStyle<ViewStyle> = () => ({
   flex: 2,
+})
+
+const $errorContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.sm,
+  backgroundColor: colors.errorBackground,
+  borderTopWidth: 1,
+  borderTopColor: colors.border,
+})
+
+const $errorText: ThemedStyle<TextStyle> = ({ colors }) => ({
+  color: colors.error,
+  textAlign: "center",
 })
 
 // TODO: Connect to VenueStore and add to VenuesScreen next

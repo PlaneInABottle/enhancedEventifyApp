@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react-native"
 
 import { ThemeProvider } from "@/theme/context"
 import { VenueEditModal } from "./VenueEditModal"
+import type { IVenue } from "@/models/VenueModels"
 
 // Mock SafeAreaProvider
 jest.mock("react-native-safe-area-context", () => ({
@@ -41,6 +42,15 @@ jest.mock("@/i18n/translate", () => ({
       "venueModal:postalCodePlaceholder": "Postal code (optional)",
       "venueModal:saveChanges": "Save Changes",
       "common:cancel": "Cancel",
+      // Validation error messages
+      "errors.venueNameRequired": "Venue name is required",
+      "errors.venueNameTooShort": "Venue name must be at least 2 characters long",
+      "errors.venueNameTooLong": "Venue name cannot exceed 100 characters",
+      "errors.venueDescriptionTooLong": "Description cannot exceed 500 characters",
+      "errors.venueCapacityInvalid": "Capacity must be a valid positive number",
+      "errors.venueCapacityTooLarge": "Capacity cannot exceed 100,000",
+      "errors.addressTooLong": "Address cannot exceed 200 characters",
+      "errors.postalCodeInvalid": "Postal code must be exactly 5 digits",
     }
     return translations[key] || key
   },
@@ -61,25 +71,31 @@ const renderVenueEditModal = (props: Partial<React.ComponentProps<typeof VenueEd
   )
 }
 
-// Mock venue data
+// Mock venue data compatible with IVenue interface
 const mockVenue = {
   id: "test-venue-id",
+  business_id: "test-business-id",
+  address_id: "test-address-id",
   name: "Test Venue",
   description: "A test venue for testing",
   capacity: 100,
-  address: {
-    full_address: "123 Test Street",
-    city: "İstanbul" as const,
-    postal_code: "34000",
-  },
-  coordinates: {
-    type: "Point" as const,
-    coordinates: [29.0, 41.0] as [number, number],
-  },
+  is_active: true,
   created_at: "2024-01-01T00:00:00Z",
   updated_at: "2024-01-01T00:00:00Z",
-  business_id: "test-business-id",
-}
+  address: {
+    id: "test-address-id",
+    full_address: "123 Test Street",
+    city: "İstanbul",
+    country: "Turkey",
+    postal_code: "34000",
+    coordinates: {
+      type: "Point" as const,
+      coordinates: [29.0, 41.0] as [number, number],
+    },
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+} as unknown as IVenue
 
 describe("VenueEditModal", () => {
   const mockOnClose = jest.fn()
@@ -278,8 +294,8 @@ describe("VenueEditModal", () => {
     })
   })
 
-  describe("Edge Cases", () => {
-    test("handles empty form submission", () => {
+  describe("Form Validation", () => {
+    test("shows error when venue name is empty", () => {
       renderVenueEditModal({
         onSave: mockOnSave,
       })
@@ -287,27 +303,178 @@ describe("VenueEditModal", () => {
       const saveButton = screen.getByText("Save Changes")
       fireEvent.press(saveButton)
 
+      // Should show validation error and not call onSave
+      expect(screen.getByText("Venue name is required")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("shows error when venue name is too short", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "A")
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      expect(screen.getByText("Venue name must be at least 2 characters long")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("shows error when venue name is too long", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "A".repeat(101)) // 101 characters
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      expect(screen.getByText("Venue name cannot exceed 100 characters")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("shows error when description is too long", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "Valid Venue Name")
+
+      const descriptionInput = screen.getByPlaceholderText("Describe your venue (optional)")
+      fireEvent.changeText(descriptionInput, "A".repeat(501)) // 501 characters
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      expect(screen.getByText("Description cannot exceed 500 characters")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("shows error when capacity is invalid", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "Valid Venue Name")
+
+      const capacityInput = screen.getByPlaceholderText("Maximum capacity (optional)")
+      fireEvent.changeText(capacityInput, "0") // Invalid capacity
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      expect(screen.getByText("Capacity must be a valid positive number")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("shows error when capacity is too large", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "Valid Venue Name")
+
+      const capacityInput = screen.getByPlaceholderText("Maximum capacity (optional)")
+      fireEvent.changeText(capacityInput, "100001") // Too large
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      expect(screen.getByText("Capacity cannot exceed 100,000")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("shows error when postal code is invalid", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "Valid Venue Name")
+
+      const postalCodeInput = screen.getByPlaceholderText("Postal code (optional)")
+      fireEvent.changeText(postalCodeInput, "123") // Invalid postal code
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      expect(screen.getByText("Postal code must be exactly 5 digits")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    test("clears errors when user starts typing", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      // First trigger validation error
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+      expect(screen.getByText("Venue name is required")).toBeOnTheScreen()
+
+      // Then start typing to clear error
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "Valid Name")
+
+      expect(screen.queryByText("Venue name is required")).not.toBeOnTheScreen()
+    })
+
+    test("submits valid form successfully", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const nameInput = screen.getByPlaceholderText("Enter venue name")
+      fireEvent.changeText(nameInput, "Valid Venue Name")
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
       expect(mockOnSave).toHaveBeenCalledWith({
-        name: "",
+        name: "Valid Venue Name",
         description: "",
         capacity: "",
         address: {
           full_address: "",
-          city: "İstanbul", // Default city
+          city: "İstanbul",
           postal_code: "",
         },
       })
+    })
+  })
+
+  describe("Edge Cases", () => {
+    test("handles empty form submission with validation", () => {
+      renderVenueEditModal({
+        onSave: mockOnSave,
+      })
+
+      const saveButton = screen.getByText("Save Changes")
+      fireEvent.press(saveButton)
+
+      // Should show validation error instead of calling onSave
+      expect(screen.getByText("Venue name is required")).toBeOnTheScreen()
+      expect(mockOnSave).not.toHaveBeenCalled()
     })
 
     test("handles venue with partial address data", () => {
       const partialVenue = {
         ...mockVenue,
         address: {
+          ...mockVenue.address,
           full_address: "Incomplete Address",
-          city: "Ankara" as const,
+          city: "Ankara",
           postal_code: "",
         },
-      }
+      } as unknown as IVenue
 
       renderVenueEditModal({
         venue: partialVenue,

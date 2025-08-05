@@ -1,21 +1,30 @@
-import { FC, useEffect } from "react"
-import { ViewStyle, TextStyle, View } from "react-native"
+import { FC, useEffect, useState } from "react"
+import { ViewStyle, TextStyle, View, TouchableOpacity } from "react-native"
 import { observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
 import { ListView } from "@/components/ListView"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
+import { VenueEditModal, VenueEditFormData } from "@/components/VenueEditModal"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+import type { IVenue } from "@/models/VenueModels"
+import type { CreateVenueRequest, UpdateVenueRequest } from "@/services/venue/venueTypes"
 
 interface VenuesScreenProps {}
 
 export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
   const { venueStore, businessProfileStore } = useStores()
   const { themed } = useAppTheme()
+
+  // Modal state management
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [selectedVenue, setSelectedVenue] = useState<IVenue | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   // Fetch venues when screen loads
   useEffect(() => {
@@ -24,16 +33,94 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
     }
   }, [businessProfileStore.profile?.id])
 
-  const renderVenueItem = ({ item }: { item: any }) => (
+  // Modal handlers
+  const handleEditVenue = (venue: IVenue) => {
+    setSelectedVenue(venue)
+    setEditModalVisible(true)
+  }
+
+  const handleAddVenue = () => {
+    setSelectedVenue(null)
+    setEditModalVisible(true)
+  }
+
+  const handleCloseModal = () => {
+    setEditModalVisible(false)
+    setSelectedVenue(null)
+    setSaveError(null) // Clear any previous errors
+  }
+
+  const handleSaveVenue = async (formData: VenueEditFormData) => {
+    const isEditing = !!selectedVenue
+    const businessId = businessProfileStore.profile?.id
+
+    if (!businessId) {
+      setSaveError("errors.businessIdNotAvailable")
+      return
+    }
+
+    setSaveError(null) // Clear any previous errors
+    setIsSubmitting(true)
+    try {
+      if (isEditing) {
+        // Transform form data to UpdateVenueRequest
+        const updateData: UpdateVenueRequest = {
+          name: formData.name,
+          description: formData.description || undefined,
+          capacity: formData.capacity ? Number(formData.capacity) : undefined,
+          address: {
+            full_address: formData.address.full_address || undefined,
+            city: formData.address.city || undefined,
+            postal_code: formData.address.postal_code || undefined,
+          },
+        }
+
+        await venueStore.updateVenue(selectedVenue.id, updateData)
+      } else {
+        // Transform form data to CreateVenueRequest
+        const createData: CreateVenueRequest = {
+          name: formData.name,
+          description: formData.description || undefined,
+          capacity: formData.capacity ? Number(formData.capacity) : undefined,
+          address: {
+            full_address: formData.address.full_address || undefined,
+            city: formData.address.city || undefined,
+            postal_code: formData.address.postal_code || undefined,
+            country: "Turkey", // Default country
+          },
+        }
+
+        await venueStore.createVenue(businessId, createData)
+      }
+      
+      handleCloseModal()
+    } catch (error) {
+      console.error("Failed to save venue:", error)
+      setSaveError(isEditing ? "errors.updateVenueFailed" : "errors.createVenueFailed")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const renderVenueItem = ({ item }: { item: IVenue }) => (
     <View style={themed($venueCard)}>
-      <Text style={themed($venueName)}>{item.name}</Text>
-      <Text style={themed($venueDescription)}>{item.description}</Text>
-      <Text style={themed($venueCapacity)}>
-        {translate("common:capacity")}: {item.capacity}
-      </Text>
-      <Text style={themed($venueAddress)}>
-        {item.address?.full_address || translate("venuesScreen:addressNotAvailable")}
-      </Text>
+      <View style={themed($venueContent)}>
+        <Text style={themed($venueName)}>{item.name}</Text>
+        <Text style={themed($venueDescription)}>{item.description}</Text>
+        <Text style={themed($venueCapacity)}>
+          {translate("common:capacity")}: {item.capacity}
+        </Text>
+        <Text style={themed($venueAddress)}>
+          {item.address?.full_address || translate("venuesScreen:addressNotAvailable")}
+        </Text>
+      </View>
+      <TouchableOpacity
+        style={themed($editButton)}
+        onPress={() => handleEditVenue(item)}
+        testID={`edit-venue-${item.id}`}
+      >
+        <Text style={themed($editButtonText)} tx="common:edit" />
+      </TouchableOpacity>
     </View>
   )
 
@@ -50,7 +137,7 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
         <Text preset="heading" style={themed($title)}>
           {translate("venuesScreen:title")} ({venueStore.venues.length})
         </Text>
-        <Button preset="filled" tx="common:addVenue" />
+        <Button preset="filled" tx="common:addVenue" onPress={handleAddVenue} />
       </View>
       
       {venueStore.isLoading ? (
@@ -60,7 +147,7 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
       ) : (
         <ListView
           data={venueStore.venues}
-          keyExtractor={(item: any) => item.id}
+          keyExtractor={(item) => item.id}
           renderItem={renderVenueItem}
           estimatedItemSize={120}
           ListEmptyComponent={renderEmptyList}
@@ -68,6 +155,15 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
           contentContainerStyle={themed($listContent)}
         />
       )}
+
+      <VenueEditModal
+        visible={editModalVisible}
+        venue={selectedVenue}
+        onClose={handleCloseModal}
+        onSave={handleSaveVenue}
+        isSubmitting={isSubmitting}
+        errorMessage={saveError}
+      />
     </Screen>
   )
 })
@@ -135,6 +231,27 @@ const $venueCard: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   shadowOpacity: 0.1,
   shadowRadius: 4,
   elevation: 3,
+  flexDirection: "row",
+  alignItems: "flex-start",
+})
+
+const $venueContent: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  marginRight: 12,
+})
+
+const $editButton: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
+  backgroundColor: colors.palette.primary500,
+  borderRadius: spacing.xs,
+  paddingHorizontal: spacing.sm,
+  paddingVertical: spacing.xs,
+  alignSelf: "flex-start",
+})
+
+const $editButtonText: ThemedStyle<TextStyle> = ({ colors }) => ({
+  color: colors.palette.neutral100,
+  fontSize: 12,
+  fontWeight: "600" as const,
 })
 
 const $venueName: ThemedStyle<TextStyle> = ({ colors }) => ({

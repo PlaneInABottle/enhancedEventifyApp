@@ -18,6 +18,7 @@ const tr = {
     loading: "Yükleniyor...",
     capacity: "Kapasite",
     addVenue: "Mekan Ekle",
+    edit: "Düzenle",
   },
   welcomeScreen: {
     postscript:
@@ -72,7 +73,20 @@ const tr = {
     invalidFileType: "Geçersiz dosya tipi. Lütfen JPEG, PNG, GIF veya WebP kullanın",
     fileTooLarge: "Dosya boyutu izin verilen maksimum limiti aşıyor",
     storageError: "Depolama işlemi başarısız oldu",
+    // Mekan doğrulama hataları
+    venueNameRequired: "Mekan adı gereklidir",
+    venueNameTooShort: "Mekan adı en az 2 karakter olmalıdır",
+    venueNameTooLong: "Mekan adı 100 karakteri geçemez",
+    venueDescriptionTooLong: "Açıklama 500 karakteri geçemez",
+    venueCapacityInvalid: "Kapasite geçerli bir pozitif sayı olmalıdır",
+    venueCapacityTooLarge: "Kapasite 100.000'i geçemez",
+    addressTooLong: "Adres 200 karakteri geçemez",
+    postalCodeInvalid: "Posta kodu tam olarak 5 haneli olmalıdır",
     uploadFailed: "Dosya yükleme başarısız oldu",
+    // İşletme ve mekan işlem hataları
+    businessIdNotAvailable: "İşletme bilgisi mevcut değil. Lütfen profili kontrol edin",
+    createVenueFailed: "Mekan oluşturulamadı. Lütfen tekrar deneyin",
+    updateVenueFailed: "Mekan güncellenemedi. Lütfen tekrar deneyin",
     // Ortak doğrulama hataları
     phoneRequired: "Telefon numarası gereklidir",
     phoneInvalid: "Geçersiz telefon numarası formatı",
