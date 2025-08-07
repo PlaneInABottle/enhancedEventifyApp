@@ -122,37 +122,37 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
 
     // Required field: name
     if (!formData.name.trim()) {
-      newErrors.name = "errors.venueNameRequired"
+      newErrors.name = "errors:venueNameRequired"
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = "errors.venueNameTooShort"
+      newErrors.name = "errors:venueNameTooShort"
     } else if (formData.name.trim().length > 100) {
-      newErrors.name = "errors.venueNameTooLong"
+      newErrors.name = "errors:venueNameTooLong"
     }
 
     // Optional description validation
     if (formData.description && formData.description.length > 500) {
-      newErrors.description = "errors.venueDescriptionTooLong"
+      newErrors.description = "errors:venueDescriptionTooLong"
     }
 
     // Optional capacity validation
     if (formData.capacity) {
       const capacityNum = Number(formData.capacity)
       if (isNaN(capacityNum) || capacityNum < 1) {
-        newErrors.capacity = "errors.venueCapacityInvalid"
+        newErrors.capacity = "errors:venueCapacityInvalid"
       } else if (capacityNum > 100000) {
-        newErrors.capacity = "errors.venueCapacityTooLarge"
+        newErrors.capacity = "errors:venueCapacityTooLarge"
       }
     }
 
     // Optional address validations
     if (formData.address.full_address && formData.address.full_address.length > 200) {
-      newErrors.address = { ...newErrors.address, full_address: "errors.addressTooLong" }
+      newErrors.address = { ...newErrors.address, full_address: "errors:addressTooLong" }
     }
 
     if (formData.address.postal_code) {
       const postalCode = formData.address.postal_code.trim()
       if (postalCode.length !== 5) {
-        newErrors.address = { ...newErrors.address, postal_code: "errors.postalCodeInvalid" }
+        newErrors.address = { ...newErrors.address, postal_code: "errors:postalCodeInvalid" }
       }
     }
 

@@ -59,7 +59,7 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
 
 
     if (!businessId) {
-      setSaveError("errors.businessIdNotAvailable")
+      setSaveError("errors:businessIdNotAvailable")
       return
     }
 
@@ -118,7 +118,7 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
       handleCloseModal()
     } catch (error) {
       console.error("Failed to save venue:", error)
-      setSaveError(isEditing ? "errors.updateVenueFailed" : "errors.createVenueFailed")
+      setSaveError(isEditing ? "errors:updateVenueFailed" : "errors:createVenueFailed")
     } finally {
       setIsSubmitting(false)
     }
