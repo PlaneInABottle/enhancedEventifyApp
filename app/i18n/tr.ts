@@ -90,6 +90,7 @@ const tr = {
     updateVenueFailed: "Mekan güncellenemedi. Lütfen tekrar deneyin",
     fetchVenueFailed: "Mekan bilgisi alınamadı. Lütfen tekrar deneyin",
     createAddressFailed: "Adres oluşturulamadı. Lütfen tekrar deneyin",
+    updateCoordinatesFailed: "Konum koordinatları güncellenemedi. Lütfen tekrar deneyin",
     deleteVenueFailed: "Mekan silinemedi. Lütfen tekrar deneyin",
     // Ortak doğrulama hataları
     phoneRequired: "Telefon numarası gereklidir",

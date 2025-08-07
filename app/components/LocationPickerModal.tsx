@@ -1,12 +1,13 @@
 import React, { FC, useState, useCallback, useEffect } from "react"
 import { View, ViewStyle, TextStyle, Modal, Pressable, Platform } from "react-native"
 import { MapView } from "@rnmapbox/maps"
-import { WebMapView } from "./WebMapView"
 
 import { Button } from "@/components/Button"
 import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+
+import { WebMapView } from "./WebMapView"
 
 // Default coordinates (Istanbul center)
 const defaultCoordinates = {
@@ -137,7 +138,7 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
 
           {/* Map View */}
           <View style={themed($mapContainer)}>
-            {Platform.OS === 'web' ? (
+            {Platform.OS === "web" ? (
               <WebMapView
                 style={themed($map)}
                 styleURL="mapbox://styles/mapbox/streets-v12"
@@ -168,9 +169,13 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
               }}
               style={themed($coordinatesText)}
             />
-            <Text 
-              tx={Platform.OS === "web" ? "locationPicker:clickToSelect" : "locationPicker:dragToSelect"} 
-              style={themed($instructionText)} 
+            <Text
+              tx={
+                Platform.OS === "web"
+                  ? "locationPicker:clickToSelect"
+                  : "locationPicker:dragToSelect"
+              }
+              style={themed($instructionText)}
             />
           </View>
 

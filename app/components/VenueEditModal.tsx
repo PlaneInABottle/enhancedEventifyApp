@@ -79,10 +79,13 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
           // Cast to TurkishCity for type compatibility, assuming backend data is valid
           city: (venue.address?.city as TurkishCity) || "İstanbul",
           postal_code: venue.address?.postal_code || "",
-          // Extract coordinates from PostGIS format [lon, lat] to {lat, lon}
+          // Extract coordinates from GeoJSON format
           coordinates:
-            venue.address?.latitude && venue.address?.longitude
-              ? { latitude: venue.address.latitude, longitude: venue.address.longitude }
+            venue.address?.coordinates?.coordinates
+              ? { 
+                  latitude: venue.address.coordinates.coordinates[1], 
+                  longitude: venue.address.coordinates.coordinates[0] 
+                }
               : undefined,
         },
       }

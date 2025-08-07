@@ -89,6 +89,7 @@ const en = {
     updateVenueFailed: "Failed to update venue. Please try again",
     fetchVenueFailed: "Failed to fetch venue. Please try again",
     createAddressFailed: "Failed to create address. Please try again",
+    updateCoordinatesFailed: "Failed to update location coordinates. Please try again",
     deleteVenueFailed: "Failed to delete venue. Please try again",
     // Common validation errors
     phoneRequired: "Phone number is required",
