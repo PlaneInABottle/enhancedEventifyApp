@@ -118,7 +118,8 @@ export const VenueStore = types
         const result = yield createVenue(businessId, venueData)
 
         if (result.success && result.venue) {
-          self.addVenue(result.venue)
+          // Instead of adding directly, refresh the list to get consistent format
+          yield (self as any).fetchVenuesByBusiness(businessId)
           return result.venue
         } else {
           self.setProp("lastError", result.error || "errors.createVenueFailed")
