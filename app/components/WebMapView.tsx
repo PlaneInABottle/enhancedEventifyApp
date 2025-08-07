@@ -56,7 +56,7 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
         .setLngLat([initialCoordinates.longitude, initialCoordinates.latitude])
         .addTo(map.current)
 
-      // Add click handler
+      // Add click handler - only move marker, not map center
       map.current.on("click", (e) => {
         const event = {
           lngLat: {
@@ -65,7 +65,7 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
           },
         }
 
-        // Update marker position
+        // Update marker position only (don't move map center)
         if (marker.current) {
           marker.current.setLngLat([e.lngLat.lng, e.lngLat.lat])
         }
@@ -87,13 +87,9 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
     }
   }, [styleURL]) // Only depend on styleURL
 
-  // Update map center and marker when coordinates change
+  // Update marker when coordinates change (don't move map center)
   useEffect(() => {
     if (map.current && marker.current && initialCoordinates) {
-      map.current.flyTo({
-        center: [initialCoordinates.longitude, initialCoordinates.latitude],
-        essential: true
-      })
       marker.current.setLngLat([initialCoordinates.longitude, initialCoordinates.latitude])
     }
   }, [initialCoordinates])
