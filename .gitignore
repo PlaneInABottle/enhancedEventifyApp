@@ -104,3 +104,6 @@ dist/
 
 .mcp*
 .gemini*
+
+# Serena cache (but not memories)
+.serena/cache/
