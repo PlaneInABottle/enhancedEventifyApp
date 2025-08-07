@@ -145,7 +145,7 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
                 scaleBarEnabled={false}
                 onPress={handleMapClick}
                 onClick={handleMapClick}
-                initialCoordinates={selectedCoordinates}
+                initialCoordinates={initialCoordinates || defaultCoordinates}
               />
             ) : (
               <MapView

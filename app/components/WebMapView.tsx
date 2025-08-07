@@ -84,13 +84,6 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
     }
   }, [styleURL]) // Only depend on styleURL
 
-  // Update marker when coordinates change (don't move map center)
-  useEffect(() => {
-    if (map.current && marker.current && initialCoordinates) {
-      marker.current.setLngLat([initialCoordinates.longitude, initialCoordinates.latitude])
-    }
-  }, [initialCoordinates])
-
   return (
     <View style={[{ flex: 1, overflow: "hidden" }, style]}>
       <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />
