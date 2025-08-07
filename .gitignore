@@ -104,3 +104,7 @@ dist/
 
 .mcp*
 .gemini*
+
+# Serena cache (but keep .serena directory)
+.serena/cache/
+.serena/*.log

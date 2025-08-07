@@ -210,6 +210,25 @@ await waitFor(() => {
 
 ## MCP Integration
 
+### Serena (Code Intelligence)
+**React Native Workflows:**
+- `mcp__serena__find_symbol` - Navigate MobX stores, React components, navigation screens
+- `mcp__serena__find_referencing_symbols` - Find all usages of hooks like `useAppTheme`, `useStores`
+- `mcp__serena__search_for_pattern` - Find translation keys, styled components, specific patterns
+- `mcp__serena__replace_symbol_body` - Refactor component methods, store actions safely
+
+**Project Memory:**
+- Store React Native patterns, MobX conventions, testing approaches
+- Remember architecture decisions and component design patterns
+- Track known issues specific to Expo, React Navigation, theming
+
+**Additional Tools:**
+- `mcp__serena__get_symbols_overview` - Explore file/directory structure
+- `mcp__serena__insert_after_symbol` / `insert_before_symbol` - Add methods to classes
+- `mcp__serena__execute_shell_command` - Run project commands when needed
+- Many other code navigation and manipulation tools - use tab completion to discover
+
+### Other MCPs
 **Database (Supabase):** Use `mcp__supabase__*` for migrations, queries, and branch management
 **Web Testing (Playwright):** Use `mcp__playwright__*` for testing Expo web builds  
 **Mobile Testing (Maestro):** Use `mcp__maestro__*` for React Native app testing
