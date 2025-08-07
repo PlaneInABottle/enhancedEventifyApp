@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import { View, ViewStyle } from "react-native"
 import mapboxgl from "mapbox-gl"
 import "mapbox-gl/dist/mapbox-gl.css"
@@ -27,16 +27,13 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
   const map = useRef<mapboxgl.Map | null>(null)
   const marker = useRef<mapboxgl.Marker | null>(null)
 
-  // Use refs for callbacks to avoid brittle dependencies
-  const onPressRef = useRef(onPress)
-  const onClickRef = useRef(onClick)
-
-  // Update refs when callbacks change
-  React.useEffect(() => {
-    onPressRef.current = onPress
+  // Memoize callbacks to avoid brittle dependencies
+  const handlePress = useCallback((event: any) => {
+    onPress?.(event)
   }, [onPress])
-  React.useEffect(() => {
-    onClickRef.current = onClick
+  
+  const handleClick = useCallback((event: any) => {
+    onClick?.(event)
   }, [onClick])
 
   useEffect(() => {
@@ -70,8 +67,8 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
           marker.current.setLngLat([e.lngLat.lng, e.lngLat.lat])
         }
 
-        if (onPressRef.current) onPressRef.current(event)
-        if (onClickRef.current) onClickRef.current(event)
+        handlePress(event)
+        handleClick(event)
       })
     }
 
