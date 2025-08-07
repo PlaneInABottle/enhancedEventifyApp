@@ -82,7 +82,7 @@ export const WebMapView: React.FC<WebMapViewProps> = ({
         map.current = null
       }
     }
-  }, [styleURL]) // Only depend on styleURL
+  }, [handlePress, handleClick])
 
   return (
     <View style={[{ flex: 1, overflow: "hidden" }, style]}>

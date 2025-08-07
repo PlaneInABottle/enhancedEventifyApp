@@ -67,7 +67,7 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
   const { themed } = useAppTheme()
 
   // Initialize form data from venue prop or defaults
-  const getInitialFormData = useCallback((): VenueEditFormData => {
+  const getInitialFormData = (): VenueEditFormData => {
     if (venue) {
       return {
         name: venue.name,
@@ -101,7 +101,7 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
         coordinates: undefined,
       },
     }
-  }, [venue])
+  }
 
   // Form state
   const [formData, setFormData] = useState<VenueEditFormData>(getInitialFormData())
@@ -114,7 +114,7 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
   useEffect(() => {
     setFormData(getInitialFormData())
     setErrors({}) // Clear errors when form resets
-  }, [getInitialFormData])
+  }, [venue])
 
   // Validation functions
   const validateForm = useCallback((): boolean => {
