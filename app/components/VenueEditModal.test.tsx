@@ -76,14 +76,14 @@ jest.mock("@/i18n/translate", () => ({
       "venueModal:saveChanges": "Save Changes",
       "common:cancel": "Cancel",
       // Validation error messages
-      "errors.venueNameRequired": "Venue name is required",
-      "errors.venueNameTooShort": "Venue name must be at least 2 characters long",
-      "errors.venueNameTooLong": "Venue name cannot exceed 100 characters",
-      "errors.venueDescriptionTooLong": "Description cannot exceed 500 characters",
-      "errors.venueCapacityInvalid": "Capacity must be a valid positive number",
-      "errors.venueCapacityTooLarge": "Capacity cannot exceed 100,000",
-      "errors.addressTooLong": "Address cannot exceed 200 characters",
-      "errors.postalCodeInvalid": "Postal code must be exactly 5 digits",
+      "errors:venueNameRequired": "Venue name is required",
+      "errors:venueNameTooShort": "Venue name must be at least 2 characters long",
+      "errors:venueNameTooLong": "Venue name cannot exceed 100 characters",
+      "errors:venueDescriptionTooLong": "Description cannot exceed 500 characters",
+      "errors:venueCapacityInvalid": "Capacity must be a valid positive number",
+      "errors:venueCapacityTooLarge": "Capacity cannot exceed 100,000",
+      "errors:addressTooLong": "Address cannot exceed 200 characters",
+      "errors:postalCodeInvalid": "Postal code must be exactly 5 digits",
     }
     return translations[key] || key
   },

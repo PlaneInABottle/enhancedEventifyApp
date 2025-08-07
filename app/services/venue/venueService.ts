@@ -32,12 +32,12 @@ export async function getVenueById(venueId: string): Promise<VenueServiceResult>
       .single()
 
     if (error) {
-      return { success: false, error: "errors.fetchVenueFailed" }
+      return { success: false, error: "errors:fetchVenueFailed" }
     }
 
     return { success: true, venue: data as Venue }
   } catch (error) {
-    return { success: false, error: "errors.fetchVenueFailed" }
+    return { success: false, error: "errors:fetchVenueFailed" }
   }
 }
 
@@ -51,12 +51,12 @@ export async function getVenuesByBusiness(businessId: string): Promise<VenueList
     })
 
     if (error) {
-      return { success: false, error: "errors.fetchVenueFailed" }
+      return { success: false, error: "errors:fetchVenueFailed" }
     }
 
     return { success: true, venues: data as Venue[] }
   } catch (error) {
-    return { success: false, error: "errors.fetchVenueFailed" }
+    return { success: false, error: "errors:fetchVenueFailed" }
   }
 }
 
@@ -84,7 +84,7 @@ export async function createVenue(
       .single()
 
     if (addressError || !address) {
-      return { success: false, error: "errors.createAddressFailed" }
+      return { success: false, error: "errors:createAddressFailed" }
     }
 
     // Then create the venue
@@ -106,12 +106,12 @@ export async function createVenue(
       .single()
 
     if (venueError) {
-      return { success: false, error: "errors.createVenueFailed" }
+      return { success: false, error: "errors:createVenueFailed" }
     }
 
     return { success: true, venue: venue as Venue }
   } catch (error) {
-    return { success: false, error: "errors.createVenueFailed" }
+    return { success: false, error: "errors:createVenueFailed" }
   }
 }
 
@@ -148,7 +148,7 @@ export async function updateVenue(
 
         if (addressError) {
           console.error('Address update error:', addressError)
-          return { success: false, error: "errors.createAddressFailed" }
+          return { success: false, error: "errors:createAddressFailed" }
         }
       }
     }
@@ -174,7 +174,7 @@ export async function updateVenue(
       .single()
 
     if (venueError) {
-      return { success: false, error: "errors.updateVenueFailed" }
+      return { success: false, error: "errors:updateVenueFailed" }
     }
 
     // Manual response construction to ensure coordinate format consistency
@@ -187,7 +187,7 @@ export async function updateVenue(
 
     return { success: true, venue: venue as Venue }
   } catch (error) {
-    return { success: false, error: "errors.updateVenueFailed" }
+    return { success: false, error: "errors:updateVenueFailed" }
   }
 }
 
@@ -209,7 +209,7 @@ export async function deleteVenue(venueId: string): Promise<VenueServiceResult> 
       .single()
 
     if (venueError) {
-      return { success: false, error: "errors.deleteVenueFailed" }
+      return { success: false, error: "errors:deleteVenueFailed" }
     }
 
     return { success: true, venue: venue as Venue }
@@ -217,7 +217,7 @@ export async function deleteVenue(venueId: string): Promise<VenueServiceResult> 
     // TODO: Add service index export file next
     // BREADCRUMB: Completed deleteVenue function with error handling and return
   } catch (error) {
-    return { success: false, error: "errors.deleteVenueFailed" }
+    return { success: false, error: "errors:deleteVenueFailed" }
   }
 }
 

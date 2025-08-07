@@ -228,14 +228,14 @@ describe("VenueStore", () => {
       it("should handle fetch error", async () => {
         mockVenueService.getVenuesByBusiness.mockResolvedValue({
           success: false,
-          error: "errors.fetchVenuesFailed",
+          error: "errors:fetchVenuesFailed",
         })
 
         await store.fetchVenuesByBusiness("business-1")
 
         expect(store.venues).toEqual([])
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.fetchVenuesFailed")
+        expect(store.lastError).toBe("errors:fetchVenuesFailed")
       })
 
       it("should handle service exception", async () => {
@@ -244,7 +244,7 @@ describe("VenueStore", () => {
         await store.fetchVenuesByBusiness("business-1")
 
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.fetchVenuesFailed")
+        expect(store.lastError).toBe("errors:fetchVenuesFailed")
       })
     })
 
@@ -280,14 +280,14 @@ describe("VenueStore", () => {
       it("should handle create error", async () => {
         mockVenueService.createVenue.mockResolvedValue({
           success: false,
-          error: "errors.createVenueFailed",
+          error: "errors:createVenueFailed",
         })
 
         const result = await store.createVenue("business-1", venueData)
 
         expect(store.venueCount).toBe(0)
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.createVenueFailed")
+        expect(store.lastError).toBe("errors:createVenueFailed")
         expect(result).toBeNull()
       })
 
@@ -297,7 +297,7 @@ describe("VenueStore", () => {
         const result = await store.createVenue("business-1", venueData)
 
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.createVenueFailed")
+        expect(store.lastError).toBe("errors:createVenueFailed")
         expect(result).toBeNull()
       })
     })
@@ -332,14 +332,14 @@ describe("VenueStore", () => {
       it("should handle update error", async () => {
         mockVenueService.updateVenue.mockResolvedValue({
           success: false,
-          error: "errors.updateVenueFailed",
+          error: "errors:updateVenueFailed",
         })
 
         const result = await store.updateVenue("venue-1", updateData)
 
         expect(store.venues[0].name).toBe("Test Venue") // Unchanged
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.updateVenueFailed")
+        expect(store.lastError).toBe("errors:updateVenueFailed")
         expect(result).toBeNull()
       })
 
@@ -349,7 +349,7 @@ describe("VenueStore", () => {
         const result = await store.updateVenue("venue-1", updateData)
 
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.updateVenueFailed")
+        expect(store.lastError).toBe("errors:updateVenueFailed")
         expect(result).toBeNull()
       })
     })
@@ -376,14 +376,14 @@ describe("VenueStore", () => {
       it("should handle delete error", async () => {
         mockVenueService.deleteVenue.mockResolvedValue({
           success: false,
-          error: "errors.deleteVenueFailed",
+          error: "errors:deleteVenueFailed",
         })
 
         const result = await store.deleteVenue("venue-1")
 
         expect(store.venueCount).toBe(1) // Unchanged
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.deleteVenueFailed")
+        expect(store.lastError).toBe("errors:deleteVenueFailed")
         expect(result).toBe(false)
       })
 
@@ -393,7 +393,7 @@ describe("VenueStore", () => {
         const result = await store.deleteVenue("venue-1")
 
         expect(store.isLoading).toBe(false)
-        expect(store.lastError).toBe("errors.deleteVenueFailed")
+        expect(store.lastError).toBe("errors:deleteVenueFailed")
         expect(result).toBe(false)
       })
     })

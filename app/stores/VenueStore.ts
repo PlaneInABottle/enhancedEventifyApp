@@ -102,10 +102,10 @@ export const VenueStore = types
         if (result.success && result.venues) {
           self.setVenues(result.venues)
         } else {
-          self.setProp("lastError", result.error || "errors.fetchVenuesFailed")
+          self.setProp("lastError", result.error || "errors:fetchVenuesFailed")
         }
       } catch (error) {
-        self.setProp("lastError", "errors.fetchVenuesFailed")
+        self.setProp("lastError", "errors:fetchVenuesFailed")
       } finally {
         self.setProp("isLoading", false)
       }
@@ -122,11 +122,11 @@ export const VenueStore = types
           yield (self as any).fetchVenuesByBusiness(businessId)
           return result.venue
         } else {
-          self.setProp("lastError", result.error || "errors.createVenueFailed")
+          self.setProp("lastError", result.error || "errors:createVenueFailed")
           return null
         }
       } catch (error) {
-        self.setProp("lastError", "errors.createVenueFailed")
+        self.setProp("lastError", "errors:createVenueFailed")
         return null
       }
     }),
@@ -141,11 +141,11 @@ export const VenueStore = types
           self.updateVenueInStore(venueId, result.venue)
           return result.venue
         } else {
-          self.setProp("lastError", result.error || "errors.updateVenueFailed")
+          self.setProp("lastError", result.error || "errors:updateVenueFailed")
           return null
         }
       } catch (error) {
-        self.setProp("lastError", "errors.updateVenueFailed")
+        self.setProp("lastError", "errors:updateVenueFailed")
         return null
       }
     }),
@@ -161,11 +161,11 @@ export const VenueStore = types
           self.updateVenueInStore(venueId, result.venue)
           return true
         } else {
-          self.setProp("lastError", result.error || "errors.deleteVenueFailed")
+          self.setProp("lastError", result.error || "errors:deleteVenueFailed")
           return false
         }
       } catch (error) {
-        self.setProp("lastError", "errors.deleteVenueFailed")
+        self.setProp("lastError", "errors:deleteVenueFailed")
         return false
       }
     }),
