@@ -1,7 +1,7 @@
 import { types, flow, Instance, SnapshotOut, SnapshotIn } from "mobx-state-tree"
 
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
-import { VenueModel } from "@/models/VenueModels"
+import { VenueModel, VenueSnapshotIn } from "@/models/VenueModels"
 import {
   getVenueById,
   getVenuesByBusiness,
@@ -49,6 +49,11 @@ export const VenueStore = types
     get hasActiveVenues() {
       return self.venues.filter((venue) => venue.isActive).length > 0
     },
+
+    // Following AuthStore:89-91 pattern for parameterized views
+    getVenueById(id: string) {
+      return self.venues.find((venue) => venue.id === id) ?? null
+    },
   }))
   .actions((self) => ({
     // ========================================================================
@@ -59,18 +64,19 @@ export const VenueStore = types
       self.setProp("lastError", null)
     },
 
-    setVenues(venues: any[]) {
+    setVenues(venues: VenueSnapshotIn[]) {
       self.setProp("venues", venues)
     },
 
-    addVenue(venue: any) {
+    addVenue(venue: VenueSnapshotIn) {
       self.venues.push(venue)
     },
 
-    updateVenueInStore(venueId: string, updatedVenue: any) {
+    updateVenueInStore(venueId: string, updatedVenue: VenueSnapshotIn) {
       const index = self.venues.findIndex((v) => v.id === venueId)
       if (index !== -1) {
-        self.venues[index] = updatedVenue
+        // Use splice to replace the item properly in MST
+        self.venues.splice(index, 1, updatedVenue)
       }
     },
 
@@ -106,7 +112,6 @@ export const VenueStore = types
     }),
 
     createVenue: flow(function* (businessId: string, venueData: CreateVenueRequest) {
-      self.setProp("isLoading", true)
       self.clearError()
 
       try {
@@ -122,13 +127,10 @@ export const VenueStore = types
       } catch (error) {
         self.setProp("lastError", "errors.createVenueFailed")
         return null
-      } finally {
-        self.setProp("isLoading", false)
       }
     }),
 
     updateVenue: flow(function* (venueId: string, updates: UpdateVenueRequest) {
-      self.setProp("isLoading", true)
       self.clearError()
 
       try {
@@ -144,20 +146,18 @@ export const VenueStore = types
       } catch (error) {
         self.setProp("lastError", "errors.updateVenueFailed")
         return null
-      } finally {
-        self.setProp("isLoading", false)
       }
     }),
 
     deleteVenue: flow(function* (venueId: string) {
-      self.setProp("isLoading", true)
       self.clearError()
 
       try {
         const result = yield deleteVenue(venueId)
 
-        if (result.success) {
-          self.removeVenueFromStore(venueId)
+        if (result.success && result.venue) {
+          // Update the venue in the store to reflect its new is_active: false state
+          self.updateVenueInStore(venueId, result.venue)
           return true
         } else {
           self.setProp("lastError", result.error || "errors.deleteVenueFailed")
@@ -166,8 +166,6 @@ export const VenueStore = types
       } catch (error) {
         self.setProp("lastError", "errors.deleteVenueFailed")
         return false
-      } finally {
-        self.setProp("isLoading", false)
       }
     }),
 
