@@ -22,9 +22,12 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
 
   // Modal state management
   const [editModalVisible, setEditModalVisible] = useState(false)
-  const [selectedVenue, setSelectedVenue] = useState<IVenue | null>(null)
+  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  
+  // Get selected venue from store using new method
+  const selectedVenue = selectedVenueId ? venueStore.getVenueById(selectedVenueId) : null
 
   // Fetch venues when screen loads
   useEffect(() => {
@@ -35,24 +38,25 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
 
   // Modal handlers
   const handleEditVenue = (venue: IVenue) => {
-    setSelectedVenue(venue)
+    setSelectedVenueId(venue.id)
     setEditModalVisible(true)
   }
 
   const handleAddVenue = () => {
-    setSelectedVenue(null)
+    setSelectedVenueId(null)
     setEditModalVisible(true)
   }
 
   const handleCloseModal = () => {
     setEditModalVisible(false)
-    setSelectedVenue(null)
+    setSelectedVenueId(null)
     setSaveError(null) // Clear any previous errors
   }
 
   const handleSaveVenue = async (formData: VenueEditFormData) => {
     const isEditing = !!selectedVenue
     const businessId = businessProfileStore.profile?.id
+
 
     if (!businessId) {
       setSaveError("errors.businessIdNotAvailable")
