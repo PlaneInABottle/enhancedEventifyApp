@@ -68,19 +68,22 @@ export async function createVenue(
   venueData: CreateVenueRequest,
 ): Promise<VenueServiceResult> {
   try {
-    // First create the address
-    const addressData = {
-      ...venueData.address,
-      coordinates: venueData.address.coordinates || null,
-    }
-
+    // Create address directly with Point format
     const { data: address, error: addressError } = await supabase
       .from("addresses")
-      .insert(addressData)
+      .insert({
+        full_address: venueData.address.full_address || null,
+        city: venueData.address.city || null,
+        postal_code: venueData.address.postal_code || null,
+        country: venueData.address.country || 'Turkey',
+        coordinates: venueData.address.coordinates 
+          ? `Point(${venueData.address.coordinates.coordinates[0]} ${venueData.address.coordinates.coordinates[1]})`
+          : null,
+      })
       .select()
       .single()
 
-    if (addressError) {
+    if (addressError || !address) {
       return { success: false, error: "errors.createAddressFailed" }
     }
 
@@ -120,7 +123,7 @@ export async function updateVenue(
   updates: UpdateVenueRequest,
 ): Promise<VenueServiceResult> {
   try {
-    // First get venue to find address_id if address update needed
+    // Update address if provided
     if (updates.address) {
       const { data: venue } = await supabase
         .from("venues")
@@ -129,15 +132,22 @@ export async function updateVenue(
         .single()
 
       if (venue?.address_id) {
+        // Update address fields including coordinates in single operation
         const { error: addressError } = await supabase
           .from("addresses")
           .update({
-            ...updates.address,
-            coordinates: updates.address.coordinates || null,
+            full_address: updates.address.full_address || null,
+            city: updates.address.city || null,
+            postal_code: updates.address.postal_code || null,
+            country: updates.address.country || null,
+            coordinates: updates.address.coordinates 
+              ? `Point(${updates.address.coordinates.coordinates[0]} ${updates.address.coordinates.coordinates[1]})`
+              : null,
           })
           .eq("id", venue.address_id)
 
         if (addressError) {
+          console.error('Address update error:', addressError)
           return { success: false, error: "errors.createAddressFailed" }
         }
       }
@@ -165,6 +175,14 @@ export async function updateVenue(
 
     if (venueError) {
       return { success: false, error: "errors.updateVenueFailed" }
+    }
+
+    // Manual response construction to ensure coordinate format consistency
+    if (updates.address?.coordinates && venue) {
+      venue.address = {
+        ...venue.address,
+        coordinates: updates.address.coordinates
+      }
     }
 
     return { success: true, venue: venue as Venue }
