@@ -1,0 +1,92 @@
+import React, { useEffect, useRef, useState } from 'react'
+import { View, ViewStyle } from 'react-native'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
+
+// You'll need to set your Mapbox access token
+mapboxgl.accessToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
+
+interface WebMapViewProps {
+  style?: ViewStyle
+  styleURL?: string
+  scaleBarEnabled?: boolean
+  onPress?: (event: any) => void
+  onClick?: (event: any) => void
+  children?: React.ReactNode
+  initialCoordinates?: { longitude: number; latitude: number }
+}
+
+export const WebMapView: React.FC<WebMapViewProps> = ({
+  style,
+  styleURL = 'mapbox://styles/mapbox/streets-v12',
+  onPress,
+  onClick,
+  initialCoordinates = { longitude: 28.9784, latitude: 41.0082 },
+}) => {
+  const mapContainer = useRef<HTMLDivElement>(null)
+  const map = useRef<mapboxgl.Map | null>(null)
+  const marker = useRef<mapboxgl.Marker | null>(null)
+  const initialCenterRef = useRef(initialCoordinates)
+  
+  // Use refs for callbacks to avoid brittle dependencies
+  const onPressRef = useRef(onPress)
+  const onClickRef = useRef(onClick)
+  
+  // Update refs when callbacks change
+  React.useEffect(() => { onPressRef.current = onPress }, [onPress])
+  React.useEffect(() => { onClickRef.current = onClick }, [onClick])
+
+  useEffect(() => {
+    if (!mapContainer.current) return
+
+    if (!map.current) {
+      // Create map only once with initial coordinates
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: styleURL.replace('mapbox://', 'mapbox://'),
+        center: [initialCenterRef.current.longitude, initialCenterRef.current.latitude],
+        zoom: 12,
+      })
+
+      // Add marker to map with default Mapbox marker style
+      marker.current = new mapboxgl.Marker({ color: '#EF4444' })
+        .setLngLat([initialCenterRef.current.longitude, initialCenterRef.current.latitude])
+        .addTo(map.current)
+
+      // Add click handler
+      map.current.on('click', (e) => {
+        const event = {
+          lngLat: {
+            lng: e.lngLat.lng,
+            lat: e.lngLat.lat,
+          },
+        }
+        
+        // Update marker position
+        if (marker.current) {
+          marker.current.setLngLat([e.lngLat.lng, e.lngLat.lat])
+        }
+        
+        if (onPressRef.current) onPressRef.current(event)
+        if (onClickRef.current) onClickRef.current(event)
+      })
+    }
+
+    return () => {
+      if (marker.current) {
+        marker.current.remove()
+        marker.current = null
+      }
+      if (map.current) {
+        map.current.remove()
+        map.current = null
+      }
+    }
+  }, [styleURL]) // Only depend on styleURL, not coordinates
+
+  return (
+    <View style={[{ flex: 1, overflow: 'hidden' }, style]}>
+      <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
+    </View>
+  )
+}

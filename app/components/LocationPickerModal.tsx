@@ -1,6 +1,7 @@
 import React, { FC, useState, useCallback, useEffect } from "react"
 import { View, ViewStyle, TextStyle, Modal, Pressable, Platform } from "react-native"
-import { MapView, PointAnnotation } from "@rnmapbox/maps"
+import { MapView } from "@rnmapbox/maps"
+import { WebMapView } from "./WebMapView"
 
 import { Button } from "@/components/Button"
 import { Text } from "@/components/Text"
@@ -82,6 +83,39 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
     [handleMarkerDrag],
   )
 
+  // Handle map click for web
+  const handleMapClick = useCallback((event: any) => {
+    // The mapbox web implementation should provide coordinates
+    if (event?.lngLat) {
+      setSelectedCoordinates({
+        longitude: event.lngLat.lng,
+        latitude: event.lngLat.lat,
+      })
+    } else if (event?.coordinate) {
+      // Alternative format
+      setSelectedCoordinates({
+        longitude: event.coordinate[0],
+        latitude: event.coordinate[1],
+      })
+    }
+  }, [])
+
+  // For native, we'll render PointAnnotation inside the MapView
+  const renderNativeMarker = useCallback(() => {
+    const PointAnnotationComponent = require("@rnmapbox/maps").PointAnnotation
+    return (
+      <PointAnnotationComponent
+        id="location-marker"
+        coordinate={[selectedCoordinates.longitude, selectedCoordinates.latitude]}
+        draggable
+        onDrag={onMarkerPositionUpdate}
+        onDragEnd={onMarkerPositionUpdate}
+      >
+        <View style={themed($marker)} />
+      </PointAnnotationComponent>
+    )
+  }, [selectedCoordinates, onMarkerPositionUpdate, themed])
+
   return (
     <Modal
       visible={visible}
@@ -103,21 +137,25 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
 
           {/* Map View */}
           <View style={themed($mapContainer)}>
-            <MapView
-              style={themed($map)}
-              styleURL="mapbox://styles/mapbox/streets-v12"
-              scaleBarEnabled={false}
-            >
-              <PointAnnotation
-                id="location-marker"
-                coordinate={[selectedCoordinates.longitude, selectedCoordinates.latitude]}
-                draggable
-                onDrag={onMarkerPositionUpdate}
-                onDragEnd={onMarkerPositionUpdate}
+            {Platform.OS === 'web' ? (
+              <WebMapView
+                style={themed($map)}
+                styleURL="mapbox://styles/mapbox/streets-v12"
+                scaleBarEnabled={false}
+                onPress={handleMapClick}
+                onClick={handleMapClick}
+                initialCoordinates={selectedCoordinates}
+              />
+            ) : (
+              <MapView
+                style={themed($map)}
+                styleURL="mapbox://styles/mapbox/streets-v12"
+                scaleBarEnabled={false}
+                onPress={handleMapClick}
               >
-                <View style={themed($marker)} />
-              </PointAnnotation>
-            </MapView>
+                {renderNativeMarker()}
+              </MapView>
+            )}
           </View>
 
           {/* Coordinates Display */}
@@ -130,7 +168,10 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
               }}
               style={themed($coordinatesText)}
             />
-            <Text tx="locationPicker:dragToSelect" style={themed($instructionText)} />
+            <Text 
+              tx={Platform.OS === "web" ? "locationPicker:clickToSelect" : "locationPicker:dragToSelect"} 
+              style={themed($instructionText)} 
+            />
           </View>
 
           {/* Action Buttons */}

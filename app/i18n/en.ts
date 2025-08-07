@@ -330,6 +330,7 @@ const en = {
     title: "Pick Location",
     selectedLocation: "Selected: {{latitude}}, {{longitude}}",
     dragToSelect: "Drag the marker to select a location",
+    clickToSelect: "Click on the map to select a location",
   },
 
   ...demoEn,

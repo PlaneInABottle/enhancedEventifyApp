@@ -331,6 +331,7 @@ const tr = {
     title: "Konum Seç",
     selectedLocation: "Seçilen: {{latitude}}, {{longitude}}",
     dragToSelect: "Konum seçmek için işaretçiyi sürükleyin",
+    clickToSelect: "Konum seçmek için haritaya tıklayın",
   },
 
   ...demoTr,
