@@ -1,6 +1,6 @@
 import React, { FC, useState, useCallback, useEffect } from "react"
 import { View, ViewStyle, TextStyle, Modal, Pressable, Platform } from "react-native"
-import { MapView } from "@rnmapbox/maps"
+import { MapView, PointAnnotation, Camera } from "@rnmapbox/maps"
 
 import { Button } from "@/components/Button"
 import { Text } from "@/components/Text"
@@ -50,11 +50,18 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
   const [selectedCoordinates, setSelectedCoordinates] = useState<Coordinates>(
     initialCoordinates || defaultCoordinates,
   )
+  
+  // Track initial camera position to prevent re-centering  
+  const [initialCameraPosition, setInitialCameraPosition] = useState<Coordinates>(
+    initialCoordinates || defaultCoordinates,
+  )
 
   // Sync state when modal opens or initialCoordinates change
   useEffect(() => {
     if (visible) {
-      setSelectedCoordinates(initialCoordinates || defaultCoordinates)
+      const coords = initialCoordinates || defaultCoordinates
+      setSelectedCoordinates(coords)
+      setInitialCameraPosition(coords)
     }
   }, [visible, initialCoordinates])
 
@@ -84,38 +91,28 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
     [handleMarkerDrag],
   )
 
-  // Handle map click for web
+  // Handle map click for web and native
   const handleMapClick = useCallback((event: any) => {
-    // The mapbox web implementation should provide coordinates
-    if (event?.lngLat) {
-      setSelectedCoordinates({
-        longitude: event.lngLat.lng,
-        latitude: event.lngLat.lat,
-      })
-    } else if (event?.coordinate) {
-      // Alternative format
-      setSelectedCoordinates({
-        longitude: event.coordinate[0],
-        latitude: event.coordinate[1],
-      })
+    let newCoordinates: Coordinates | null = null;
+
+    if (Platform.OS === "web") {
+      if (event?.lngLat) {
+        newCoordinates = { longitude: event.lngLat.lng, latitude: event.lngLat.lat };
+      }
+    } else { // Native
+      if (event?.coordinates) { // Common for general map clicks
+        newCoordinates = { longitude: event.coordinates.longitude, latitude: event.coordinates.latitude };
+      } else if (event?.geometry?.coordinates) { // Common if a specific feature was tapped
+        newCoordinates = { longitude: event.geometry.coordinates[0], latitude: event.geometry.coordinates[1] };
+      }
+    }
+
+    if (newCoordinates) {
+      setSelectedCoordinates(newCoordinates);
     }
   }, [])
 
-  // For native, we'll render PointAnnotation inside the MapView
-  const renderNativeMarker = useCallback(() => {
-    const PointAnnotationComponent = require("@rnmapbox/maps").PointAnnotation
-    return (
-      <PointAnnotationComponent
-        id="location-marker"
-        coordinate={[selectedCoordinates.longitude, selectedCoordinates.latitude]}
-        draggable
-        onDrag={onMarkerPositionUpdate}
-        onDragEnd={onMarkerPositionUpdate}
-      >
-        <View style={themed($marker)} />
-      </PointAnnotationComponent>
-    )
-  }, [selectedCoordinates, onMarkerPositionUpdate, themed])
+
 
   return (
     <Modal
@@ -125,12 +122,13 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
       onRequestClose={onClose}
       statusBarTranslucent={Platform.OS === "android"}
     >
-      <Pressable style={themed($modalOverlay)} onPress={onClose} testID="modal-overlay">
-        <Pressable
-          style={themed($modalContent)}
-          onPress={(e) => e?.stopPropagation?.()}
-          testID="modal-content"
-        >
+      <View style={themed($modalOverlay)}>
+        <Pressable style={themed($backgroundOverlay)} onPress={onClose} />
+        <View style={themed($centeredContent)}>
+          <View
+            style={themed($modalContent)}
+            testID="modal-content"
+          >
           {/* Header */}
           <View style={themed($header)}>
             <Text preset="heading" tx="locationPicker:title" style={themed($headerTitle)} />
@@ -154,7 +152,21 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
                 scaleBarEnabled={false}
                 onPress={handleMapClick}
               >
-                {renderNativeMarker()}
+                <Camera
+                  zoomLevel={14}
+                  centerCoordinate={[initialCameraPosition.longitude, initialCameraPosition.latitude]}
+                  animationDuration={0}
+                />
+              
+                <PointAnnotation
+                  id="location-marker"
+                  coordinate={[selectedCoordinates.longitude, selectedCoordinates.latitude]}
+                  draggable
+                  onDrag={onMarkerPositionUpdate}
+                  onDragEnd={onMarkerPositionUpdate}
+                >
+                  <View style={themed($marker)} />
+                </PointAnnotation>
               </MapView>
             )}
           </View>
@@ -196,26 +208,39 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
               testID="save-button"
             />
           </View>
-        </Pressable>
-      </Pressable>
+          </View>
+        </View>
+      </View>
     </Modal>
   )
 }
 
 // Styles following VenueEditModal patterns
-const $modalOverlay: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+const $modalOverlay: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
   justifyContent: "center",
   alignItems: "center",
-  padding: spacing.md,
+})
+const $backgroundOverlay: ThemedStyle<ViewStyle> = () => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+})
+const $centeredContent: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  width: "100%",
+  maxWidth: 400,
+  margin: spacing.md,
+  justifyContent: "center",
+  alignItems: "center",
 })
 
 const $modalContent: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   backgroundColor: colors.background,
   borderRadius: spacing.md,
   width: "100%",
-  maxWidth: 400,
   maxHeight: "90%",
   elevation: 5,
   shadowColor: colors.palette.neutral800,
