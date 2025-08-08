@@ -50,7 +50,7 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
   const [selectedCoordinates, setSelectedCoordinates] = useState<Coordinates>(
     initialCoordinates || defaultCoordinates,
   )
-  
+
   // Track initial camera position to prevent re-centering  
   const [initialCameraPosition, setInitialCameraPosition] = useState<Coordinates>(
     initialCoordinates || defaultCoordinates,
@@ -129,85 +129,85 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
             style={themed($modalContent)}
             testID="modal-content"
           >
-          {/* Header */}
-          <View style={themed($header)}>
-            <Text preset="heading" tx="locationPicker:title" style={themed($headerTitle)} />
-          </View>
+            {/* Header */}
+            <View style={themed($header)}>
+              <Text preset="heading" tx="locationPicker:title" style={themed($headerTitle)} />
+            </View>
 
-          {/* Map View */}
-          <View style={themed($mapContainer)}>
-            {Platform.OS === "web" ? (
-              <WebMapView
-                style={themed($map)}
-                styleURL="mapbox://styles/mapbox/streets-v12"
-                scaleBarEnabled={false}
-                onPress={handleMapClick}
-                onClick={handleMapClick}
-                initialCoordinates={initialCoordinates || defaultCoordinates}
-              />
-            ) : (
-              <MapView
-                style={themed($map)}
-                styleURL="mapbox://styles/mapbox/streets-v12"
-                scaleBarEnabled={false}
-                onPress={handleMapClick}
-              >
-                <Camera
-                  zoomLevel={14}
-                  centerCoordinate={[initialCameraPosition.longitude, initialCameraPosition.latitude]}
-                  animationDuration={0}
+            {/* Map View */}
+            <View style={themed($mapContainer)}>
+              {Platform.OS === "web" ? (
+                <WebMapView
+                  style={themed($map)}
+                  styleURL="mapbox://styles/mapbox/streets-v12"
+                  scaleBarEnabled={false}
+                  onPress={handleMapClick}
+                  onClick={handleMapClick}
+                  initialCoordinates={initialCoordinates || defaultCoordinates}
                 />
-              
-                <PointAnnotation
-                  id="location-marker"
-                  coordinate={[selectedCoordinates.longitude, selectedCoordinates.latitude]}
-                  draggable
-                  onDrag={onMarkerPositionUpdate}
-                  onDragEnd={onMarkerPositionUpdate}
+              ) : (
+                <MapView
+                  style={themed($map)}
+                  styleURL="mapbox://styles/mapbox/streets-v12"
+                  scaleBarEnabled={false}
+                  onPress={handleMapClick}
                 >
-                  <View style={themed($marker)} />
-                </PointAnnotation>
-              </MapView>
-            )}
-          </View>
+                  <Camera
+                    zoomLevel={14}
+                    centerCoordinate={[initialCameraPosition.longitude, initialCameraPosition.latitude]}
+                    animationDuration={0}
+                  />
 
-          {/* Coordinates Display */}
-          <View style={themed($coordinatesContainer)}>
-            <Text
-              tx="locationPicker:selectedLocation"
-              txOptions={{
-                latitude: selectedCoordinates.latitude.toFixed(6),
-                longitude: selectedCoordinates.longitude.toFixed(6),
-              }}
-              style={themed($coordinatesText)}
-            />
-            <Text
-              tx={
-                Platform.OS === "web"
-                  ? "locationPicker:clickToSelect"
-                  : "locationPicker:dragToSelect"
-              }
-              style={themed($instructionText)}
-            />
-          </View>
+                  <PointAnnotation
+                    id="location-marker"
+                    coordinate={[selectedCoordinates.longitude, selectedCoordinates.latitude]}
+                    draggable
+                    onDrag={onMarkerPositionUpdate}
+                    onDragEnd={onMarkerPositionUpdate}
+                  >
+                    <View style={themed($marker)} />
+                  </PointAnnotation>
+                </MapView>
+              )}
+            </View>
 
-          {/* Action Buttons */}
-          <View style={themed($buttonContainer)}>
-            <Button
-              tx="common:cancel"
-              preset="default"
-              onPress={handleCancel}
-              style={themed($cancelButton)}
-              testID="cancel-button"
-            />
-            <Button
-              tx="common:save"
-              preset="filled"
-              onPress={handleSave}
-              style={themed($saveButton)}
-              testID="save-button"
-            />
-          </View>
+            {/* Coordinates Display */}
+            <View style={themed($coordinatesContainer)}>
+              <Text
+                tx="locationPicker:selectedLocation"
+                txOptions={{
+                  latitude: selectedCoordinates.latitude.toFixed(6),
+                  longitude: selectedCoordinates.longitude.toFixed(6),
+                }}
+                style={themed($coordinatesText)}
+              />
+              <Text
+                tx={
+                  Platform.OS === "web"
+                    ? "locationPicker:clickToSelect"
+                    : "locationPicker:dragToSelect"
+                }
+                style={themed($instructionText)}
+              />
+            </View>
+
+            {/* Action Buttons */}
+            <View style={themed($buttonContainer)}>
+              <Button
+                tx="common:cancel"
+                preset="default"
+                onPress={handleCancel}
+                style={themed($cancelButton)}
+                testID="cancel-button"
+              />
+              <Button
+                tx="common:save"
+                preset="filled"
+                onPress={handleSave}
+                style={themed($saveButton)}
+                testID="save-button"
+              />
+            </View>
           </View>
         </View>
       </View>
@@ -241,12 +241,13 @@ const $modalContent: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   backgroundColor: colors.background,
   borderRadius: spacing.md,
   width: "100%",
-  maxHeight: "90%",
+  maxHeight: "100%", // Back to 90% so buttons are visible
   elevation: 5,
   shadowColor: colors.palette.neutral800,
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.25,
   shadowRadius: 4,
+  overflow: "hidden", // Prevent content from overflowing
 })
 
 const $header: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
@@ -261,7 +262,7 @@ const $headerTitle: ThemedStyle<TextStyle> = () => ({
 })
 
 const $mapContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  height: 300,
+  height: 340, // Increased back up to provide good map viewing area
   margin: spacing.md,
   borderRadius: spacing.sm,
   overflow: "hidden",
