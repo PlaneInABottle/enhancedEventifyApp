@@ -91,26 +91,46 @@ export const LocationPickerModal: FC<LocationPickerModalProps> = ({
     [handleMarkerDrag],
   )
 
-  // Handle map click for web and native
-  const handleMapClick = useCallback((event: any) => {
-    let newCoordinates: Coordinates | null = null;
-
+  // Extract coordinates from different event formats
+  const extractCoordinatesFromEvent = useCallback((event: any): Coordinates | null => {
     if (Platform.OS === "web") {
+      // Web: mapbox-gl-js events
       if (event?.lngLat) {
-        newCoordinates = { longitude: event.lngLat.lng, latitude: event.lngLat.lat };
+        return { 
+          longitude: event.lngLat.lng, 
+          latitude: event.lngLat.lat 
+        }
       }
-    } else { // Native
-      if (event?.coordinates) { // Common for general map clicks
-        newCoordinates = { longitude: event.coordinates.longitude, latitude: event.coordinates.latitude };
-      } else if (event?.geometry?.coordinates) { // Common if a specific feature was tapped
-        newCoordinates = { longitude: event.geometry.coordinates[0], latitude: event.geometry.coordinates[1] };
+    } else {
+      // Native: @rnmapbox/maps events
+      // Handle native feature event (GeoJSON format)  
+      if (event?.geometry?.coordinates && Array.isArray(event.geometry.coordinates)) {
+        return {
+          longitude: event.geometry.coordinates[0],
+          latitude: event.geometry.coordinates[1]
+        }
       }
-    }
 
-    if (newCoordinates) {
-      setSelectedCoordinates(newCoordinates);
+      // Handle native general click event
+      if (event?.coordinates?.longitude !== undefined && event?.coordinates?.latitude !== undefined) {
+        return {
+          longitude: event.coordinates.longitude,
+          latitude: event.coordinates.latitude
+        }
+      }
     }
+    
+    console.warn(`LocationPickerModal: Unknown ${Platform.OS} event format:`, event)
+    return null
   }, [])
+
+  // Simplified map click handler
+  const handleMapClick = useCallback((event: any) => {
+    const coordinates = extractCoordinatesFromEvent(event)
+    if (coordinates) {
+      setSelectedCoordinates(coordinates)
+    }
+  }, [extractCoordinatesFromEvent])
 
 
 
