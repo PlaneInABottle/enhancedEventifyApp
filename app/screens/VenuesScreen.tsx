@@ -53,10 +53,44 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
     setSaveError(null) // Clear any previous errors
   }
 
+  // Helper function to transform form data to API request format
+  const transformFormDataToRequest = (formData: VenueEditFormData, isCreate: boolean): CreateVenueRequest | UpdateVenueRequest => {
+    const baseData = {
+      name: formData.name,
+      description: formData.description || null,
+      capacity: formData.capacity ? Number(formData.capacity) : null,
+      address: {
+        full_address: formData.address.full_address || null,
+        city: formData.address.city,
+        postal_code: formData.address.postal_code || null,
+        coordinates: formData.address.coordinates
+          ? {
+              type: "Point" as const,
+              coordinates: [
+                formData.address.coordinates.longitude,
+                formData.address.coordinates.latitude,
+              ],
+            }
+          : undefined,
+      },
+    }
+
+    // Add country field only for create requests
+    if (isCreate) {
+      return {
+        ...baseData,
+        address: {
+          ...baseData.address,
+          country: "Turkey", // Default country
+        },
+      } as CreateVenueRequest
+    }
+
+    return baseData as UpdateVenueRequest
+  }
   const handleSaveVenue = async (formData: VenueEditFormData) => {
     const isEditing = !!selectedVenue
     const businessId = businessProfileStore.profile?.id
-
 
     if (!businessId) {
       setSaveError("errors:businessIdNotAvailable")
@@ -67,52 +101,11 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
     setIsSubmitting(true)
     try {
       if (isEditing) {
-        // Transform form data to UpdateVenueRequest
-        const updateData: UpdateVenueRequest = {
-          name: formData.name,
-          description: formData.description || null,
-          capacity: formData.capacity ? Number(formData.capacity) : null,
-          address: {
-            full_address: formData.address.full_address || null,
-            city: formData.address.city,
-            postal_code: formData.address.postal_code || null,
-            coordinates: formData.address.coordinates
-              ? {
-                  type: "Point",
-                  coordinates: [
-                    formData.address.coordinates.longitude,
-                    formData.address.coordinates.latitude,
-                  ],
-                }
-              : undefined,
-          },
-        }
-
-        await venueStore.updateVenue(selectedVenue.id, updateData)
+        const updateData = transformFormDataToRequest(formData, false)
+        await venueStore.updateVenue(selectedVenue.id, updateData as UpdateVenueRequest)
       } else {
-        // Transform form data to CreateVenueRequest
-        const createData: CreateVenueRequest = {
-          name: formData.name,
-          description: formData.description || null,
-          capacity: formData.capacity ? Number(formData.capacity) : null,
-          address: {
-            full_address: formData.address.full_address || null,
-            city: formData.address.city,
-            postal_code: formData.address.postal_code || null,
-            country: "Turkey", // Default country
-            coordinates: formData.address.coordinates
-              ? {
-                  type: "Point",
-                  coordinates: [
-                    formData.address.coordinates.longitude,
-                    formData.address.coordinates.latitude,
-                  ],
-                }
-              : undefined,
-          },
-        }
-
-        await venueStore.createVenue(businessId, createData)
+        const createData = transformFormDataToRequest(formData, true)
+        await venueStore.createVenue(businessId, createData as CreateVenueRequest)
       }
 
       handleCloseModal()
