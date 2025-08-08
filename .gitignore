@@ -108,3 +108,6 @@ dist/
 # Serena cache (but keep .serena directory)
 .serena/cache/
 .serena/*.log
+
+# Supabase temp files
+supabase/.temp/
