@@ -1,22 +1,40 @@
-# Current Database State Analysis
+# Current Database State - Updated
 
 ## Tables Structure
 - **addresses**: Has `coordinates` column of type `geography` (PostGIS extension)
 - **venues**: Links to addresses via `address_id`
 - **PostGIS extension**: Installed and active
 
-## Current RPC Functions
-- `insert_address_with_coordinates` - Creates address with coordinates
-- `update_address_coordinates` - Updates coordinates separately  
-- `update_address_with_coordinates` - Combined update function
-- `create_address_with_coordinates` - Alternative creation function
+## RPC Functions Status
+### Still Exists (but no longer used by our app):
+- `insert_address_with_coordinates` - NOT USED (using direct insert)
+- `update_address_coordinates` - NOT USED (using direct update)
+- `update_address_with_coordinates` - NOT USED (using direct update)
+- `create_address_with_coordinates` - NOT USED (using direct insert)
+- `get_venues_by_business` - STILL USED (returns venues with formatted addresses)
+- `get_coordinates_as_geojson` - NOT USED (but could be useful)
 
-## Key Issue
-We're currently using RPC functions to work around PostgREST limitations with PostGIS geography columns. The original Eventify used direct insertions with `Point(lng lat)` format.
+### Should Clean Up:
+The first 4 RPC functions can be removed as we now use direct PostgREST operations.
 
-## Coordinate Storage
-- Current: `geography` column type with GeoJSON format
-- Original Eventify: Likely used `POINT` type with WKT format `Point(longitude latitude)`
+## Coordinate Storage - RESOLVED ✅
+- **Storage**: `geography` column type with PostGIS
+- **Insert/Update Format**: Direct `Point(longitude latitude)` string
+- **Select Format**: Returns as binary/hex string (requires processing)
+- **RPC Format**: Returns as GeoJSON object with lat/lng fields
 
-## Next Steps
-Need to check if we can switch to direct PostgREST operations using `Point(lng lat)` format instead of complex RPC functions.
+## Current Implementation
+- ✅ Direct PostgREST operations for insert/update using `Point(lng lat)` format
+- ✅ No more complex RPC functions for coordinate handling
+- ✅ `get_venues_by_business` RPC still used for listing (returns consistent format)
+- ✅ After venue creation, we refresh the list to ensure format consistency
+
+## PostGIS Coordinate Formats
+1. **WKT (Well-Known Text)**: `Point(29.0 41.0)` - What we use for insert/update
+2. **Binary/Hex**: `0101000020E6100000...` - What PostGIS returns on direct select
+3. **GeoJSON**: `{"type":"Point","coordinates":[29,41]}` - What RPC returns
+
+## Translation Keys
+- Fixed all translation keys to use colon (:) notation instead of dot (.)
+- Format: `"namespace:key"` (e.g., `"errors:postalCodeInvalid"`)
+- All error messages now display properly translated text
