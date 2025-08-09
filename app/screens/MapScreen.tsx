@@ -24,6 +24,15 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
   const [selectedVenue, setSelectedVenue] = useState<VenueWithEvents | null>(null)
   const [modalVisible, setModalVisible] = useState(false)
 
+  // Cleanup on unmount to prevent ViewTagResolver errors
+  useEffect(() => {
+    return () => {
+      // Clear map reference to prevent access after unmount
+      if (mapRef.current) {
+        mapRef.current = null
+      }
+    }
+  }, [])
 
   // Show alert when error occurs, then clear it
   useEffect(() => {
