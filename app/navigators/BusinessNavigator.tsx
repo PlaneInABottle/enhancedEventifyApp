@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon"
 import { translate } from "@/i18n/translate"
 import { BusinessProfileScreen } from "@/screens/BusinessProfileScreen"
 import { MapScreen } from "@/screens/MapScreen"
+import { VenuesScreen } from "@/screens/VenuesScreen"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
@@ -14,7 +15,6 @@ import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
 // Temporary wrapper components for correct prop types
 const EventManagementScreen = (props: any) => <MapScreen {...props} />
-const VenueManagementScreen = (props: any) => <MapScreen {...props} />
 
 export type BusinessTabParamList = {
   Events: undefined
@@ -68,7 +68,7 @@ export function BusinessNavigator() {
 
       <Tab.Screen
         name="Venues"
-        component={VenueManagementScreen}
+        component={VenuesScreen}
         options={{
           tabBarLabel: translate("common:venues"),
           tabBarIcon: ({ focused }) => (

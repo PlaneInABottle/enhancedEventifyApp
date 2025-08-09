@@ -1,5 +1,6 @@
-import { getEventsInBounds } from "./mapService"
 import { supabase } from "@/clients/supabase/SupabaseClient"
+
+import { getEventsInBounds } from "./mapService"
 
 // Mock the Supabase client
 jest.mock("@/clients/supabase/SupabaseClient", () => ({

@@ -22,17 +22,17 @@ export const MapStore = types
     get eventCount() {
       return self.events.length
     },
-    
+
     get hasEvents() {
       return self.events.length > 0
     },
 
     get venuesWithEvents() {
       const venueMap = new Map()
-      
+
       self.events.forEach(event => {
         const venueKey = event.venue_id
-        
+
         if (!venueMap.has(venueKey)) {
           venueMap.set(venueKey, {
             venue_id: event.venue_id,
@@ -45,10 +45,10 @@ export const MapStore = types
             events: []
           })
         }
-        
+
         venueMap.get(venueKey).events.push(event)
       })
-      
+
       return Array.from(venueMap.values())
     },
   }))
@@ -57,7 +57,7 @@ export const MapStore = types
       self.setProp("lastError", null)
     },
 
-    setEvents(events: typeof MapEventInstanceModel.Type[]) {
+    setEvents(events: (typeof MapEventInstanceModel.Type)[]) {
       self.setProp("events", events)
     },
 

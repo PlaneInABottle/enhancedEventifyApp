@@ -3,8 +3,8 @@ import { View, Alert, ViewStyle } from "react-native"
 import { MapView, MarkerView } from "@rnmapbox/maps"
 import { observer } from "mobx-react-lite"
 
-import { Screen } from "@/components/Screen"
 import { Button } from "@/components/Button"
+import { Screen } from "@/components/Screen"
 import { VenuePinContent } from "@/components/VenuePinContent"
 import { EventListModal } from "@/components/EventListModal"
 import { useStores } from "@/models/helpers/useStores"
@@ -15,7 +15,7 @@ import type { UserTabScreenProps } from "@/navigators/UserNavigator"
 import type { VenueWithEvents } from "@/stores/MapStore"
 import type { ThemedStyle } from "@/theme/types"
 
-interface MapScreenProps extends UserTabScreenProps<"Map" | "Moderate"> { }
+interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> { }
 
 export const MapScreen: FC<MapScreenProps> = observer(() => {
   const { themed } = useAppTheme()
@@ -28,11 +28,9 @@ export const MapScreen: FC<MapScreenProps> = observer(() => {
   // Show alert when error occurs, then clear it
   useEffect(() => {
     if (mapStore.lastError) {
-      Alert.alert(
-        translate("map:errorLoadingEvents"),
-        translate("map:searchFailedMessage"),
-        [{ text: translate("common:ok"), onPress: () => mapStore.clearError() }]
-      )
+      Alert.alert(translate("map:errorLoadingEvents"), translate("map:searchFailedMessage"), [
+        { text: translate("common:ok"), onPress: () => mapStore.clearError() },
+      ])
     }
   }, [mapStore.lastError, mapStore])
 
@@ -110,7 +108,7 @@ const $screenContent: ThemedStyle<ViewStyle> = () => ({
 
 const $searchContainer: ThemedStyle<ViewStyle> = () => ({
   position: "absolute",
-  top: '5%',
+  top: "5%",
   left: 20,
   right: 20,
   zIndex: 1,
