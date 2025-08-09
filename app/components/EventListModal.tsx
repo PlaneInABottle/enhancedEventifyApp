@@ -1,10 +1,12 @@
-import { FC } from "react"
+import { FC, useState } from "react"
 import { View, ViewStyle, TextStyle, Modal, TouchableOpacity } from "react-native"
 
 import { EventCard } from "@/components/EventCard"
+import { EventModal } from "@/components/EventModal"
 import { ListView } from "@/components/ListView"
 import { ReportButton } from "@/components/ReportButton"
 import { Text } from "@/components/Text"
+import { MapEventInstanceModel } from "@/models/MapModels"
 import type { VenueWithEvents } from "@/stores/MapStore"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
@@ -15,8 +17,12 @@ interface EventListModalProps {
   venue: VenueWithEvents | null
 }
 
+type MapEventInstance = typeof MapEventInstanceModel.Type
+
 export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venue }) => {
   const { themed } = useAppTheme()
+  const [selectedEvent, setSelectedEvent] = useState<MapEventInstance | null>(null)
+  const [eventModalVisible, setEventModalVisible] = useState(false)
 
   if (!venue) return null
 
@@ -52,7 +58,15 @@ export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venu
 
           <ListView
             data={venue.events}
-            renderItem={({ item }) => <EventCard event={item} />}
+            renderItem={({ item }) => (
+              <EventCard 
+                event={item}
+                onPress={(event) => {
+                  setSelectedEvent(event)
+                  setEventModalVisible(true)
+                }}
+              />
+            )}
             keyExtractor={(item) => item.instance_id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={themed($listContainer)}
@@ -65,6 +79,14 @@ export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venu
           </View>
         </View>
       </View>
+      <EventModal
+        visible={eventModalVisible}
+        event={selectedEvent}
+        onClose={() => {
+          setEventModalVisible(false)
+          setSelectedEvent(null)
+        }}
+      />
     </Modal>
   )
 }

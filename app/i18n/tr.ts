@@ -356,6 +356,14 @@ const tr = {
     clickToSelect: "Konum seçmek için haritaya tıklayın",
   },
 
+  eventModal: {
+    title: "Etkinlik Detayları",
+    date: "Tarih",
+    venue: "Mekan",
+    description: "Açıklama",
+    reportEvent: "Etkinliği Bildir",
+  },
+
   ...demoTr,
 }
 

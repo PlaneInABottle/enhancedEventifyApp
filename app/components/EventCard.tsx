@@ -1,5 +1,5 @@
 import { FC } from "react"
-import { View, ViewStyle, TextStyle, Platform } from "react-native"
+import { View, ViewStyle, TextStyle, Platform, TouchableOpacity, Image, ImageStyle } from "react-native"
 
 import { ReportButton } from "@/components/ReportButton"
 import { Text } from "@/components/Text"
@@ -9,15 +9,36 @@ import type { ThemedStyle } from "@/theme/types"
 
 export interface EventCardProps {
   event: typeof MapEventInstanceModel.Type
+  /**
+   * Called when the card is pressed
+   */
+  onPress?: (event: typeof MapEventInstanceModel.Type) => void
 }
 
-export const EventCard: FC<EventCardProps> = ({ event }) => {
+export const EventCard: FC<EventCardProps> = ({ event, onPress }) => {
   const { themed } = useAppTheme()
 
+  const handlePress = () => {
+    onPress?.(event)
+  }
+
   return (
-    <View style={themed($container)}>
-      {/* Image placeholder for future image support */}
-      <View style={themed($imagePlaceholder)} />
+    <TouchableOpacity 
+      style={themed($container)} 
+      onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityLabel={`View details for ${event.event_title}`}
+    >
+      {/* Event Image */}
+      {event.event_image_url ? (
+        <Image
+          source={{ uri: event.event_image_url }}
+          style={themed($eventImage)}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={themed($imagePlaceholder)} />
+      )}
 
       <View style={themed($content)}>
         <Text preset="subheading" style={themed($title)} numberOfLines={2}>
@@ -43,7 +64,7 @@ export const EventCard: FC<EventCardProps> = ({ event }) => {
           <ReportButton contentType="event" contentId={event.event_id} style={$reportButton} />
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -69,6 +90,11 @@ const $container: ThemedStyle<ViewStyle> = (theme) => ({
 const $imagePlaceholder: ThemedStyle<ViewStyle> = (theme) => ({
   height: 120,
   backgroundColor: theme.colors.palette.neutral300,
+})
+
+const $eventImage: ThemedStyle<ImageStyle> = (theme) => ({
+  height: 120,
+  backgroundColor: theme.colors.palette.neutral200,
 })
 
 const $content: ThemedStyle<ViewStyle> = (theme) => ({

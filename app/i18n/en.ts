@@ -355,6 +355,14 @@ const en = {
     clickToSelect: "Click on the map to select a location",
   },
 
+  eventModal: {
+    title: "Event Details",
+    date: "Date",
+    venue: "Venue",
+    description: "Description",
+    reportEvent: "Report Event",
+  },
+
   ...demoEn,
 }
 

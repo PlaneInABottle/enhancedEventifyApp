@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, FlatList, ViewStyle, TextStyle } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -6,6 +6,7 @@ import { MapScreen } from "@/screens/MapScreen"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { EventCard } from "@/components/EventCard"
+import { EventModal } from "@/components/EventModal"
 import { useStores } from "@/models/helpers/useStores"
 import { useAppTheme } from "@/theme/context"
 import { translate } from "@/i18n/translate"
@@ -20,6 +21,8 @@ const MapTabScreen = (props: any) => <MapScreen {...props} />
 export const ListTabScreen = observer(() => {
   const { mapStore } = useStores()
   const { themed } = useAppTheme()
+  const [selectedEvent, setSelectedEvent] = useState<typeof mapStore.events[0] | null>(null)
+  const [modalVisible, setModalVisible] = useState(false)
 
   return (
     <Screen preset="fixed" contentContainerStyle={themed($screenContainer)}>
@@ -31,10 +34,26 @@ export const ListTabScreen = observer(() => {
       )}
       <FlatList
         data={mapStore.events}
-        renderItem={({ item }) => <EventCard event={item} />}
+        renderItem={({ item }) => (
+          <EventCard 
+            event={item} 
+            onPress={(event) => {
+              setSelectedEvent(event)
+              setModalVisible(true)
+            }}
+          />
+        )}
         keyExtractor={(item) => item.instance_id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={themed($listContainer)}
+      />
+      <EventModal
+        visible={modalVisible}
+        event={selectedEvent}
+        onClose={() => {
+          setModalVisible(false)
+          setSelectedEvent(null)
+        }}
       />
     </Screen>
   )

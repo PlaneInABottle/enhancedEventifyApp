@@ -45,7 +45,7 @@ bun run web             # Run on web browser
 bun run compile         # TypeScript check (tsc --noEmit)
 bun run lint            # ESLint check with auto-fix
 bun run lint:check      # ESLint check without fixing
-bun test                # Run all tests
+bun run test            # Run all tests (IMPORTANT: Use 'bun run test', NOT 'bun test')
 bun run test:watch      # Watch mode for TDD
 
 # Build Commands
