@@ -68,8 +68,8 @@ const createMockVenue = (overrides?: Partial<VenueWithEvents>): VenueWithEvents 
   full_address: '123 Test Street',
   city: 'Istanbul',
   coordinates: {
-    type: 'Point',
-    coordinates: [28.9784, 41.0082],
+    type: 'Point' as const,
+    coordinates: [28.9784, 41.0082] as any,
   },
   longitude: 28.9784,
   latitude: 41.0082,
@@ -87,8 +87,8 @@ const createMockVenue = (overrides?: Partial<VenueWithEvents>): VenueWithEvents 
       venue_name: 'Test Venue',
       venue_capacity: 200,
       coordinates: {
-        type: 'Point',
-        coordinates: [28.9784, 41.0082],
+        type: 'Point' as const,
+        coordinates: [28.9784, 41.0082] as any,
       },
       full_address: '123 Test Street',
       city: 'Istanbul',

@@ -15,12 +15,13 @@ jest.mock("react-native-safe-area-context", () => ({
 jest.mock("@/i18n/translate", () => ({
   translate: (key: string, options?: any) => {
     const translations: Record<string, string> = {
-      "common:email": "Email",
-      "common:emailPlaceholder": "Enter your email",
-      "common:password": "Password",
-      "common:passwordPlaceholder": "Enter your password",
-      "form:required": "This field is required",
-      "form:invalidEmail": "Please enter a valid email",
+      "common:map": "Map", // Existing key
+      "common:events": "Events", // Existing key
+      "common:ok": "OK!", // Existing key
+      "common:cancel": "Cancel", // Existing key
+      "errors:invalidEmail": "Invalid email address.", // Existing key
+      "errors:emailRequired": "Email is required", // Existing key
+      "errors:passwordRequired": "Password is required", // Existing key
     }
     return translations[key] || key
   },
@@ -63,9 +64,9 @@ describe("TextField", () => {
     })
 
     it("renders with labelTx prop", () => {
-      renderTextField({ labelTx: "common:email" })
+      renderTextField({ labelTx: "common:map" })
       
-      expect(screen.getByText("Email")).toBeOnTheScreen()
+      expect(screen.getByText("Map")).toBeOnTheScreen()
     })
 
     it("renders with placeholder text", () => {
@@ -75,9 +76,9 @@ describe("TextField", () => {
     })
 
     it("renders with placeholderTx prop", () => {
-      renderTextField({ placeholderTx: "common:emailPlaceholder" })
+      renderTextField({ placeholderTx: "common:events" })
       
-      expect(screen.getByPlaceholderText("Enter your email")).toBeOnTheScreen()
+      expect(screen.getByPlaceholderText("Events")).toBeOnTheScreen()
     })
 
     it("renders with helper text", () => {
@@ -87,9 +88,9 @@ describe("TextField", () => {
     })
 
     it("renders with helperTx prop", () => {
-      renderTextField({ helperTx: "form:required" })
+      renderTextField({ helperTx: "errors:emailRequired" })
       
-      expect(screen.getByText("This field is required")).toBeOnTheScreen()
+      expect(screen.getByText("Email is required")).toBeOnTheScreen()
     })
   })
 
@@ -273,24 +274,24 @@ describe("TextField", () => {
   describe("Internationalization", () => {
     it("resolves translation keys for all text props", () => {
       renderTextField({
-        labelTx: "common:email",
-        placeholderTx: "common:emailPlaceholder", 
-        helperTx: "form:required"
+        labelTx: "common:map",
+        placeholderTx: "common:events", 
+        helperTx: "errors:emailRequired"
       })
       
-      expect(screen.getByText("Email")).toBeOnTheScreen()
-      expect(screen.getByPlaceholderText("Enter your email")).toBeOnTheScreen()
-      expect(screen.getByText("This field is required")).toBeOnTheScreen()
+      expect(screen.getByText("Map")).toBeOnTheScreen()
+      expect(screen.getByPlaceholderText("Events")).toBeOnTheScreen()
+      expect(screen.getByText("Email is required")).toBeOnTheScreen()
     })
 
     it("passes translation options correctly", () => {
       // This would test txOptions but our mock doesn't handle interpolation
       renderTextField({
-        labelTx: "common:email",
+        labelTx: "common:map",
         labelTxOptions: { count: 1 }
       })
       
-      expect(screen.getByText("Email")).toBeOnTheScreen()
+      expect(screen.getByText("Map")).toBeOnTheScreen()
     })
   })
 
@@ -385,10 +386,10 @@ describe("TextField", () => {
     it("shows validation errors", () => {
       renderTextField({
         status: "error",
-        helperTx: "form:invalidEmail"
+        helperTx: "errors:invalidEmail"
       })
       
-      expect(screen.getByText("Please enter a valid email")).toBeOnTheScreen()
+      expect(screen.getByText("Invalid email address.")).toBeOnTheScreen()
     })
   })
 
@@ -405,8 +406,8 @@ describe("TextField", () => {
 
     it("handles undefined translation keys gracefully", () => {
       renderTextField({
-        labelTx: "nonexistent:key",
-        placeholderTx: "another:nonexistent"
+        labelTx: "nonexistent:key" as any,
+        placeholderTx: "another:nonexistent" as any
       })
       
       // Mock returns the key itself for non-existent translations

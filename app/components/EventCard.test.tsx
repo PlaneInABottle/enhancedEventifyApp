@@ -111,7 +111,7 @@ describe('EventCard', () => {
     
     // Find the venue Text component by traversing the tree
     const texts = root.findAllByType('Text')
-    const venueText = texts.find(text => 
+    const venueText = texts.find((text: any) => 
       text.props.children === 'This is a very long venue name that should be truncated'
     )
     expect(venueText?.props.numberOfLines).toBe(1)
@@ -125,7 +125,7 @@ describe('EventCard', () => {
     
     // Find the description Text component
     const texts = root.findAllByType('Text')
-    const descriptionText = texts.find(text => 
+    const descriptionText = texts.find((text: any) => 
       text.props.children === 'This is a very long description that should be truncated after two lines'
     )
     expect(descriptionText?.props.numberOfLines).toBe(2)
@@ -140,7 +140,7 @@ describe('EventCard', () => {
     expect(views.length).toBeGreaterThan(0)
     
     // Verify that at least one view has a style prop (our mock returns the style function)
-    const styledView = views.find(view => view.props.style)
+    const styledView = views.find((view: any) => view.props.style)
     expect(styledView).toBeTruthy()
   })
 

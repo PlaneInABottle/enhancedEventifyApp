@@ -11,11 +11,11 @@ import { useStores } from "@/models/helpers/useStores"
 import { useAppTheme } from "@/theme/context"
 import { translate } from "@/i18n/translate"
 import { getMapBounds } from "@/services/map"
-import type { UserTabScreenProps } from "@/navigators/UserNavigator"
+import type { UserTabScreenProps, UserTabParamList } from "@/navigators/UserNavigator"
 import type { VenueWithEvents } from "@/stores/MapStore"
 import type { ThemedStyle } from "@/theme/types"
 
-interface MapScreenProps extends UserTabScreenProps<"Map" | "Events" | "Moderate"> { }
+interface MapScreenProps extends UserTabScreenProps<keyof UserTabParamList> { }
 
 export const MapScreen: FC<MapScreenProps> = observer(() => {
   const { themed } = useAppTheme()

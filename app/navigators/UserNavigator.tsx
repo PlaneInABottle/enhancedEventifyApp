@@ -18,7 +18,7 @@ import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 export type UserTabParamList = {
   Map: undefined
   Profile: undefined
-  Moderate?: undefined // Optional tab for moderators
+  Moderate: undefined // Optional tab for moderators
 }
 
 /**

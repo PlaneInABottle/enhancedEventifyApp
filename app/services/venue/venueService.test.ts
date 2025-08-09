@@ -1,4 +1,5 @@
 import { supabase } from "@/clients/supabase/SupabaseClient"
+import type { TurkishCity } from "@/services/profile/profileTypes"
 
 import { getVenueById, getVenuesByBusiness, createVenue, updateVenue, deleteVenue } from "./venueService"
 
@@ -137,7 +138,13 @@ describe("getVenuesByBusiness", () => {
     ]
 
     // Setup mock for RPC call
-    mockSupabase.rpc.mockResolvedValue({ data: mockVenues, error: null })
+    mockSupabase.rpc.mockResolvedValue({ 
+      data: mockVenues, 
+      error: null, 
+      count: null,
+      status: 200,
+      statusText: 'OK'
+    })
 
     // Execute the function
     const result = await getVenuesByBusiness("business-1")
@@ -155,7 +162,19 @@ describe("getVenuesByBusiness", () => {
 
   it("should handle RPC error", async () => {
     // Setup mock for RPC error
-    mockSupabase.rpc.mockResolvedValue({ data: null, error: { message: "RPC failed" } })
+    mockSupabase.rpc.mockResolvedValue({ 
+      data: null, 
+      error: { 
+        message: "RPC failed",
+        details: "Table not found",
+        hint: "Check table name",
+        code: "42P01",
+        name: "PostgrestError"
+      }, 
+      count: null,
+      status: 400,
+      statusText: 'Bad Request'
+    })
 
     // Execute the function
     const result = await getVenuesByBusiness("business-1")
@@ -321,7 +340,7 @@ describe("updateVenue", () => {
       capacity: 150,
       address: {
         full_address: "456 Updated Street",
-        city: "Ankara",
+        city: "Ankara" as TurkishCity,
         postal_code: "06000",
         coordinates: {
           type: "Point" as const,
@@ -450,7 +469,7 @@ describe("updateVenue", () => {
       name: "Updated Venue",
       address: {
         full_address: "456 Updated Street",
-        city: "Ankara",
+        city: "Ankara" as TurkishCity,
       },
     }
 

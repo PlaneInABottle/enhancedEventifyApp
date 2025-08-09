@@ -98,7 +98,7 @@ const mockBusinessProfileStore = {
   profile: {
     id: "business-1",
     name: "Test Business",
-  },
+  } as { id: string; name: string } | null,
 }
 
 jest.mock("@/models", () => ({
