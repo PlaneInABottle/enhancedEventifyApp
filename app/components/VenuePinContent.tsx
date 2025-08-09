@@ -15,21 +15,17 @@ export const VenuePinContent = ({ venue, onPress }: VenuePinContentProps) => {
   const eventCount = venue.events.length
   const isMultipleEvents = eventCount > 1
 
-  const content = (
-    <View style={themed(isMultipleEvents ? $multiEventPin : $singleEventPin)}>
-      <Text 
-        text={eventCount.toString()} 
-        style={themed($pinText)}
-        size="xs"
-      />
-    </View>
-  )
-
-  return onPress ? (
-    <TouchableOpacity onPress={onPress}>
-      {content}
+  return (
+    <TouchableOpacity onPressOut={onPress}>
+      <View style={themed(isMultipleEvents ? $multiEventPin : $singleEventPin)}>
+        <Text 
+          text={eventCount.toString()} 
+          style={themed($pinText)}
+          size="xs"
+        />
+      </View>
     </TouchableOpacity>
-  ) : content
+  )
 }
 
 const $singleEventPin: ThemedStyle<ViewStyle> = (theme) => ({
