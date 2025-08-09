@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, FlatList, ViewStyle, TextStyle } from 'react-native'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MapScreen } from "@/screens/MapScreen"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -44,10 +45,32 @@ export interface TabNavigationProps {
 }
 
 export const TabNavigation = (props: TabNavigationProps) => {
+  const { themed, theme } = useAppTheme()
+  const insets = useSafeAreaInsets()
+  
   return (
     <Tab.Navigator
       screenOptions={{
         swipeEnabled: false,
+        tabBarStyle: {
+          paddingTop: insets.top,
+          backgroundColor: theme.colors.background,
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 1,
+          borderBottomColor: theme.colors.separator,
+        },
+        tabBarIndicatorStyle: {
+          backgroundColor: theme.colors.tint,
+          height: 2,
+        },
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: '600',
+          textTransform: 'none',
+        },
+        tabBarActiveTintColor: theme.colors.tint,
+        tabBarInactiveTintColor: theme.colors.textDim,
       }}
     >
       <Tab.Screen 
