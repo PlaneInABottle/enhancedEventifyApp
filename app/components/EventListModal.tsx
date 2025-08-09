@@ -31,15 +31,11 @@ export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venu
         {/* Header */}
         <View style={themed($header)}>
           <View style={themed($headerContent)}>
-            <Text preset="heading" text={venue.venue_name} />
-            <Text size="sm" style={themed($addressText)} text={venue.full_address} />
-            <Text size="xs" style={themed($cityText)} text={venue.city} />
-
-            <View style={themed($venueActions)}>
-              <ReportButton contentType="venue" contentId={venue.venue_id} style={$reportButton} />
-            </View>
+            <Text preset="subheading" text={venue.venue_name} />
+            <Text size="xs" style={themed($addressText)} text={venue.full_address} />
+            <Text size="xxs" style={themed($cityText)} text={venue.city} />
           </View>
-
+          
           <TouchableOpacity onPress={onClose} style={themed($closeButton)}>
             <Text tx="common:close" style={themed($closeText)} />
           </TouchableOpacity>
@@ -62,6 +58,11 @@ export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venu
             contentContainerStyle={themed($listContainer)}
             estimatedItemSize={120}
           />
+          
+          {/* Report Venue Link */}
+          <View style={themed($reportContainer)}>
+            <ReportButton contentType="venue" contentId={venue.venue_id} style={$reportButton} />
+          </View>
         </View>
       </View>
     </Modal>
@@ -87,12 +88,12 @@ const $headerContent: ThemedStyle<ViewStyle> = () => ({
   marginRight: 16,
 })
 
-const $addressText: ThemedStyle<ViewStyle> = (theme) => ({
+const $addressText: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.textDim,
   marginTop: theme.spacing.xs,
 })
 
-const $cityText: ThemedStyle<ViewStyle> = (theme) => ({
+const $cityText: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.textDim,
   marginTop: theme.spacing.xxs,
 })
@@ -114,7 +115,7 @@ const $eventsContainer: ThemedStyle<ViewStyle> = (theme) => ({
   padding: theme.spacing.lg,
 })
 
-const $eventsTitle: ThemedStyle<ViewStyle> = (theme) => ({
+const $eventsTitle: ThemedStyle<TextStyle> = (theme) => ({
   marginBottom: theme.spacing.md,
 })
 
@@ -122,12 +123,17 @@ const $listContainer: ThemedStyle<ViewStyle> = (theme) => ({
   paddingBottom: theme.spacing.xl,
 })
 
-const $venueActions: ThemedStyle<ViewStyle> = (theme) => ({
+const $reportContainer: ThemedStyle<ViewStyle> = (theme) => ({
+  paddingTop: theme.spacing.sm,
+  borderTopWidth: 1,
+  borderTopColor: theme.colors.separator,
   marginTop: theme.spacing.sm,
-  alignItems: "flex-start",
+  alignItems: 'center',
 })
 
 const $reportButton: ThemedStyle<ViewStyle> = (theme) => ({
-  paddingHorizontal: theme.spacing.sm,
-  paddingVertical: theme.spacing.xs,
+  minHeight: 32,
+  paddingHorizontal: theme.spacing.xs,
+  paddingVertical: 4,
+  backgroundColor: 'transparent',
 })

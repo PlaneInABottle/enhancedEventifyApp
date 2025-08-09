@@ -108,6 +108,7 @@ const $actions: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $reportButton: ThemedStyle<ViewStyle> = (theme) => ({
-  paddingHorizontal: theme.spacing.sm,
-  paddingVertical: theme.spacing.xs,
+  minHeight: 28,
+  paddingHorizontal: theme.spacing.xs,
+  paddingVertical: 2,
 })
