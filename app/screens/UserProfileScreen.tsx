@@ -19,7 +19,7 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { Alert } from "@/utils/alert"
 
-interface UserProfileScreenProps extends UserTabScreenProps<"Profile"> {}
+interface UserProfileScreenProps extends UserTabScreenProps<"Profile"> { }
 
 export const UserProfileScreen: FC<UserProfileScreenProps> = observer(() => {
   const { authenticationStore, userProfileStore } = useStores()
@@ -393,15 +393,15 @@ const $emptyContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
   borderRadius: spacing.lg,
   ...(Platform.OS === "web"
     ? ({
-        boxShadow: `0 2px 8px rgba(0, 0, 0, 0.05)`,
-      } as any)
+      boxShadow: `0 2px 8px rgba(0, 0, 0, 0.05)`,
+    } as any)
     : {
-        shadowColor: colors.palette.neutral800,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 4,
-      }),
+      shadowColor: colors.palette.neutral800,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 4,
+    }),
 })
 
 const $emptyText: ThemedStyle<TextStyle> = ({ spacing, colors }) => ({
@@ -433,20 +433,20 @@ const $actionButton: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
   // Remove shadows entirely to prevent sharp edges on Android
   ...(Platform.OS === "web"
     ? ({
-        boxShadow: `0 1px 3px rgba(0, 0, 0, 0.05)`,
-      } as any)
+      boxShadow: `0 1px 3px rgba(0, 0, 0, 0.05)`,
+    } as any)
     : Platform.OS === "ios"
       ? {
-          shadowColor: colors.palette.neutral700,
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
-          shadowRadius: 1,
-        }
+        shadowColor: colors.palette.neutral700,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 1,
+      }
       : {
-          // No shadow for Android - use subtle border instead
-          borderWidth: 1,
-          borderColor: colors.palette.neutral300,
-        }),
+        // No shadow for Android - use subtle border instead
+        borderWidth: 1,
+        borderColor: colors.palette.neutral300,
+      }),
 })
 
 const $accountSection: ThemedStyle<ViewStyle> = ({ spacing }) => ({

@@ -177,11 +177,23 @@ export const AuthStore = types
       self.setProp("isLoading", true)
 
       try {
-        yield supabase.auth.signOut()
-        // onAuthStateChange will handle clearing user state
+        const result = yield supabase.auth.signOut()
+        
+        // Handle case where session is already missing or any signOut error
+        if (result.error) {
+          // Manually trigger the same cleanup as SIGNED_OUT event
+          // This handles cases where the session is already expired/missing
+          self.setProp("user", null)
+          self.setProp("isAuthenticated", false)
+          self.setProp("lastError", null)
+        }
+        // If successful, onAuthStateChange will handle clearing user state
       } catch (error) {
         console.error("AuthStore.signOut error:", error)
-        self.setProp("lastError", "errors:unknownError")
+        // Also clear local state on network errors (offline scenario)
+        self.setProp("user", null)
+        self.setProp("isAuthenticated", false)
+        self.setProp("lastError", null)
       } finally {
         self.setProp("isLoading", false)
       }
@@ -204,9 +216,39 @@ export const AuthStore = types
           break
 
         case "INITIAL_SESSION":
+          // For initial session, validate with Supabase before trusting locally stored session
+          if (session && session.access_token && !session.error) {
+            // Validate session with Supabase before trusting it
+            supabase.auth.getUser().then((userResult) => {
+              if (userResult.error || !userResult.data.user) {
+                // Session validation failed, clear auth state
+                self.setProp("user", null)
+                self.setProp("isAuthenticated", false)
+                self.setProp("lastError", null)
+              } else {
+                // Session validated, build user
+                const authUser = buildUserFromSession(session)
+                if (authUser) {
+                  self.setProp("user", authUser)
+                  self.setProp("isAuthenticated", true)
+                }
+              }
+            }).catch((error) => {
+              // Session validation error, clear auth state
+              self.setProp("user", null)
+              self.setProp("isAuthenticated", false)
+              self.setProp("lastError", null)
+            })
+          } else {
+            // Invalid or expired session - clear auth state
+            self.setProp("user", null)
+            self.setProp("isAuthenticated", false)
+            self.setProp("lastError", null)
+          }
+          break
+
         case "SIGNED_IN":
         case "TOKEN_REFRESHED":
-          console.log("Event: ", event)
           const authUser = buildUserFromSession(session)
           if (authUser) {
             self.setProp("user", authUser)
@@ -233,7 +275,7 @@ export const AuthStore = types
 // TYPES
 // ============================================================================
 
-export interface AuthStore extends Instance<typeof AuthStore> {}
-export interface AuthUserType extends Instance<typeof AuthUserModel> {}
-export interface UserProfileType extends Instance<typeof UserProfileModel> {}
-export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> {}
+export interface AuthStore extends Instance<typeof AuthStore> { }
+export interface AuthUserType extends Instance<typeof AuthUserModel> { }
+export interface UserProfileType extends Instance<typeof UserProfileModel> { }
+export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> { }
