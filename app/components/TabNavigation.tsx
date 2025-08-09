@@ -17,7 +17,7 @@ const Tab = createMaterialTopTabNavigator()
 // Wrapper to adapt props for MapScreen
 const MapTabScreen = (props: any) => <MapScreen {...props} />
 
-const ListTabScreen = observer(() => {
+export const ListTabScreen = observer(() => {
   const { mapStore } = useStores()
   const { themed } = useAppTheme()
 
