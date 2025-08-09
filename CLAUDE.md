@@ -240,18 +240,18 @@ await waitFor(() => {
 - `mcp__serena__find_symbol` - Navigate MobX stores, React components, navigation screens
 - `mcp__serena__find_referencing_symbols` - Find all usages of hooks like `useAppTheme`, `useStores`
 - `mcp__serena__search_for_pattern` - Find translation keys, styled components, specific patterns
-- `mcp__serena__replace_symbol_body` - Refactor component methods, store actions safely
+- `mcp__serena__get_symbols_overview` - Understand file/directory structure
 
-**Project Memory:**
-- Store React Native patterns, MobX conventions, testing approaches
-- Remember architecture decisions and component design patterns
-- Track known issues specific to Expo, React Navigation, theming
+**Project Memory Management (PRIMARY APPROACH):**
+- `mcp__serena__write_memory` - Store React Native patterns, MobX conventions, testing approaches
+- `mcp__serena__read_memory` - Retrieve architecture decisions and component design patterns
+- `mcp__serena__list_memories` - See all available project knowledge
+- **Key Memory Categories**: Architecture decisions, known issues, established patterns, troubleshooting solutions
+- **Memory replaces SESSION.md** - All session context should be stored in Serena memories
 
 **Additional Tools:**
-- `mcp__serena__get_symbols_overview` - Explore file/directory structure
 - `mcp__serena__insert_after_symbol` / `insert_before_symbol` - Add methods to classes
 - `mcp__serena__execute_shell_command` - Run project commands when needed
-- Many other code navigation and manipulation tools - use tab completion to discover
 
 ### Other MCPs
 **Database (Supabase):** Use `mcp__supabase__*` for migrations, queries, and branch management
@@ -260,211 +260,24 @@ await waitFor(() => {
 
 *Use tab completion to discover specific commands for each tool*
 
-## Agent Integration
-
-For analysis tasks, use global agents with Gemini:
-```bash
-# Example: Review component quality
-echo "Review code quality. Analyze ONLY ProfileScreen.tsx" |
-  cat ~/.claude/agents/code-quality-reviewer.md app/screens/ProfileScreen.tsx | 
-  gemini -m gemini-2.5-flash
-```
-
-## Session Documentation
-
-**Check for existing SESSION.md:**
-```bash
-# Always check for active session documentation first
-ls SESSION*.md 2>/dev/null || echo "No active session"
-cat SESSION.md  # Read current session context if exists
-```
-
-**Session handoff workflow:**
-- Read existing SESSION.md for current feature context
-- Update Context7 research findings as you discover them
-- Document technical decisions and implementation breadcrumbs
-- Use global SESSION.md template when starting new complex features
 
 ## Component Development Guide
 
-### Form Modal Component Pattern (VenueEditModal Experience)
+### Development Workflow
 
-**Step-by-Step Process:**
-1. **Plan with TodoWrite**: Break complex components into manageable steps
-2. **Design first**: Structure the UI/UX before implementation  
-3. **Implement incrementally**: Modal → Header → Form sections → Actions
-4. **Add i18n from start**: Never use hardcoded text
-5. **Test comprehensively**: Write tests for all interactions and edge cases
-6. **Get expert validation**: Use Gemini to review for over-engineering
+1. **Plan with TodoWrite** for complex components (>3 sections, >5 form fields)
+2. **Use Gemini for code review** after substantial changes
+3. **TypeScript first** - Run `bun run compile` frequently 
+4. **i18n from day one** - Never use hardcoded text
+5. **Follow existing patterns** - Check similar components for consistency
 
-**Form State Management Best Practices:**
-```typescript
-// ✅ Single form object for moderate complexity (5-10 fields)
-const [formData, setFormData] = useState<FormData>({
-  name: "",
-  description: "",
-  // nested objects for logical grouping
-  address: {
-    full_address: "",
-    city: "İstanbul",
-    postal_code: "",
-  }
-})
+## Project Memory (Stored in Serena)
 
-// ✅ Generic update handlers with useCallback for performance
-const updateFormField = useCallback((field: keyof FormData, value: any) => {
-  setFormData(prev => ({ ...prev, [field]: value }))
-}, [])
-
-// ✅ Initialize from props with useEffect + useCallback
-const getInitialFormData = useCallback((): FormData => {
-  if (existingData) {
-    return {
-      name: existingData.name,
-      description: existingData.description || "",
-      // Handle nullable fields properly
-    }
-  }
-  return defaultFormData
-}, [existingData])
-
-useEffect(() => {
-  setFormData(getInitialFormData())
-}, [getInitialFormData])
-```
-
-**i18n Translation Pattern:**
-```typescript
-// ✅ Namespace translations by component/feature
-// In app/i18n/en.ts and app/i18n/tr.ts:
-venueModal: {
-  addTitle: "Add New Venue",
-  editTitle: "Edit Venue", 
-  basicInformation: "Basic Information",
-  venueName: "Venue Name",
-  venueNamePlaceholder: "Enter venue name",
-  // ... more keys
-}
-
-// ✅ Use tx/labelTx/placeholderTx props (never hardcoded text)
-<Text preset="heading" tx={venue ? "venueModal:editTitle" : "venueModal:addTitle"} />
-<TextField
-  labelTx="venueModal:venueName"
-  placeholderTx="venueModal:venueNamePlaceholder"
-  value={formData.name}
-  onChangeText={(text) => updateFormField("name", text)}
-/>
-```
-
-**Testing Strategy:**
-```typescript
-// ✅ Mock translations in tests
-jest.mock("@/i18n/translate", () => ({
-  translate: (key: string) => {
-    const translations: Record<string, string> = {
-      "venueModal:addTitle": "Add New Venue",
-      // ... all keys used in component
-    }
-    return translations[key] || key
-  },
-}))
-
-// ✅ Test categories for form modals:
-// - Basic rendering (visible/hidden states)
-// - Form field interactions (text input, dropdowns)
-// - Button actions (callbacks with correct data)
-// - Form sections (structural elements)
-// - Edge cases (empty submission, partial data)
-```
-
-**Modal Implementation Pattern:**
-```typescript
-// ✅ Platform-specific animations
-<Modal
-  visible={visible}
-  transparent
-  animationType={Platform.OS === "ios" ? "slide" : "fade"}
-  onRequestClose={onClose}
-  statusBarTranslucent={Platform.OS === "android"}
->
-  <Pressable style={themed($modalOverlay)} onPress={onClose} testID="modal-overlay">
-    <Pressable style={themed($modalContent)} onPress={(e) => e.stopPropagation()}>
-      {/* Content */}
-    </Pressable>
-  </Pressable>
-</Modal>
-```
-
-**Performance Optimizations:**
-```typescript
-// ✅ Memoize static data
-const cityOptions = useMemo(() => createTurkishCityOptions("Other"), [])
-
-// ✅ useCallback for event handlers passed to children
-const handleSave = useCallback(() => {
-  onSave(formData)
-  onClose()
-}, [formData, onSave, onClose])
-```
-
-**Type Safety Guidelines:**
-```typescript
-// ✅ Define interfaces for props and form data
-interface VenueEditModalProps {
-  visible: boolean
-  onClose: () => void
-  onSave: (formData: VenueEditFormData) => void
-  venue: Venue | null  // null for create mode
-}
-
-// ✅ Handle nullable/optional fields properly
-capacity: venue.capacity?.toString() || "",
-description: venue.description || "",
-
-// ✅ Use proper TypeScript constraints
-city: "İstanbul" as TurkishCity,  // Not just string
-coordinates: [29.0, 41.0] as [number, number],  // Tuple not array
-```
-
-### Development Workflow Learned
-
-1. **Always start with TodoWrite** - Complex components need task breakdown
-2. **Use Gemini for code review** - Prevents over-engineering, validates patterns
-3. **TypeScript first** - Run `npx tsc --noEmit` frequently during development
-4. **Test incrementally** - Write tests as you build, not after completion
-5. **i18n from day one** - Never add hardcoded text, always use translation keys
-6. **Follow existing patterns** - Check other screens/components for consistency
-
-### Complexity Thresholds
-
-**When to use TodoWrite:**
-- Component has >3 distinct sections or features
-- Multiple props with complex interactions
-- Form with >5 fields or nested state
-
-**When to get Gemini review:**
-- Any useEffect/useCallback usage
-- Complex state management
-- New patterns not seen in codebase
-- After completing any substantial component
-
-## Project Memory
-
-### Key Decisions
-- 2025-01: Using modified TDD (implement first, then test) - better fits rapid prototyping needs
-- 2025-01: MobX State Tree for state management - predictable updates and debugging
-- 2025-01: VenueEditModal pattern established - use for future form modals
-
-### Known Issues
-- **Theme switching on Android**: Requires app restart - React Native limitation
-- **i18n missing keys**: Check both en.ts and tr.ts when adding translations
-- **Supabase RLS**: Test with actual user roles, not admin token
-- **Turkish cities**: Use capitalized names ("İstanbul" not "istanbul") for TurkishCity type
-
-### Component Patterns Established
-- **Form Modals**: VenueEditModal pattern (single state object, useCallback handlers, proper i18n)
-- **Translation Namespacing**: Feature-based keys (componentName:field format)
-- **Testing Strategy**: Mock translations, test interactions not just rendering
+**Use Serena memories for:**
+- Key architectural decisions and patterns
+- Known issues and troubleshooting solutions  
+- Component patterns and established conventions
+- Testing strategies and common mocks
 
 ### React Native Specific Patterns
 
@@ -494,70 +307,17 @@ const ComponentWrapper = (props: any) => <OriginalComponent {...props} />
 interface ScreenProps extends Partial<UserTabScreenProps<"Screen">> {}
 ```
 
-### React Native Theming Best Practices
+### React Native Best Practices
 
-**When creating new components:**
-- ✅ **Always use ThemedStyle<ViewStyle|TextStyle>** instead of static styles
-- ✅ **Platform-specific shadows**: `Platform.OS === "web" ? { boxShadow } : { shadowColor, elevation }`
-- ✅ **Color patterns**: `theme.colors.palette.neutral100` for backgrounds, `theme.colors.textDim` for secondary text
-- ✅ **Spacing consistency**: Use `theme.spacing.lg` instead of hardcoded pixels
-- ✅ **Import structure**: `import type { ThemedStyle } from "@/theme/types"`
+**Theming:**
+- Always use `ThemedStyle<ViewStyle|TextStyle>` instead of static styles
+- Platform-specific shadows: `Platform.OS === "web" ? { boxShadow } : { shadowColor, elevation }`
+- Use `theme.colors.palette.neutral100` for backgrounds, `theme.spacing.lg` for consistency
 
-**Theming Pattern:**
-```typescript
-import { useAppTheme } from "@/theme/context"
-import type { ThemedStyle } from "@/theme/types"
-
-const Component = () => {
-  const { themed } = useAppTheme()
-  return <View style={themed($container)} />
-}
-
-const $container: ThemedStyle<ViewStyle> = (theme) => ({
-  backgroundColor: theme.colors.palette.neutral100,
-  padding: theme.spacing.lg,
-  ...(Platform.OS === "web"
-    ? { boxShadow: `0 2px 8px rgba(0, 0, 0, 0.08)` }
-    : {
-        shadowColor: theme.colors.palette.neutral800,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 4,
-      }),
-})
-```
-
-**Common mistakes prevented:**
-- Using hardcoded colors that break in dark mode
-- Inconsistent spacing not matching design system
-- Missing platform-specific shadow handling
-- Wrong import paths for ThemedStyle type
-
-### React Native I18n Best Practices
-
-**When adding new UI text:**
-- ✅ **Never use hardcoded strings** - Always use translation keys from the start
-- ✅ **Namespace organization**: Group related keys (e.g., `eventListing:`, `map:`, `profile:`)
-- ✅ **Consistent key naming**: Use camelCase for translation keys
-- ✅ **Complete coverage**: Add both English and Turkish translations simultaneously
-- ✅ **Proper syntax**: Use `tx="namespace:key"` for Text components, `translate("namespace:key")` for strings
-
-**Translation Key Patterns:**
-```typescript
-// Add to both en.ts and tr.ts
-featureName: {
-  actionButton: "Action Text" / "İşlem Metni",
-  emptyStateTitle: "No items found" / "Öğe bulunamadı",
-  emptyStateSubtitle: "Try adjusting..." / "Ayarlamayı deneyin...",
-}
-```
-
-**Common mistakes prevented:**
-- Using hardcoded text that breaks localization
-- Inconsistent translation key formats
-- Missing Turkish translations
-- Wrong tx prop syntax (use `:` not `.` for namespaces)
+**i18n:**
+- Never use hardcoded strings - Always use translation keys from the start
+- Namespace organization: `eventListing:`, `map:`, `profile:`
+- Use `tx="namespace:key"` for Text components, `translate("namespace:key")` for strings
 
 ## Common Issues & Solutions
 
@@ -611,34 +371,12 @@ expo prebuild --clean            # Clean prebuild artifacts
 - Use Platform.select() for platform differences
 - Check shadow properties (iOS) vs elevation (Android)
 
-### React Native Web Cross-Platform Components
+### Cross-Platform Components
 
-**Before implementing platform-specific solutions:**
-1. **Check for universal components first** - Many @rnmapbox/maps components work cross-platform
-2. **Use Context7 to research library compatibility** - Always check official docs before assuming platform limitations
-3. **Prefer MarkerView over PointAnnotation** - MarkerView works on both native and web
-4. **Avoid direct mapbox-gl access** - Internal `_map` properties are unreliable across versions
-
-**Common Web Compatibility Issues:**
-- `PointAnnotation` undefined on web → Use `MarkerView` 
-- Platform.OS checks often unnecessary → Try universal components first
-- Direct map instance access fails → Use official component APIs
-
-**Example Pattern:**
-```typescript
-// ❌ Complex platform-specific approach
-{Platform.OS === 'web' ? <WebPins /> : <NativePins />}
-
-// ✅ Simple universal approach  
-<MarkerView coordinate={[lng, lat]}>
-  <SharedComponent />
-</MarkerView>
-```
-
-**Lessons from venue pins implementation:**
-- Always research @rnmapbox/maps documentation via Context7 before assuming web limitations
-- MarkerView + shared content component is cleaner than platform-specific rendering
-- Avoid accessing internal `mapRef.current._map` - use official component APIs
+**Mapbox/Maps:**
+- Prefer `MarkerView` over `PointAnnotation` (works on both native and web)
+- Avoid direct map instance access (`mapRef.current._map`)
+- Research universal components before platform-specific solutions
 
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*

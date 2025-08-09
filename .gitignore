@@ -105,9 +105,8 @@ dist/
 .mcp*
 .gemini*
 
-# Serena cache (but keep .serena directory)
-.serena/cache/
-.serena/*.log
+# Serena directory (completely ignored)
+.serena/
 
 # Supabase temp files
 supabase/.temp/
