@@ -262,14 +262,20 @@ describe("VenueStore", () => {
       }
 
       it("should create venue successfully", async () => {
+        // Mock both createVenue and getVenuesByBusiness since createVenue calls fetchVenuesByBusiness internally
         mockVenueService.createVenue.mockResolvedValue({
           success: true,
           venue: sampleVenue,
+        })
+        mockVenueService.getVenuesByBusiness.mockResolvedValue({
+          success: true,
+          venues: [sampleVenue], // Return the created venue in the list
         })
 
         const result = await store.createVenue("business-1", venueData)
 
         expect(mockVenueService.createVenue).toHaveBeenCalledWith("business-1", venueData)
+        expect(mockVenueService.getVenuesByBusiness).toHaveBeenCalledWith("business-1")
         expect(store.venues).toContainEqual(sampleVenue)
         expect(store.venueCount).toBe(1)
         expect(store.isLoading).toBe(false)
@@ -360,14 +366,19 @@ describe("VenueStore", () => {
       })
 
       it("should delete venue successfully", async () => {
+        // Mock deleteVenue to return the venue with is_active: false (soft delete)
+        const deletedVenue = { ...sampleVenue, is_active: false }
         mockVenueService.deleteVenue.mockResolvedValue({
           success: true,
+          venue: deletedVenue, // Return the venue with is_active: false
         })
 
         const result = await store.deleteVenue("venue-1")
 
         expect(mockVenueService.deleteVenue).toHaveBeenCalledWith("venue-1")
-        expect(store.venueCount).toBe(0)
+        // Venue should still exist but be marked as inactive (soft delete)
+        expect(store.venueCount).toBe(1) // Still in store but inactive
+        expect(store.venues[0].is_active).toBe(false) // Verify it's marked inactive
         expect(store.isLoading).toBe(false)
         expect(store.lastError).toBeNull()
         expect(result).toBe(true)
