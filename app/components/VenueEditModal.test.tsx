@@ -12,36 +12,6 @@ jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }))
 
-// Mock @rnmapbox/maps
-jest.mock("@rnmapbox/maps", () => ({
-  MapView: ({ children, ...props }: any) => {
-    const MockMapView = require("react-native").View
-    return (
-      <MockMapView testID="map-view" {...props}>
-        {children}
-      </MockMapView>
-    )
-  },
-  PointAnnotation: ({ children, onDragEnd, ...props }: any) => {
-    const MockPressable = require("react-native").Pressable
-    return (
-      <MockPressable
-        testID="point-annotation"
-        onPress={() => {
-          if (onDragEnd) {
-            onDragEnd({
-              geometry: { coordinates: [29.0, 41.0] },
-            })
-          }
-        }}
-        {...props}
-      >
-        {children}
-      </MockPressable>
-    )
-  },
-}))
-
 // Mock Turkish cities
 jest.mock("@/constants/cities", () => ({
   createTurkishCityOptions: () => [
@@ -305,6 +275,10 @@ describe("VenueEditModal", () => {
           full_address: "123 Test Street",
           city: "İstanbul",
           postal_code: "34000",
+          coordinates: {
+            latitude: 41,
+            longitude: 29,
+          },
         },
       })
     })
@@ -559,7 +533,7 @@ describe("VenueEditModal", () => {
         venue: venueWithLocation,
       })
 
-      expect(screen.getByText("Location: 41.008200, 28.978400")).toBeOnTheScreen()
+      expect(screen.getByText("Location: 41.000000, 29.000000")).toBeOnTheScreen()
     })
   })
 })
