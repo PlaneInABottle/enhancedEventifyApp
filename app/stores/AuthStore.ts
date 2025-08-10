@@ -2,6 +2,7 @@ import { types, flow, Instance } from "mobx-state-tree"
 
 import { supabase } from "@/clients/supabase/SupabaseClient"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
+import { getRootStore } from "@/models/helpers/getRootStore"
 import { UserProfileModel, BusinessProfileModel } from "@/models/ProfileModels"
 import { signIn, signUp, buildUserFromSession } from "@/services/auth"
 import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/auth"
@@ -37,6 +38,30 @@ export const AuthStore = types
     lastError: types.maybeNull(types.string),
   })
   .actions(withSetPropAction)
+  .actions((self) => ({
+    // Clear all user-specific data across stores
+    _clearAllUserData() {
+      const rootStore = getRootStore(self)
+      
+      // Clear auth state
+      self.setProp("user", null)
+      self.setProp("isAuthenticated", false)
+      self.setProp("lastError", null)
+      
+      // Clear map events and data
+      rootStore.mapStore.clearEvents()
+      rootStore.mapStore.clearError()
+      
+      // Clear user profile data
+      rootStore.userProfileStore.clearError()
+      
+      // Clear business profile data  
+      rootStore.businessProfileStore.clearError()
+      
+      // Clear venue data
+      rootStore.venueStore.clearError()
+    },
+  }))
   .views((self) => ({
     get userId() {
       return self.user?.id ?? null
@@ -183,17 +208,13 @@ export const AuthStore = types
         if (result.error) {
           // Manually trigger the same cleanup as SIGNED_OUT event
           // This handles cases where the session is already expired/missing
-          self.setProp("user", null)
-          self.setProp("isAuthenticated", false)
-          self.setProp("lastError", null)
+          self._clearAllUserData()
         }
         // If successful, onAuthStateChange will handle clearing user state
       } catch (error) {
         console.error("AuthStore.signOut error:", error)
         // Also clear local state on network errors (offline scenario)
-        self.setProp("user", null)
-        self.setProp("isAuthenticated", false)
-        self.setProp("lastError", null)
+        self._clearAllUserData()
       } finally {
         self.setProp("isLoading", false)
       }
@@ -203,6 +224,7 @@ export const AuthStore = types
       self.setProp("lastError", null)
     },
 
+
     // ========================================================================
     // INTERNAL SESSION MANAGEMENT
     // ========================================================================
@@ -210,9 +232,7 @@ export const AuthStore = types
     _handleAuthStateChange(event: string, session: any) {
       switch (event) {
         case "SIGNED_OUT":
-          self.setProp("user", null)
-          self.setProp("isAuthenticated", false)
-          self.setProp("lastError", null)
+          self._clearAllUserData()
           break
 
         case "INITIAL_SESSION":
@@ -222,9 +242,7 @@ export const AuthStore = types
             supabase.auth.getUser().then((userResult) => {
               if (userResult.error || !userResult.data.user) {
                 // Session validation failed, clear auth state
-                self.setProp("user", null)
-                self.setProp("isAuthenticated", false)
-                self.setProp("lastError", null)
+                self._clearAllUserData()
               } else {
                 // Session validated, build user
                 const authUser = buildUserFromSession(session)
@@ -235,15 +253,11 @@ export const AuthStore = types
               }
             }).catch((error) => {
               // Session validation error, clear auth state
-              self.setProp("user", null)
-              self.setProp("isAuthenticated", false)
-              self.setProp("lastError", null)
+              self._clearAllUserData()
             })
           } else {
             // Invalid or expired session - clear auth state
-            self.setProp("user", null)
-            self.setProp("isAuthenticated", false)
-            self.setProp("lastError", null)
+            self._clearAllUserData()
           }
           break
 

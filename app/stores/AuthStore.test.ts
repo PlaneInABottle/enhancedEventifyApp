@@ -1,4 +1,5 @@
 import { AuthStore } from "./AuthStore"
+import { RootStoreModel } from "@/models/RootStore"
 
 /**
  * Unit tests for AuthStore - MobX State Tree store
@@ -22,10 +23,12 @@ jest.mock("@/services/auth", () => ({
 }))
 
 describe("AuthStore", () => {
+  let rootStore: any
   let store: any
 
   beforeEach(() => {
-    store = AuthStore.create({})
+    rootStore = RootStoreModel.create({})
+    store = rootStore.authenticationStore
   })
 
   describe("initial state", () => {
@@ -301,6 +304,43 @@ describe("AuthStore", () => {
       expect(store.user).toBeNull()
       expect(store.isAuthenticated).toBe(false)
       expect(store.lastError).toBeNull()
+    })
+
+    it("should clear map store events on SIGNED_OUT event", () => {
+      // Add some mock events to the map store
+      const mockEvents = [{
+        instance_id: "123",
+        event_id: "456",
+        venue_id: "789",
+        start_datetime: "2025-01-27T10:00:00Z",
+        end_datetime: "2025-01-27T12:00:00Z",
+        event_instance_status: "scheduled",
+        max_attendees: 100,
+        event_title: "Test Event",
+        event_description: "Test Description",
+        venue_name: "Test Venue",
+        venue_capacity: 200,
+        coordinates: {
+          type: "Point" as const,
+          coordinates: [29.0, 41.0] as [number, number],
+        },
+        full_address: "Test Address",
+        city: "Istanbul",
+      }]
+      
+      rootStore.mapStore.setEvents(mockEvents)
+      rootStore.mapStore.setProp("lastError", "some map error")
+      
+      // Verify events are present
+      expect(rootStore.mapStore.events.length).toBe(1)
+      expect(rootStore.mapStore.lastError).toBe("some map error")
+
+      // Trigger logout
+      store._handleAuthStateChange("SIGNED_OUT", null)
+
+      // Verify map store is cleared
+      expect(rootStore.mapStore.events.length).toBe(0)
+      expect(rootStore.mapStore.lastError).toBeNull()
     })
 
     it("should handle SIGNED_IN event", () => {
