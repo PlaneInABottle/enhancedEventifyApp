@@ -6,6 +6,7 @@ import {
   validateUrl,
   validateImageUpload,
 } from "@/utils/validation"
+import { uploadMedia, deleteMedia, getMediaForEntity } from "@/services/media/mediaService"
 
 import type {
   BusinessProfile,
@@ -104,7 +105,7 @@ export async function updateBusinessProfile(
 }
 
 /**
- * Uploads a logo for business profile
+ * Uploads a logo for business profile using the new media system
  */
 export async function uploadLogo(
   businessId: string,
@@ -123,40 +124,51 @@ export async function uploadLogo(
 
     // Remove old logo if it exists
     if (currentProfile.success && currentProfile.profile?.logo_url) {
-      const oldLogoPath = currentProfile.profile.logo_url.split("/").pop()
-      if (oldLogoPath) {
-        await supabase.storage.from("avatars").remove([`${businessId}/${oldLogoPath}`])
+      // Get existing media records for this business
+      const existingMedia = await getMediaForEntity('business', businessId)
+      if (existingMedia.success && existingMedia.media && existingMedia.media.length > 0) {
+        // Delete all existing media records
+        for (const media of existingMedia.media) {
+          const deleteResult = await deleteMedia(media.id)
+          if (!deleteResult.success) {
+            console.warn('Failed to delete old logo:', deleteResult.error)
+            // Continue with upload even if delete fails
+          }
+        }
       }
     }
 
-    const fileExtension = mimeType.split("/")[1]
-    const fileName = `${businessId}/business-logo-${Date.now()}.${fileExtension}`
+    // Upload new logo using media system
+    const uploadResult = await uploadMedia(
+      'business',
+      businessId, 
+      arrayBuffer,
+      mimeType,
+      { alt_text: 'Business logo' }
+    )
 
-    const { data, error } = await supabase.storage
-      .from("avatars")
-      .upload(fileName, arrayBuffer, { contentType: mimeType, upsert: true })
-
-    if (error) {
-      return { success: false, error: error.message }
+    if (!uploadResult.success || !uploadResult.media) {
+      return {
+        success: false,
+        error: uploadResult.error || "Failed to upload logo"
+      }
     }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("avatars").getPublicUrl(data.path)
 
     // Update business profile with new logo URL
     const updateResult = await updateBusinessProfile(businessId, {
-      logo_url: publicUrl,
+      logo_url: uploadResult.media.file_url,
     })
 
     if (!updateResult.success) {
+      // If profile update fails, clean up the uploaded file
+      await deleteMedia(uploadResult.media.id)
       return {
         success: false,
         error: updateResult.error || "Failed to update profile with logo URL",
       }
     }
 
-    return { success: true, logoUrl: publicUrl }
+    return { success: true, logoUrl: uploadResult.media.file_url }
   } catch (error) {
     return { success: false, error: "Unexpected error uploading logo" }
   }

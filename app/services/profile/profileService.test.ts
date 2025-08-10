@@ -3,6 +3,15 @@ import { supabase } from "@/clients/supabase/SupabaseClient"
 import { getUserProfile, updateUserProfile, uploadAvatar } from "./profileService"
 import type { UserProfile, UpdateProfileRequest } from "./profileTypes"
 
+// Mock media service
+jest.mock("@/services/media/mediaService", () => ({
+  uploadMedia: jest.fn(),
+  deleteMedia: jest.fn(),
+  getMediaForEntity: jest.fn(),
+}))
+
+import { uploadMedia, deleteMedia, getMediaForEntity } from "@/services/media/mediaService"
+
 // Mock Supabase client
 jest.mock("@/clients/supabase/SupabaseClient", () => ({
   supabase: {
@@ -31,6 +40,9 @@ jest.mock("@/clients/supabase/SupabaseClient", () => ({
 }))
 
 const mockSupabase = supabase as any
+const mockUploadMedia = uploadMedia as jest.MockedFunction<typeof uploadMedia>
+const mockDeleteMedia = deleteMedia as jest.MockedFunction<typeof deleteMedia>
+const mockGetMediaForEntity = getMediaForEntity as jest.MockedFunction<typeof getMediaForEntity>
 
 // Helper function to create mock files
 function createMockFile(name: string, size: number, type: string): File {
@@ -205,59 +217,90 @@ describe("profileService", () => {
   // ============================================================================
 
   describe("uploadAvatar", () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
     it("should successfully upload avatar", async () => {
-      const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
       const arrayBuffer = new ArrayBuffer(1024 * 1024)
       const mimeType = "image/jpeg"
-      const publicUrl = "https://example.com/avatar.jpg"
+      const userId = "user-123"
 
-      // Mock getUserProfile to return no existing avatar
-      const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
-      const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
-      const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
-      const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-
-      // Mock storage upload
-      const mockUploadResponse = { data: { path: "user-123-123456789.jpg" }, error: null }
-      const mockUpload = jest.fn().mockResolvedValue(mockUploadResponse)
-      const mockGetPublicUrl = jest.fn().mockReturnValue({ data: { publicUrl } })
-
-      // Mock updateUserProfile
-      const mockUpdateResponse = { data: { ...mockProfile, avatar_url: publicUrl }, error: null }
-      const mockUpdateSingle = jest.fn().mockResolvedValue(mockUpdateResponse)
-      const mockUpdateSelect = jest.fn().mockReturnValue({ single: mockUpdateSingle })
-      const mockUpdateEq = jest.fn().mockReturnValue({ select: mockUpdateSelect })
-      const mockUpdate = jest.fn().mockReturnValue({ eq: mockUpdateEq })
-
-      // Setup mocks step by step
-      mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect })
-
-      // Mock storage.from to return upload and getPublicUrl methods
-      mockSupabase.storage.from.mockReturnValue({
-        upload: mockUpload,
-        getPublicUrl: mockGetPublicUrl,
+      // Mock getUserProfile (no existing avatar)
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: { id: userId, avatar_url: null },
+            error: null,
+          }),
+        }),
       })
 
-      mockSupabase.from.mockReturnValueOnce({ update: mockUpdate })
-
-      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
-
-      expect(mockSupabase.storage.from).toHaveBeenCalledWith("avatars")
-      expect(mockUpload).toHaveBeenCalledWith(
-        expect.stringContaining("user-123/avatar-"),
-        arrayBuffer,
-        expect.objectContaining({
-          upsert: true,
-          contentType: "image/jpeg",
-          cacheControl: "3600",
+      // Mock updateUserProfile
+      const mockUpdate = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { id: userId, avatar_url: "https://example.com/avatar.jpg" },
+              error: null,
+            }),
+          }),
         }),
-      )
+      })
+
+      ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+        select: mockSelect,
+        update: mockUpdate,
+      })
+
+      // Mock media service - no existing media
+      mockGetMediaForEntity.mockResolvedValue({
+        success: true,
+        media: [],
+      })
+
+      // Mock successful media upload
+      mockUploadMedia.mockResolvedValue({
+        success: true,
+        media: {
+          id: 'media-id-123',
+          entity_id: userId,
+          entity_type: 'user',
+          file_url: 'https://example.com/avatar.jpg',
+          file_type: 'image',
+          mime_type: mimeType,
+          file_size: 1024 * 1024,
+          alt_text: 'User avatar',
+          uploaded_by: 'user-id',
+          is_active: true,
+          entity_exists: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      })
+
+      const result = await uploadAvatar(userId, arrayBuffer, mimeType)
+
       expect(result.success).toBe(true)
-      expect(result.avatarUrl).toBe(publicUrl)
+      expect(result.avatarUrl).toBe("https://example.com/avatar.jpg")
+      expect(mockUploadMedia).toHaveBeenCalledWith(
+        'user',
+        userId,
+        arrayBuffer,
+        mimeType,
+        { alt_text: 'User avatar' }
+      )
+    })
+
+    it("should reject empty file", async () => {
+      const emptyBuffer = new ArrayBuffer(0)
+      const result = await uploadAvatar("user-123", emptyBuffer, "image/png")
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:invalidFile")
     })
 
     it("should reject non-image files", async () => {
-      const mockFile = createMockFile("document.pdf", 1024, "application/pdf")
       const arrayBuffer = new ArrayBuffer(1024)
       const mimeType = "application/pdf"
 
@@ -265,119 +308,209 @@ describe("profileService", () => {
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:invalidFileType")
-      expect(mockSupabase.storage.from).not.toHaveBeenCalled()
+      expect(mockUploadMedia).not.toHaveBeenCalled()
     })
 
     it("should reject files that are too large", async () => {
-      const mockFile = createMockFile("large-image.jpg", 6 * 1024 * 1024, "image/jpeg") // 6MB
-      const arrayBuffer = new ArrayBuffer(6 * 1024 * 1024)
+      const arrayBuffer = new ArrayBuffer(6 * 1024 * 1024) // 6MB
       const mimeType = "image/jpeg"
 
       const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:fileTooLarge")
-      expect(mockSupabase.storage.from).not.toHaveBeenCalled()
+      expect(mockUploadMedia).not.toHaveBeenCalled()
+    })
+
+    it("should handle media upload error", async () => {
+      const arrayBuffer = new ArrayBuffer(1024 * 1024)
+      const userId = "user-123"
+
+      // Mock getUserProfile
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: { id: userId, avatar_url: null },
+            error: null,
+          }),
+        }),
+      })
+      ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+        select: mockSelect,
+      })
+
+      // Mock no existing media
+      mockGetMediaForEntity.mockResolvedValue({
+        success: true,
+        media: [],
+      })
+
+      // Mock failed media upload
+      mockUploadMedia.mockResolvedValue({
+        success: false,
+        error: "Storage upload failed"
+      })
+
+      const result = await uploadAvatar(userId, arrayBuffer, "image/jpeg")
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("Storage upload failed")
     })
 
     it("should delete existing avatar before uploading new one", async () => {
-      const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
       const arrayBuffer = new ArrayBuffer(1024 * 1024)
       const mimeType = "image/jpeg"
-      const publicUrl = "https://example.com/new-avatar.jpg"
-      const existingAvatarUrl =
-        "https://example.com/storage/v1/object/public/avatars/user-123/old-avatar-user-123-123456.jpg"
+      const userId = "user-123"
 
-      // Mock getUserProfile to return existing avatar
-      const mockProfileResponse = {
-        data: { ...mockProfile, avatar_url: existingAvatarUrl },
-        error: null,
-      }
-      const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
-      const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
-      const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-
-      // Mock storage operations
-      const mockUploadResponse = { data: { path: "user-123-987654321.jpg" }, error: null }
-      const mockUpload = jest.fn().mockResolvedValue(mockUploadResponse)
-      const mockRemove = jest.fn().mockResolvedValue({ data: null, error: null })
-      const mockGetPublicUrl = jest.fn().mockReturnValue({ data: { publicUrl } })
+      // Mock getUserProfile (existing avatar)
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: { id: userId, avatar_url: 'https://old-avatar.com/old.jpg' },
+            error: null,
+          }),
+        }),
+      })
 
       // Mock updateUserProfile
-      const mockUpdateResponse = { data: { ...mockProfile, avatar_url: publicUrl }, error: null }
-      const mockUpdateSingle = jest.fn().mockResolvedValue(mockUpdateResponse)
-      const mockUpdateSelect = jest.fn().mockReturnValue({ single: mockUpdateSingle })
-      const mockUpdateEq = jest.fn().mockReturnValue({ select: mockUpdateSelect })
-      const mockUpdate = jest.fn().mockReturnValue({ eq: mockUpdateEq })
-
-      // Setup mocks
-      mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect } as any)
-      ;(mockSupabase.storage.from as jest.Mock).mockReturnValue({
-        upload: mockUpload,
-        remove: mockRemove,
-        getPublicUrl: mockGetPublicUrl,
+      const mockUpdate = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: { id: userId, avatar_url: "https://example.com/new-avatar.jpg" },
+              error: null,
+            }),
+          }),
+        }),
       })
 
-      mockSupabase.from.mockReturnValueOnce({ update: mockUpdate } as any)
+      ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+        select: mockSelect,
+        update: mockUpdate,
+      })
 
-      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
+      // Mock existing media
+      mockGetMediaForEntity.mockResolvedValue({
+        success: true,
+        media: [
+          {
+            id: 'old-media-id',
+            entity_id: userId,
+            entity_type: 'user',
+            file_url: 'https://old-avatar.com/old.jpg',
+            file_type: 'image',
+            mime_type: 'image/jpeg',
+            file_size: 512,
+            alt_text: 'Old user avatar',
+            uploaded_by: 'user-id',
+            is_active: true,
+            entity_exists: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        ],
+      })
 
-      expect(mockRemove).toHaveBeenCalledWith(["user-123/old-avatar-user-123-123456.jpg"])
+      // Mock successful delete
+      mockDeleteMedia.mockResolvedValue({
+        success: true,
+      })
+
+      // Mock successful upload
+      mockUploadMedia.mockResolvedValue({
+        success: true,
+        media: {
+          id: 'new-media-id',
+          entity_id: userId,
+          entity_type: 'user',
+          file_url: 'https://example.com/new-avatar.jpg',
+          file_type: 'image',
+          mime_type: mimeType,
+          file_size: 1024 * 1024,
+          alt_text: 'User avatar',
+          uploaded_by: 'user-id',
+          is_active: true,
+          entity_exists: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      })
+
+      const result = await uploadAvatar(userId, arrayBuffer, mimeType)
+
       expect(result.success).toBe(true)
+      expect(result.avatarUrl).toBe("https://example.com/new-avatar.jpg")
+      expect(mockDeleteMedia).toHaveBeenCalledWith('old-media-id')
+      expect(mockUploadMedia).toHaveBeenCalled()
     })
 
-    it("should handle storage upload errors", async () => {
-      const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
+    it("should cleanup uploaded file if profile update fails", async () => {
       const arrayBuffer = new ArrayBuffer(1024 * 1024)
       const mimeType = "image/jpeg"
+      const userId = "user-123"
 
-      // Mock getUserProfile to return no existing avatar
-      const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
-      const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
-      const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
-      const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-
-      // Mock storage upload error
-      const mockUploadError = { code: "EntityTooLarge", message: "File too large" }
-      const mockUpload = jest.fn().mockResolvedValue({ data: null, error: mockUploadError })
-
-      // Setup mocks
-      mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect } as any)
-      ;(mockSupabase.storage.from as jest.Mock).mockReturnValue({
-        upload: mockUpload,
+      // Mock getUserProfile (no existing avatar)
+      const mockSelect = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: { id: userId, avatar_url: null },
+            error: null,
+          }),
+        }),
       })
 
-      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
-
-      expect(result.success).toBe(false)
-      expect(result.error).toBe("errors:fileTooLarge") // Should map EntityTooLarge to fileTooLarge
-    })
-
-    it("should handle generic storage upload errors", async () => {
-      const mockFile = createMockFile("avatar.jpg", 1024 * 1024, "image/jpeg") // 1MB
-      const arrayBuffer = new ArrayBuffer(1024 * 1024)
-      const mimeType = "image/jpeg"
-
-      // Mock getUserProfile to return no existing avatar
-      const mockProfileResponse = { data: { ...mockProfile, avatar_url: null }, error: null }
-      const mockProfileSingle = jest.fn().mockResolvedValue(mockProfileResponse)
-      const mockProfileEq = jest.fn().mockReturnValue({ single: mockProfileSingle })
-      const mockProfileSelect = jest.fn().mockReturnValue({ eq: mockProfileEq })
-
-      // Mock storage upload error
-      const mockUploadError = { code: "StorageError", message: "Storage service unavailable" }
-      const mockUpload = jest.fn().mockResolvedValue({ data: null, error: mockUploadError })
-
-      // Setup mocks
-      mockSupabase.from.mockReturnValueOnce({ select: mockProfileSelect } as any)
-      ;(mockSupabase.storage.from as jest.Mock).mockReturnValue({
-        upload: mockUpload,
+      // Mock updateUserProfile failure
+      const mockUpdate = jest.fn().mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            single: jest.fn().mockResolvedValue({
+              data: null,
+              error: { message: "Update failed" },
+            }),
+          }),
+        }),
       })
 
-      const result = await uploadAvatar("user-123", arrayBuffer, mimeType)
+      ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+        select: mockSelect,
+        update: mockUpdate,
+      })
+
+      // Mock no existing media
+      mockGetMediaForEntity.mockResolvedValue({
+        success: true,
+        media: [],
+      })
+
+      // Mock successful upload but profile update will fail
+      mockUploadMedia.mockResolvedValue({
+        success: true,
+        media: {
+          id: 'media-id-123',
+          entity_id: userId,
+          entity_type: 'user',
+          file_url: 'https://example.com/avatar.jpg',
+          file_type: 'image',
+          mime_type: mimeType,
+          file_size: 1024 * 1024,
+          alt_text: 'User avatar',
+          uploaded_by: 'user-id',
+          is_active: true,
+          entity_exists: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      })
+
+      // Mock successful cleanup
+      mockDeleteMedia.mockResolvedValue({
+        success: true,
+      })
+
+      const result = await uploadAvatar(userId, arrayBuffer, mimeType)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe("errors:uploadFailed") // Should map other errors to uploadFailed
+      expect(mockDeleteMedia).toHaveBeenCalledWith('media-id-123') // Should cleanup uploaded file
     })
   })
 })

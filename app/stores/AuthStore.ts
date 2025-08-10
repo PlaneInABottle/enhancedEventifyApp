@@ -48,18 +48,8 @@ export const AuthStore = types
       self.setProp("isAuthenticated", false)
       self.setProp("lastError", null)
       
-      // Clear map events and data
-      rootStore.mapStore.clearEvents()
-      rootStore.mapStore.clearError()
-      
-      // Clear user profile data
-      rootStore.userProfileStore.clearError()
-      
-      // Clear business profile data  
-      rootStore.businessProfileStore.clearError()
-      
-      // Clear venue data
-      rootStore.venueStore.clearError()
+      // Reset all stores to initial state (clears loading states, data, and errors)
+      rootStore.resetAllStores()
     },
   }))
   .views((self) => ({

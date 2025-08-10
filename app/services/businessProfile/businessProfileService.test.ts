@@ -2,6 +2,15 @@ import { supabase } from "@/clients/supabase/SupabaseClient"
 
 import { getBusinessProfile, updateBusinessProfile, uploadLogo } from "./businessProfileService"
 
+// Mock media service
+jest.mock("@/services/media/mediaService", () => ({
+  uploadMedia: jest.fn(),
+  deleteMedia: jest.fn(),
+  getMediaForEntity: jest.fn(),
+}))
+
+import { uploadMedia, deleteMedia, getMediaForEntity } from "@/services/media/mediaService"
+
 // Mock Supabase client
 jest.mock("@/clients/supabase/SupabaseClient", () => ({
   supabase: {
@@ -22,6 +31,9 @@ jest.mock("@/clients/supabase/SupabaseClient", () => ({
 }))
 
 const mockSupabase = supabase as jest.Mocked<typeof supabase>
+const mockUploadMedia = uploadMedia as jest.MockedFunction<typeof uploadMedia>
+const mockDeleteMedia = deleteMedia as jest.MockedFunction<typeof deleteMedia>
+const mockGetMediaForEntity = getMediaForEntity as jest.MockedFunction<typeof getMediaForEntity>
 
 describe("getBusinessProfile", () => {
   beforeEach(() => {
@@ -175,32 +187,48 @@ describe("uploadLogo", () => {
       }),
     })
 
-    const mockUpload = jest.fn().mockResolvedValue({
-      data: { path: "test-business-id/business-logo-123456.png" },
-      error: null,
-    })
-    const mockGetPublicUrl = jest.fn().mockReturnValue({
-      data: { publicUrl: "https://example.com/logo.png" },
-    })
-    const mockRemove = jest.fn().mockResolvedValue({ data: null, error: null })
-
-    const mockStorageFrom = jest.fn().mockReturnValue({
-      upload: mockUpload,
-      getPublicUrl: mockGetPublicUrl,
-      remove: mockRemove,
-    })
-
     ;(mockSupabase as any).from = jest.fn().mockReturnValue({
       select: mockSelect,
       update: mockUpdate,
     })
-    ;(mockSupabase.storage as any).from = mockStorageFrom
+
+    // Mock media service - no existing media
+    mockGetMediaForEntity.mockResolvedValue({
+      success: true,
+      media: [],
+    })
+
+    // Mock successful media upload
+    mockUploadMedia.mockResolvedValue({
+      success: true,
+      media: {
+        id: 'media-id-123',
+        entity_id: businessId,
+        entity_type: 'business',
+        file_url: 'https://example.com/logo.png',
+        file_type: 'image',
+        mime_type: mimeType,
+        file_size: 1024,
+        alt_text: 'Business logo',
+        uploaded_by: 'user-id',
+        is_active: true,
+        entity_exists: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    })
 
     const result = await uploadLogo(businessId, mockArrayBuffer, mimeType)
 
     expect(result.success).toBe(true)
     expect(result.logoUrl).toBe("https://example.com/logo.png")
-    expect(mockStorageFrom).toHaveBeenCalledWith("avatars")
+    expect(mockUploadMedia).toHaveBeenCalledWith(
+      'business',
+      businessId,
+      mockArrayBuffer,
+      mimeType,
+      { alt_text: 'Business logo' }
+    )
   })
 
   it("should reject invalid file", async () => {
@@ -211,14 +239,32 @@ describe("uploadLogo", () => {
     expect(result.error).toBe("errors:fileEmpty")
   })
 
-  it("should handle storage upload error", async () => {
+  it("should handle media upload error", async () => {
     const mockArrayBuffer = new ArrayBuffer(1024)
-    const mockUpload = jest.fn().mockResolvedValue({
-      data: null,
-      error: { message: "Storage upload failed" },
+
+    // Mock getBusinessProfile
+    const mockSelect = jest.fn().mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: { id: 'test-id', logo_url: null },
+          error: null,
+        }),
+      }),
     })
-    ;(mockSupabase.storage as any).from = jest.fn().mockReturnValue({
-      upload: mockUpload,
+    ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+      select: mockSelect,
+    })
+
+    // Mock no existing media
+    mockGetMediaForEntity.mockResolvedValue({
+      success: true,
+      media: [],
+    })
+
+    // Mock failed media upload
+    mockUploadMedia.mockResolvedValue({
+      success: false,
+      error: "Storage upload failed"
     })
 
     const result = await uploadLogo("test-id", mockArrayBuffer, "image/png")
@@ -241,5 +287,92 @@ describe("uploadLogo", () => {
 
     expect(result.success).toBe(false)
     expect(result.error).toBe("errors:fileTooLarge")
+  })
+
+  it("should delete existing logo before uploading new one", async () => {
+    const mockArrayBuffer = new ArrayBuffer(1024)
+    const mimeType = "image/png"
+    const businessId = "test-business-id"
+
+    // Mock getBusinessProfile (existing logo)
+    const mockSelect = jest.fn().mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        single: jest.fn().mockResolvedValue({
+          data: { id: businessId, logo_url: 'https://old-logo.com/old.png' },
+          error: null,
+        }),
+      }),
+    })
+
+    // Mock updateBusinessProfile
+    const mockUpdate = jest.fn().mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          single: jest.fn().mockResolvedValue({
+            data: { id: businessId, logo_url: "https://example.com/new-logo.png" },
+            error: null,
+          }),
+        }),
+      }),
+    })
+
+    ;(mockSupabase as any).from = jest.fn().mockReturnValue({
+      select: mockSelect,
+      update: mockUpdate,
+    })
+
+    // Mock existing media
+    mockGetMediaForEntity.mockResolvedValue({
+      success: true,
+      media: [
+        {
+          id: 'old-media-id',
+          entity_id: businessId,
+          entity_type: 'business',
+          file_url: 'https://old-logo.com/old.png',
+          file_type: 'image',
+          mime_type: 'image/png',
+          file_size: 512,
+          alt_text: 'Old business logo',
+          uploaded_by: 'user-id',
+          is_active: true,
+          entity_exists: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+      ],
+    })
+
+    // Mock successful delete
+    mockDeleteMedia.mockResolvedValue({
+      success: true,
+    })
+
+    // Mock successful upload
+    mockUploadMedia.mockResolvedValue({
+      success: true,
+      media: {
+        id: 'new-media-id',
+        entity_id: businessId,
+        entity_type: 'business',
+        file_url: 'https://example.com/new-logo.png',
+        file_type: 'image',
+        mime_type: mimeType,
+        file_size: 1024,
+        alt_text: 'Business logo',
+        uploaded_by: 'user-id',
+        is_active: true,
+        entity_exists: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    })
+
+    const result = await uploadLogo(businessId, mockArrayBuffer, mimeType)
+
+    expect(result.success).toBe(true)
+    expect(result.logoUrl).toBe("https://example.com/new-logo.png")
+    expect(mockDeleteMedia).toHaveBeenCalledWith('old-media-id')
+    expect(mockUploadMedia).toHaveBeenCalled()
   })
 })

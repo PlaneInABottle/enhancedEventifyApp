@@ -160,6 +160,22 @@ describe('ComponentName', () => {
 })
 ```
 
+### RLS Security Pattern
+```typescript
+// ❌ Bad - Entity existence only (security gap)
+WHERE entity_id IN (SELECT id FROM table WHERE id = folder_id)
+
+// ✅ Good - Ownership validation through foreign keys  
+WHERE entity_id IN (
+  SELECT t.id FROM table t
+  JOIN business_profiles bp ON t.business_id = bp.id  
+  WHERE t.id = folder_id AND bp.owner_id = auth.uid()
+)
+```
+**Ownership Chain**: user → business → venue/event
+- Always validate ownership at the business level
+- Use existing foreign key relationships instead of adding redundant user_id columns
+
 ## Common Tasks
 
 ### Creating a New Screen

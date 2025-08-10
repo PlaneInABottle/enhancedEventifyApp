@@ -1,4 +1,5 @@
 import { supabase } from "@/clients/supabase/SupabaseClient"
+import { uploadMedia, deleteMedia, getMediaForEntity } from "@/services/media/mediaService"
 
 import {
   mapProfileError,
@@ -128,7 +129,7 @@ export async function updateUserProfile(
 // ============================================================================
 
 /**
- * Uploads a user avatar with proper Supabase Storage options
+ * Uploads a user avatar using the new media system
  */
 export async function uploadAvatar(
   userId: string,
@@ -161,68 +162,56 @@ export async function uploadAvatar(
 
     // Get current profile to check for existing avatar
     const profileResult = await getUserProfile(userId)
+
+    // Remove old avatar if it exists
     if (profileResult.success && profileResult.profile?.avatar_url) {
-      // Extract file path from URL and delete old avatar
-      const urlParts = profileResult.profile.avatar_url.split("/")
-      const avatarsIndex = urlParts.findIndex((part) => part === "avatars")
-      if (avatarsIndex !== -1 && avatarsIndex < urlParts.length - 1) {
-        // Get everything after 'avatars/' in the URL
-        const oldAvatarPath = urlParts.slice(avatarsIndex + 1).join("/")
-        console.log("Deleting old avatar:", oldAvatarPath)
-        await supabase.storage.from("avatars").remove([oldAvatarPath])
+      // Get existing media records for this user
+      const existingMedia = await getMediaForEntity('user', userId)
+      if (existingMedia.success && existingMedia.media && existingMedia.media.length > 0) {
+        // Delete all existing media records
+        for (const media of existingMedia.media) {
+          const deleteResult = await deleteMedia(media.id)
+          if (!deleteResult.success) {
+            console.warn('Failed to delete old avatar:', deleteResult.error)
+            // Continue with upload even if delete fails
+          }
+        }
       }
     }
 
-    // Extract file extension from mimeType
-    let fileExt = "jpg" // default
-    if (mimeType === "image/png") fileExt = "png"
-    else if (mimeType === "image/gif") fileExt = "gif"
-    else if (mimeType === "image/webp") fileExt = "webp"
-    else fileExt = "jpg"
+    // Upload new avatar using media system
+    const uploadResult = await uploadMedia(
+      'user',
+      userId, 
+      arrayBuffer,
+      mimeType,
+      { alt_text: 'User avatar' }
+    )
 
-    const fileName = `avatar-${Date.now()}.${fileExt}`
-    const filePath = `${userId}/${fileName}`
-
-    // Upload to Supabase Storage with ArrayBuffer (with timeout)
-    const uploadPromise = supabase.storage.from("avatars").upload(filePath, arrayBuffer, {
-      upsert: true,
-      contentType: mimeType,
-      cacheControl: "3600",
-    })
-
-    const { error: uploadError } = await uploadPromise
-
-    if (uploadError) {
-      console.error("Storage upload error:", uploadError)
-      // Handle specific Supabase Storage error formats
-      const storageError = uploadError as SupabaseStorageError
+    if (!uploadResult.success || !uploadResult.media) {
       return {
         success: false,
-        error:
-          storageError.code === "EntityTooLarge" ? "errors:fileTooLarge" : "errors:uploadFailed",
+        error: uploadResult.error || "errors:uploadFailed"
       }
     }
-
-    // Get public URL
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("avatars").getPublicUrl(filePath)
 
     // Update profile with new avatar URL
     const updateResult = await updateUserProfile(userId, {
-      avatar_url: publicUrl,
+      avatar_url: uploadResult.media.file_url,
     })
 
     if (!updateResult.success) {
+      // If profile update fails, clean up the uploaded file
+      await deleteMedia(uploadResult.media.id)
       return {
         success: false,
-        error: updateResult.error,
+        error: updateResult.error || "Failed to update profile with avatar URL",
       }
     }
 
     return {
       success: true,
-      avatarUrl: publicUrl,
+      avatarUrl: uploadResult.media.file_url,
     }
   } catch (error) {
     console.error("Unexpected error uploading avatar:", error)

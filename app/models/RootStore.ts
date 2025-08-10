@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotOut, types, applySnapshot } from "mobx-state-tree"
 
 import { AuthStore } from "@/stores/AuthStore"
 import { BusinessProfileStore } from "@/stores/BusinessProfileStore"
@@ -18,7 +18,21 @@ export const RootStoreModel = types.model("RootStore").props({
   businessProfileStore: types.optional(BusinessProfileStore, {}),
   venueStore: types.optional(VenueStore, {}),
   episodeStore: types.optional(EpisodeStoreModel, {}), // @demo remove-current-line
-})
+}).actions((self) => ({
+  /**
+   * Resets all stores to their initial state using MobX State Tree's applySnapshot
+   * Called when user logs out to prevent stale data and stuck loading states
+   * This approach maintains store instance references while clearing data
+   */
+  resetAllStores() {
+    // Reset stores to initial empty state using applySnapshot
+    // This maintains store references while clearing all data
+    applySnapshot(self.userProfileStore, {})
+    applySnapshot(self.businessProfileStore, {})
+    applySnapshot(self.mapStore, {})
+    applySnapshot(self.venueStore, {})
+  }
+}))
 
 /**
  * The RootStore instance.
