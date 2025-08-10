@@ -335,6 +335,22 @@ interface ScreenProps extends Partial<UserTabScreenProps<"Screen">> {}
 - Namespace organization: `eventListing:`, `map:`, `profile:`
 - Use `tx="namespace:key"` for Text components, `translate("namespace:key")` for strings
 
+**MobX State Tree Store Reset Pattern:**
+```typescript
+// ❌ Bad - Creates new instances, breaks reactivity
+resetAllStores() {
+  self.userProfileStore = UserProfileStore.create({})
+  self.businessProfileStore = BusinessProfileStore.create({}) 
+}
+
+// ✅ Good - Resets data while maintaining instance references
+resetAllStores() {
+  applySnapshot(self.userProfileStore, {})
+  applySnapshot(self.businessProfileStore, {})
+}
+```
+**Key Issue**: AsyncStorage persists ALL store state including temporary states like `isUploading`. Store recreation causes "no longer part of state tree" errors when components access detached objects.
+
 ## Common Issues & Solutions
 
 ### React Native Specific Issues
