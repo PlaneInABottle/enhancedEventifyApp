@@ -9,6 +9,7 @@ const en = {
     close: "Close",
     logOut: "Log Out",
     error: "Error",
+    success: "Success",
     map: "Map",
     events: "Events",
     profile: "Profile",
@@ -23,6 +24,64 @@ const en = {
     capacity: "Capacity",
     addVenue: "Add Venue",
     edit: "Edit",
+    delete: "Delete",
+    remove: "Remove",
+  },
+  businessEvent: {
+    // Form labels
+    eventDetails: "Event Details",
+    titleLabel: "Event Title",
+    titlePlaceholder: "Enter event title",
+    descriptionLabel: "Description",
+    descriptionPlaceholder: "Enter event description (optional)",
+    
+    // Instance form
+    eventInstances: "Event Instances",
+    addInstance: "Add Instance",
+    instanceNumber: "Instance {{number}}",
+    venueLabel: "Venue",
+    venuePlaceholder: "Select a venue",
+    startDateTimeLabel: "Start Date & Time",
+    startDateTimePlaceholder: "YYYY-MM-DD HH:MM",
+    endDateTimeLabel: "End Date & Time",
+    endDateTimePlaceholder: "YYYY-MM-DD HH:MM",
+    maxAttendeesLabel: "Max Attendees",
+    maxAttendeesPlaceholder: "Optional",
+    statusLabel: "Status",
+    statusPlaceholder: "Select status",
+    
+    // Status options
+    statusDraft: "Draft",
+    statusPublished: "Published",
+    
+    // Actions
+    createEvent: "Create Event",
+    editEvent: "Edit Event",
+    createNewEvent: "Create New Event",
+    createFirstEvent: "Create Your First Event",
+    eventCreatedSuccessfully: "Event created successfully!",
+    eventUpdatedSuccessfully: "Event updated successfully!",
+    
+    // Validation
+    validationErrorTitle: "Validation Error",
+    validationErrorMessage: "Please fix all errors before submitting.",
+    
+    // List view
+    instanceCount: "{{count}} instance(s)",
+    nextInstance: "Next Instance",
+    status: "Status",
+    noEventsTitle: "No Events Yet",
+    noEventsMessage: "Start by creating your first event for your business.",
+    upcomingEvents: "Upcoming Events",
+    activeEvents: "Active Events", 
+    pastEvents: "Past Events",
+    noUpcomingEvents: "No upcoming events",
+    noActiveEvents: "No active events",
+    noPastEvents: "No past events",
+    
+    // Delete confirmation
+    deleteEventTitle: "Delete Event",
+    deleteEventMessage: "Are you sure you want to delete '{{title}}'? This action cannot be undone.",
   },
   report: {
     title: "Report Content",

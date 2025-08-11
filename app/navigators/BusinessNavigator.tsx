@@ -6,15 +6,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "@/components/Icon"
 import { translate } from "@/i18n/translate"
 import { BusinessProfileScreen } from "@/screens/BusinessProfileScreen"
-import { MapScreen } from "@/screens/MapScreen"
 import { VenuesScreen } from "@/screens/VenuesScreen"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
-
-// Temporary wrapper components for correct prop types
-const EventManagementScreen = (props: any) => <MapScreen {...props} />
+import { BusinessEventNavigator } from "./BusinessEventNavigator"
 
 export type BusinessTabParamList = {
   Events: undefined
@@ -57,7 +54,7 @@ export function BusinessNavigator() {
     >
       <Tab.Screen
         name="Events"
-        component={EventManagementScreen}
+        component={BusinessEventNavigator}
         options={{
           tabBarLabel: translate("common:events"),
           tabBarIcon: ({ focused }) => (

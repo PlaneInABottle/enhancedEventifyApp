@@ -9,6 +9,7 @@ const tr = {
     close: "Kapat",
     logOut: "Çıkış Yap",
     error: "Hata",
+    success: "Başarılı",
     map: "Harita",
     events: "Etkinlikler",
     profile: "Profil",
@@ -23,6 +24,64 @@ const tr = {
     capacity: "Kapasite",
     addVenue: "Mekan Ekle",
     edit: "Düzenle",
+    delete: "Sil",
+    remove: "Kaldır",
+  },
+  businessEvent: {
+    // Form labels
+    eventDetails: "Etkinlik Detayları",
+    titleLabel: "Etkinlik Başlığı",
+    titlePlaceholder: "Etkinlik başlığını girin",
+    descriptionLabel: "Açıklama",
+    descriptionPlaceholder: "Etkinlik açıklamasını girin (isteğe bağlı)",
+    
+    // Instance form
+    eventInstances: "Etkinlik Oturumları",
+    addInstance: "Oturum Ekle",
+    instanceNumber: "Oturum {{number}}",
+    venueLabel: "Mekan",
+    venuePlaceholder: "Bir mekan seçin",
+    startDateTimeLabel: "Başlangıç Tarihi ve Saati",
+    startDateTimePlaceholder: "YYYY-AA-GG SS:DD",
+    endDateTimeLabel: "Bitiş Tarihi ve Saati",
+    endDateTimePlaceholder: "YYYY-AA-GG SS:DD",
+    maxAttendeesLabel: "Maksimum Katılımcı",
+    maxAttendeesPlaceholder: "İsteğe bağlı",
+    statusLabel: "Durum",
+    statusPlaceholder: "Durum seçin",
+    
+    // Status options
+    statusDraft: "Taslak",
+    statusPublished: "Yayınlandı",
+    
+    // Actions
+    createEvent: "Etkinlik Oluştur",
+    editEvent: "Etkinlik Düzenle",
+    createNewEvent: "Yeni Etkinlik Oluştur",
+    createFirstEvent: "İlk Etkinliğinizi Oluşturun",
+    eventCreatedSuccessfully: "Etkinlik başarıyla oluşturuldu!",
+    eventUpdatedSuccessfully: "Etkinlik başarıyla güncellendi!",
+    
+    // Validation
+    validationErrorTitle: "Doğrulama Hatası",
+    validationErrorMessage: "Lütfen göndermeden önce tüm hataları düzeltin.",
+    
+    // List view
+    instanceCount: "{{count}} oturum",
+    nextInstance: "Sonraki Oturum",
+    status: "Durum",
+    noEventsTitle: "Henüz Etkinlik Yok",
+    noEventsMessage: "İşletmeniz için ilk etkinliğinizi oluşturarak başlayın.",
+    upcomingEvents: "Yaklaşan Etkinlikler",
+    activeEvents: "Aktif Etkinlikler",
+    pastEvents: "Geçmiş Etkinlikler",
+    noUpcomingEvents: "Yaklaşan etkinlik yok",
+    noActiveEvents: "Aktif etkinlik yok",
+    noPastEvents: "Geçmiş etkinlik yok",
+    
+    // Delete confirmation
+    deleteEventTitle: "Etkinliği Sil",
+    deleteEventMessage: "'{{title}}' etkinliğini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
   },
   report: {
     title: "İçerik Şikayeti",

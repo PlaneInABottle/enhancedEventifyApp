@@ -5,6 +5,7 @@ import { BusinessProfileStore } from "@/stores/BusinessProfileStore"
 import { MapStore } from "@/stores/MapStore"
 import { UserProfileStore } from "@/stores/UserProfileStore"
 import { VenueStore } from "@/stores/VenueStore"
+import { BusinessEventStore } from "./BusinessEventModels"
 
 import { EpisodeStoreModel } from "./EpisodeStore" // @demo remove-current-line
 
@@ -17,6 +18,7 @@ export const RootStoreModel = types.model("RootStore").props({
   mapStore: types.optional(MapStore, {}),
   businessProfileStore: types.optional(BusinessProfileStore, {}),
   venueStore: types.optional(VenueStore, {}),
+  businessEventStore: types.optional(BusinessEventStore, {}),
   episodeStore: types.optional(EpisodeStoreModel, {}), // @demo remove-current-line
 }).actions((self) => ({
   /**
@@ -31,6 +33,7 @@ export const RootStoreModel = types.model("RootStore").props({
     applySnapshot(self.businessProfileStore, {})
     applySnapshot(self.mapStore, {})
     applySnapshot(self.venueStore, {})
+    applySnapshot(self.businessEventStore, {})
   }
 }))
 
