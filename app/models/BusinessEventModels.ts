@@ -268,6 +268,7 @@ export const BusinessEventStore = types
     },
 
     reset() {
+      // Use empty array snapshot to avoid detached node errors
       self.setProp("events", [])
       self.setProp("selectedEvent", undefined)
       self.setProp("isLoading", false)
@@ -320,15 +321,13 @@ export const BusinessEventStore = types
         const result = yield getEventsForBusiness(businessId)
 
         if (result.success && result.events) {
-          // Clear and repopulate - MST handles computed fields automatically
-          self.setProp("events", [])
-          result.events.forEach((eventData: EventWithDetails) => {
-            const eventModel = BusinessEventModel.create({
-              ...eventData,
-              imageUrl: eventData.imageUrl || undefined,
-            })
-            self.events.push(eventModel)
-          })
+          // Use applySnapshot to safely replace events array
+          // This prevents "no longer part of state tree" errors
+          const eventsSnapshot = result.events.map((eventData: EventWithDetails) => ({
+            ...eventData,
+            imageUrl: eventData.imageUrl || undefined,
+          }))
+          self.setProp("events", eventsSnapshot as any)
           return { success: true }
         } else {
           self.setProp("lastError", result.error || "errors.fetchEventsFailed")
