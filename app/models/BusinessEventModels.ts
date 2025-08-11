@@ -86,12 +86,12 @@ export const BusinessEventInstanceModel = types
     async update(updates: UpdateEventInstanceRequest) {
       const result = await updateEventInstance(self.id, updates)
       if (result.success && result.eventInstance) {
-        // Update properties individually to comply with MST strict mode
+        // Update properties from server response
         const instance = result.eventInstance
-        if (instance.venue_id) self.setProp("venue_id", instance.venue_id)
-        if (instance.start_datetime) self.setProp("start_datetime", instance.start_datetime)
-        if (instance.end_datetime) self.setProp("end_datetime", instance.end_datetime)
-        if (instance.event_instance_status) self.setProp("event_instance_status", instance.event_instance_status)
+        if (instance.venue_id !== undefined) self.setProp("venue_id", instance.venue_id)
+        if (instance.start_datetime !== undefined) self.setProp("start_datetime", instance.start_datetime)
+        if (instance.end_datetime !== undefined) self.setProp("end_datetime", instance.end_datetime)
+        if (instance.event_instance_status !== undefined) self.setProp("event_instance_status", instance.event_instance_status)
         if (instance.max_attendees !== undefined) self.setProp("max_attendees", instance.max_attendees)
         if (instance.updated_at) self.setProp("updated_at", instance.updated_at)
         return { success: true }
@@ -197,9 +197,9 @@ export const BusinessEventModel = types
     async update(updates: UpdateEventRequest) {
       const result = await updateEvent(self.id, updates)
       if (result.success && result.event) {
-        // Update properties individually to comply with MST strict mode
+        // Update properties from server response
         const event = result.event
-        if (event.title) self.setProp("title", event.title)
+        if (event.title !== undefined) self.setProp("title", event.title)
         if (event.description !== undefined) self.setProp("description", event.description)
         if (event.updated_at) self.setProp("updated_at", event.updated_at)
         return { success: true }
