@@ -56,6 +56,7 @@ const en = {
     
     // Actions
     createEvent: "Create Event",
+    updateEvent: "Update Event",
     editEvent: "Edit Event",
     createNewEvent: "Create New Event",
     createFirstEvent: "Create Your First Event",
@@ -328,6 +329,14 @@ const en = {
     noEventsSubtitle: "Try adjusting the map view to load events from the area",
     listTab: "List",
     mapTab: "Map",
+    status: {
+      draft: "Draft",
+      published: "Published",
+      scheduled: "Scheduled",
+      cancelled: "Cancelled",
+      postponed: "Postponed",
+      completed: "Completed",
+    },
   },
   profile: {
     userProfile: "User Profile",

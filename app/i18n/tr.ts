@@ -56,6 +56,7 @@ const tr = {
     
     // Actions
     createEvent: "Etkinlik Oluştur",
+    updateEvent: "Etkinlik Güncelle",
     editEvent: "Etkinlik Düzenle",
     createNewEvent: "Yeni Etkinlik Oluştur",
     createFirstEvent: "İlk Etkinliğinizi Oluşturun",
@@ -328,6 +329,14 @@ const tr = {
     noEventsSubtitle: "Bölgedeki etkinlikleri yüklemek için harita görünümünü ayarlayın",
     listTab: "Liste",
     mapTab: "Harita",
+    status: {
+      draft: "Taslak",
+      published: "Yayınlandı",
+      scheduled: "Planlandı",
+      cancelled: "İptal Edildi",
+      postponed: "Ertelendi",
+      completed: "Tamamlandı",
+    },
   },
   profile: {
     userProfile: "Kullanıcı Profili",

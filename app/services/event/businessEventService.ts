@@ -162,11 +162,12 @@ export async function getEvent(eventId: string): Promise<EventResult> {
           venues (
             id,
             name,
-            address,
-            city,
-            country,
-            latitude,
-            longitude
+            address:addresses (
+              full_address,
+              city,
+              country,
+              coordinates
+            )
           )
         )
       `)
@@ -223,11 +224,12 @@ export async function getEventsForBusiness(businessId: string): Promise<EventLis
           venues (
             id,
             name,
-            address,
-            city,
-            country,
-            latitude,
-            longitude
+            address:addresses (
+              full_address,
+              city,
+              country,
+              coordinates
+            )
           )
         )
       `)

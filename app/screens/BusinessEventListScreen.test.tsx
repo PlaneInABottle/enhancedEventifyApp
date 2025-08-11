@@ -320,7 +320,7 @@ describe('BusinessEventListScreen', () => {
       
       fireEvent.press(screen.getByTestId('event-press-event-1'))
       
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('EventDetail', { eventId: 'event-1' })
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('EditEvent', { eventId: 'event-1' })
     })
 
     it('navigates to edit event screen', () => {

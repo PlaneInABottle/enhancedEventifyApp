@@ -1,10 +1,13 @@
+import React, { useEffect } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { observer } from "mobx-react-lite"
 
 import { Icon } from "@/components/Icon"
 import { translate } from "@/i18n/translate"
+import { useStores } from "@/models"
 import { BusinessProfileScreen } from "@/screens/BusinessProfileScreen"
 import { VenuesScreen } from "@/screens/VenuesScreen"
 import { useAppTheme } from "@/theme/context"
@@ -33,12 +36,20 @@ const Tab = createBottomTabNavigator<BusinessTabParamList>()
  * This is the business navigator for Enhanced Eventify app.
  * Business-focused navigation with event management, venues, and analytics.
  */
-export function BusinessNavigator() {
+export const BusinessNavigator = observer(function BusinessNavigator() {
   const { bottom } = useSafeAreaInsets()
   const {
     themed,
     theme: { colors },
   } = useAppTheme()
+  const { businessProfileStore, venueStore, authenticationStore } = useStores()
+
+  // Load business profile when navigator mounts (venues will load automatically in forms)
+  useEffect(() => {
+    if (authenticationStore.userId && !businessProfileStore.profile) {
+      businessProfileStore.fetchProfile(authenticationStore.userId)
+    }
+  }, [authenticationStore.userId])
 
   return (
     <Tab.Navigator
@@ -86,7 +97,7 @@ export function BusinessNavigator() {
       />
     </Tab.Navigator>
   )
-}
+})
 
 const $tabBar: ThemedStyle<ViewStyle> = ({ colors }) => ({
   backgroundColor: colors.background,

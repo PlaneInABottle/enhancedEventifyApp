@@ -31,6 +31,7 @@ export interface EventInstance {
 export type EventInstanceStatus = 
   | 'draft'
   | 'published'
+  | 'scheduled'
   | 'cancelled'
   | 'postponed'
   | 'completed'
@@ -206,6 +207,7 @@ export const EVENT_CONSTANTS = {
 export const EVENT_INSTANCE_STATUS_LABELS: Record<EventInstanceStatus, string> = {
   draft: 'eventListing:status.draft',
   published: 'eventListing:status.published',
+  scheduled: 'eventListing:status.scheduled',
   cancelled: 'eventListing:status.cancelled',
   postponed: 'eventListing:status.postponed',
   completed: 'eventListing:status.completed',

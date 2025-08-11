@@ -39,7 +39,8 @@ export const BusinessEventInstanceModel = types
     end_datetime: types.string,
     event_instance_status: types.enumeration("EventInstanceStatus", [
       "draft",
-      "published", 
+      "published",
+      "scheduled",
       "cancelled",
       "postponed",
       "completed",
@@ -122,7 +123,7 @@ export const BusinessEventModel = types
     created_at: types.string,
     updated_at: types.string,
     // Optional image URL for display
-    imageUrl: types.maybe(types.string),
+    imageUrl: types.maybeNull(types.string),
   })
   .actions(withSetPropAction)
   .views((self) => ({
@@ -179,6 +180,7 @@ export const BusinessEventModel = types
       const counts: Record<EventInstanceStatus, number> = {
         draft: 0,
         published: 0,
+        scheduled: 0,
         cancelled: 0,
         postponed: 0,
         completed: 0,

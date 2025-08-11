@@ -46,6 +46,10 @@ interface BusinessEventFormProps {
    * Initial form data for editing
    */
   initialData?: Partial<BusinessEventFormData>
+  /**
+   * Whether we're in edit mode
+   */
+  isEditing?: boolean
 }
 
 export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function BusinessEventForm({
@@ -53,6 +57,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   isSubmitting = false,
   errorMessage = null,
   initialData,
+  isEditing = false,
 }) {
   const { themed } = useAppTheme()
   const { venueStore, businessProfileStore } = useStores()
@@ -67,12 +72,22 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Load venues when component mounts
+  // Load venues when component mounts and business profile is available
   useEffect(() => {
-    if (businessProfileStore.profile?.id && venueStore.venues.length === 0) {
-      venueStore.fetchVenuesByBusiness(businessProfileStore.profile.id)
+    const businessId = businessProfileStore.profile?.id
+    if (businessId && venueStore.venues.length === 0) {
+      venueStore.fetchVenuesByBusiness(businessId)
     }
   }, [businessProfileStore.profile?.id, venueStore])
+
+  // Update form when initialData changes (for edit mode)
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || "")
+      setDescription(initialData.description || "")
+      setInstances(initialData.instances || [createEmptyInstance()])
+    }
+  }, [initialData])
 
   // Create empty instance helper with stable temporary ID
   function createEmptyInstance(): BusinessEventInstanceFormData {
@@ -233,7 +248,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       {/* Submit Button */}
       <View style={themed($buttonContainer)}>
         <Button
-          tx="businessEvent:createEvent"
+          tx={isEditing ? "businessEvent:updateEvent" : "businessEvent:createEvent"}
           preset="filled"
           onPress={handleSubmit}
           disabled={isSubmitting}

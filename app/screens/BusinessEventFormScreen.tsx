@@ -210,6 +210,7 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
           isSubmitting={isSubmitting}
           errorMessage={errorMessage}
           initialData={initialData}
+          isEditing={isEditing}
         />
       </Screen>
     )

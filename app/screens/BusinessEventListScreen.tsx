@@ -41,7 +41,10 @@ export const BusinessEventListScreen: FC<BusinessEventListScreenProps> = observe
 
     // Handle event selection
     const handleEventPress = useCallback((event: IBusinessEvent) => {
-      navigation.navigate("EventDetail", { eventId: event.id })
+      // TODO: Implement event detail screen
+      // navigation.navigate("EventDetail", { eventId: event.id })
+      // For now, go to edit screen
+      navigation.navigate("EditEvent", { eventId: event.id })
     }, [navigation])
 
     // Handle edit event

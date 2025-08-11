@@ -11,7 +11,6 @@ import {
 import { observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
 import { EmptyState } from "@/components/EmptyState"
 import { Text } from "@/components/Text"
 import type { TxKeyPath } from "@/i18n"
@@ -74,6 +73,8 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
 
   // Group events by status into sections for SectionList
   const eventSections = useMemo(() => {
+    if (!events || events.length === 0) return []
+    
     const upcoming = events.filter(event => event.hasUpcomingInstances)
     const active = events.filter(event => event.activeInstances.length > 0)
     const past = events.filter(event => 
@@ -134,9 +135,10 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
     const hasImage = !!event.imageUrl
 
     return (
-      <Card 
-        style={themed($eventCard)}
+      <Pressable 
+        style={[themed($eventCard), themed($cardStyle)]}
         onPress={() => onEventPress?.(event)}
+        testID="event-card"
       >
         <View style={themed($eventHeader)}>
           <View style={themed($eventTitleContainer)}>
@@ -219,7 +221,7 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
             </View>
           </View>
         </View>
-      </Card>
+      </Pressable>
     )
   }, [themed, onEventPress, onEditEvent, handleDeleteEvent, showActions])
 
@@ -252,6 +254,7 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
       renderItem={renderEventItem}
       renderSectionHeader={renderSectionHeader}
       keyExtractor={(item) => item.id}
+      stickySectionHeadersEnabled={false}
       ListHeaderComponent={
         onCreateEvent ? (
           <View style={themed($createButtonContainer)}>
@@ -270,7 +273,6 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
         ) : undefined
       }
       showsVerticalScrollIndicator={false}
-      stickySectionHeadersEnabled={false}
     />
   )
 })
@@ -305,7 +307,19 @@ const $emptyMessage: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
 
 const $eventCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginBottom: spacing.sm,
+})
+
+const $cardStyle: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
+  backgroundColor: colors.palette.neutral100,
+  borderRadius: spacing.md,
   padding: spacing.md,
+  borderWidth: 1,
+  borderColor: colors.palette.neutral300,
+  shadowColor: colors.palette.neutral800,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.08,
+  shadowRadius: 4,
+  elevation: 3,
 })
 
 const $eventHeader: ThemedStyle<ViewStyle> = () => ({

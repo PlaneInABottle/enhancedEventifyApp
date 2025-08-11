@@ -319,7 +319,7 @@ describe('BusinessEventList', () => {
       const event = createMockEvent({
         title: 'Sample Event',
         description: 'This is a sample event description',
-        statusCounts: { published: 3, draft: 2, cancelled: 0, postponed: 0, completed: 0 },
+        statusCounts: { published: 3, draft: 2, scheduled: 0, cancelled: 0, postponed: 0, completed: 0 },
       })
       renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
 
@@ -351,7 +351,7 @@ describe('BusinessEventList', () => {
 
     it('displays status badges correctly', () => {
       const event = createMockEvent({
-        statusCounts: { published: 5, draft: 0, cancelled: 0, postponed: 0, completed: 0 },
+        statusCounts: { published: 5, draft: 0, scheduled: 0, cancelled: 0, postponed: 0, completed: 0 },
       })
       renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
 
