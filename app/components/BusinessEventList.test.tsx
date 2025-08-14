@@ -27,6 +27,12 @@ jest.mock('@/i18n/translate', () => ({
       'businessEvent:instanceCount': '{{count}} instances',
       'businessEvent:nextInstance': 'Next Instance',
       'businessEvent:status': 'Status',
+      'businessEvent:statusPublishedCount': '{{count}}',
+      'businessEvent:statusScheduledCount': '{{count}}',
+      'businessEvent:statusDraftCount': '{{count}}',
+      'businessEvent:statusCancelledCount': '{{count}}',
+      'businessEvent:statusPostponedCount': '{{count}}',
+      'businessEvent:statusCompletedCount': '{{count}}',
       'common:cancel': 'Cancel',
       'common:delete': 'Delete',
       'common:edit': 'Edit',
@@ -38,6 +44,9 @@ jest.mock('@/i18n/translate', () => ({
     }
     if (options && key === 'businessEvent:instanceCount') {
       return `${options.count} instances`
+    }
+    if (options && key.includes('businessEvent:status') && key.includes('Count')) {
+      return `${options.count}`
     }
     
     return translations[key] || key

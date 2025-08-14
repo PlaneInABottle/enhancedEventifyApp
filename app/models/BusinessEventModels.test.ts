@@ -246,6 +246,7 @@ describe("BusinessEventModel", () => {
       expect(event.statusCounts).toEqual({
         draft: 0,
         published: 1,
+        scheduled: 0,
         cancelled: 0,
         postponed: 0,
         completed: 1,

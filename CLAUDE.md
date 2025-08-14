@@ -121,6 +121,45 @@ export const StoreModel = types
   }))
 ```
 
+### MobX Observer List Pattern
+```typescript
+// CRITICAL: For list components rendering MobX observables, each item MUST be wrapped with Observer
+// This ensures individual items react to changes without re-rendering the entire list
+
+// ❌ Bad - No Observer wrapper, items won't react to MobX changes
+import { observer } from 'mobx-react-lite'
+
+const renderEventItem = useCallback(({ item: event }) => (
+  <Pressable onPress={() => onEventPress?.(event)}>
+    <Text text={event.title} />  {/* Won't update when event.title changes */}
+  </Pressable>
+), [])
+
+// ✅ Good - Observer wrapper ensures reactivity
+import { observer, Observer } from 'mobx-react-lite'
+
+const renderEventItem = useCallback(({ item: event }) => (
+  <Observer>
+    {() => (
+      <Pressable onPress={() => onEventPress?.(event)}>
+        <Text text={event.title} />  {/* Updates when event.title changes */}
+      </Pressable>
+    )}
+  </Observer>
+), [onEventPress])
+
+// Pattern applies to ALL list rendering:
+// - FlatList renderItem
+// - SectionList renderItem  
+// - ListView renderItem
+// - Any list component using MobX data
+
+// Why this works:
+// 1. Outer observer() HOC only tracks what the main component accesses directly
+// 2. Inner <Observer> ensures each list item has independent reactivity
+// 3. Changes to individual MobX observables trigger re-render of specific items only
+```
+
 ### Error Handling Pattern
 ```typescript
 // NEVER use hardcoded error messages - use translation keys

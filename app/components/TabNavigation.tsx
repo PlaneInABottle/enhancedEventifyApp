@@ -10,7 +10,7 @@ import { EventModal } from "@/components/EventModal"
 import { useStores } from "@/models/helpers/useStores"
 import { useAppTheme } from "@/theme/context"
 import { translate } from "@/i18n/translate"
-import { observer } from 'mobx-react-lite'
+import { observer, Observer } from 'mobx-react-lite'
 import type { ThemedStyle } from "@/theme/types"
 
 const Tab = createMaterialTopTabNavigator()
@@ -35,13 +35,17 @@ export const ListTabScreen = observer(() => {
       <FlatList
         data={mapStore.events}
         renderItem={({ item }) => (
-          <EventCard 
+          <Observer>
+            {() => (
+              <EventCard 
             event={item} 
             onPress={(event) => {
               setSelectedEvent(event)
               setModalVisible(true)
             }}
-          />
+              />
+            )}
+          </Observer>
         )}
         keyExtractor={(item) => item.instance_id}
         showsVerticalScrollIndicator={false}

@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react"
 import { ViewStyle, TextStyle, View, TouchableOpacity } from "react-native"
-import { observer } from "mobx-react-lite"
+import { observer, Observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
 import { ListView } from "@/components/ListView"
@@ -118,7 +118,9 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
   }
 
   const renderVenueItem = ({ item }: { item: IVenue }) => (
-    <View style={themed($venueCard)}>
+    <Observer>
+      {() => (
+        <View style={themed($venueCard)}>
       <View style={themed($venueContent)}>
         <Text style={themed($venueName)}>{item.name}</Text>
         <Text style={themed($venueDescription)}>{item.description}</Text>
@@ -135,8 +137,10 @@ export const VenuesScreen: FC<VenuesScreenProps> = observer(() => {
         testID={`edit-venue-${item.id}`}
       >
         <Text style={themed($editButtonText)} tx="common:edit" />
-      </TouchableOpacity>
-    </View>
+        </TouchableOpacity>
+        </View>
+      )}
+    </Observer>
   )
 
   const renderEmptyList = () => (

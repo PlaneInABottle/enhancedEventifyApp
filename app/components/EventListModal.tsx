@@ -1,5 +1,6 @@
 import { FC, useState } from "react"
 import { View, ViewStyle, TextStyle, Modal, TouchableOpacity } from "react-native"
+import { Observer } from "mobx-react-lite"
 
 import { EventCard } from "@/components/EventCard"
 import { EventModal } from "@/components/EventModal"
@@ -59,13 +60,17 @@ export const EventListModal: FC<EventListModalProps> = ({ visible, onClose, venu
           <ListView
             data={venue.events}
             renderItem={({ item }) => (
-              <EventCard 
+              <Observer>
+                {() => (
+                  <EventCard 
                 event={item}
                 onPress={(event) => {
                   setSelectedEvent(event)
                   setEventModalVisible(true)
                 }}
-              />
+                  />
+                )}
+              </Observer>
             )}
             keyExtractor={(item) => item.instance_id}
             showsVerticalScrollIndicator={false}

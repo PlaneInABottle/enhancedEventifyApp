@@ -18,6 +18,20 @@ jest.mock('@/theme/context', () => ({
     themed: (style: any) => style,
   }),
 }))
+jest.mock('mobx-react-lite', () => ({
+  observer: (component: any) => component,
+}))
+jest.mock('./Button', () => {
+  const React = require('react')
+  const { TouchableOpacity, Text } = require('react-native')
+  return {
+    Button: ({ tx, onPress, style }: any) => React.createElement(TouchableOpacity, {
+      onPress,
+      style,
+      testID: `button-${tx}`,
+    }, React.createElement(Text, {}, tx)),
+  }
+})
 // Mock ReportModal to avoid complex modal testing
 jest.mock('./ReportModal', () => {
   const React = require('react')
@@ -85,11 +99,13 @@ describe('ReportButton', () => {
     
     expect(queryByTestId('report-modal')).toBeFalsy()
     
-    await act(async () => {
-      fireEvent.press(getByText('common:report'))
-    })
+    // Press the button to open modal
+    fireEvent.press(getByText('common:report'))
     
-    expect(queryByTestId('report-modal')).toBeTruthy()
+    // Wait for modal to appear
+    await waitFor(() => {
+      expect(queryByTestId('report-modal')).toBeTruthy()
+    }, { timeout: 1000 })
   })
 
   it('submits report successfully', async () => {

@@ -66,10 +66,14 @@ jest.mock('./Screen', () => {
   }
 })
 
-// Mock observer HOC
-jest.mock('mobx-react-lite', () => ({
-  observer: (component: any) => component,
-}))
+// Mock observer HOC and Observer component
+jest.mock('mobx-react-lite', () => {
+  const React = require('react')
+  return {
+    observer: (component: any) => component,
+    Observer: ({ children }: any) => React.createElement(React.Fragment, {}, children()),
+  }
+})
 
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 

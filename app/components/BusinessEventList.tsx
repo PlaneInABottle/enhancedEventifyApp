@@ -8,7 +8,7 @@ import {
   RefreshControl,
   Alert 
 } from "react-native"
-import { observer } from "mobx-react-lite"
+import { observer, Observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
 import { EmptyState } from "@/components/EmptyState"
@@ -130,12 +130,13 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
   }, [onDeleteEvent])
 
   // Render event item
-  const renderEventItem = useCallback(({ item: event }: { item: IBusinessEvent }) => {
-    const nextInstance = event.nextInstance
-    const hasImage = !!event.imageUrl
+  const renderEventItem = useCallback(({ item: event }: { item: IBusinessEvent }) => (
+    <Observer>
+      {() => {
+        const nextInstance = event.nextInstance
 
-    return (
-      <Pressable 
+        return (
+          <Pressable 
         style={[themed($eventCard), themed($cardStyle)]}
         onPress={() => onEventPress?.(event)}
         testID="event-card"
@@ -259,9 +260,11 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
             </View>
           </View>
         </View>
-      </Pressable>
-    )
-  }, [themed, onEventPress, onEditEvent, handleDeleteEvent, showActions])
+          </Pressable>
+        )
+      }}
+    </Observer>
+  ), [onEventPress, onEditEvent, handleDeleteEvent, showActions])
 
   // Render section header
   const renderSectionHeader = useCallback(({ section }: { section: { title: TxKeyPath } }) => (
