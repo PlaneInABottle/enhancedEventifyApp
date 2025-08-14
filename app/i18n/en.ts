@@ -53,6 +53,18 @@ const en = {
     // Status options
     statusDraft: "Draft",
     statusPublished: "Published",
+    statusScheduled: "Scheduled",
+    statusCancelled: "Cancelled", 
+    statusPostponed: "Postponed",
+    statusCompleted: "Completed",
+    
+    // Status counts for badges
+    statusPublishedCount: "{{count}} Published",
+    statusScheduledCount: "{{count}} Scheduled",
+    statusDraftCount: "{{count}} Draft",
+    statusCancelledCount: "{{count}} Cancelled",
+    statusPostponedCount: "{{count}} Postponed", 
+    statusCompletedCount: "{{count}} Completed",
     
     // Actions
     createEvent: "Create Event",

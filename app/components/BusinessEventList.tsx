@@ -205,7 +205,17 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
               {event.statusCounts.published > 0 && (
                 <View style={[themed($statusBadge), themed($publishedBadge)]}>
                   <Text 
-                    text={event.statusCounts.published.toString()}
+                    tx="businessEvent:statusPublishedCount"
+                    txOptions={{ count: event.statusCounts.published }}
+                    style={themed($badgeText)}
+                  />
+                </View>
+              )}
+              {event.statusCounts.scheduled > 0 && (
+                <View style={[themed($statusBadge), themed($scheduledBadge)]}>
+                  <Text 
+                    tx="businessEvent:statusScheduledCount"
+                    txOptions={{ count: event.statusCounts.scheduled }}
                     style={themed($badgeText)}
                   />
                 </View>
@@ -213,7 +223,35 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
               {event.statusCounts.draft > 0 && (
                 <View style={[themed($statusBadge), themed($draftBadge)]}>
                   <Text 
-                    text={event.statusCounts.draft.toString()}
+                    tx="businessEvent:statusDraftCount"
+                    txOptions={{ count: event.statusCounts.draft }}
+                    style={themed($badgeText)}
+                  />
+                </View>
+              )}
+              {event.statusCounts.cancelled > 0 && (
+                <View style={[themed($statusBadge), themed($cancelledBadge)]}>
+                  <Text 
+                    tx="businessEvent:statusCancelledCount"
+                    txOptions={{ count: event.statusCounts.cancelled }}
+                    style={themed($badgeText)}
+                  />
+                </View>
+              )}
+              {event.statusCounts.postponed > 0 && (
+                <View style={[themed($statusBadge), themed($postponedBadge)]}>
+                  <Text 
+                    tx="businessEvent:statusPostponedCount"
+                    txOptions={{ count: event.statusCounts.postponed }}
+                    style={themed($badgeText)}
+                  />
+                </View>
+              )}
+              {event.statusCounts.completed > 0 && (
+                <View style={[themed($statusBadge), themed($completedBadge)]}>
+                  <Text 
+                    tx="businessEvent:statusCompletedCount"
+                    txOptions={{ count: event.statusCounts.completed }}
                     style={themed($badgeText)}
                   />
                 </View>
@@ -417,8 +455,24 @@ const $publishedBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
   backgroundColor: colors.palette.secondary200,
 })
 
+const $scheduledBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
+  backgroundColor: colors.palette.primary200,
+})
+
 const $draftBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
   backgroundColor: colors.palette.neutral300,
+})
+
+const $cancelledBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
+  backgroundColor: colors.palette.angry100,
+})
+
+const $postponedBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
+  backgroundColor: colors.palette.accent200,
+})
+
+const $completedBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
+  backgroundColor: colors.palette.secondary300,
 })
 
 const $badgeText: ThemedStyle<TextStyle> = ({ colors }) => ({

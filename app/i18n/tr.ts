@@ -53,6 +53,18 @@ const tr = {
     // Status options
     statusDraft: "Taslak",
     statusPublished: "Yayınlandı",
+    statusScheduled: "Planlandı",
+    statusCancelled: "İptal Edildi",
+    statusPostponed: "Ertelendi", 
+    statusCompleted: "Tamamlandı",
+    
+    // Status counts for badges
+    statusPublishedCount: "{{count}} Yayınlandı",
+    statusScheduledCount: "{{count}} Planlandı",
+    statusDraftCount: "{{count}} Taslak",
+    statusCancelledCount: "{{count}} İptal Edildi",
+    statusPostponedCount: "{{count}} Ertelendi",
+    statusCompletedCount: "{{count}} Tamamlandı",
     
     // Actions
     createEvent: "Etkinlik Oluştur",
