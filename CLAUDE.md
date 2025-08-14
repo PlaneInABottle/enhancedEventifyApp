@@ -410,5 +410,25 @@ expo prebuild --clean            # Clean prebuild artifacts
 - Avoid direct map instance access (`mapRef.current._map`)
 - Research universal components before platform-specific solutions
 
+## Local Sub-Agents (Project-specific)
+
+### Architecture Advisor
+- **Model**: Claude Sonnet 4
+- **When**: Architecture decisions, Supabase design, state management
+- **Focus**: React Native patterns, MobX State Tree, Supabase integration
+- **Location**: `/.claude/agents/architecture-advisor.md`
+
+### Debugger
+- **Model**: Claude Haiku 3.5 (fast)
+- **When**: Errors, unexpected behavior, performance issues
+- **Focus**: Analysis-only root cause identification and fix recommendations
+- **Location**: `/.claude/agents/debugger.md`
+
+### Testing Strategist
+- **Model**: Claude Haiku 3.5 (fast)
+- **When**: Before implementing features, test planning
+- **Focus**: Analysis-only test strategy and coverage gap identification
+- **Location**: `/.claude/agents/testing-strategist.md`
+
 ---
 *See global configuration in ~/.claude/CLAUDE.md for general guidelines*
