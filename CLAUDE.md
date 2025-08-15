@@ -242,6 +242,114 @@ jest.mock('@/theme/context')
 jest.mock('@/i18n/translate')
 ```
 
+### Test Infrastructure Security & Best Practices 🔒
+**Critical security patterns learned from infrastructure review:**
+
+#### Secure Test Mocking
+```typescript
+// ❌ SECURITY RISK - Exposed JWT structure reveals auth patterns
+access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIifQ.sig'
+
+// ✅ SECURE - Use opaque tokens in tests
+access_token: 'mock-access-token-secure-opaque-string-12345'
+```
+
+#### Centralized Mock Management
+```typescript
+// ❌ BAD - Duplicate mock implementations
+// Multiple scattered mock definitions for Supabase across files
+
+// ✅ GOOD - Centralized mock factories
+// test/helpers/supabaseMocks.ts with reusable mock functions
+import { createSupabaseClientMock, createMockUser } from '../../test/helpers/supabaseMocks'
+```
+
+#### Type-Safe Test Utilities
+```typescript
+// ❌ BAD - Type safety erosion
+rootStore?: any
+venues?: any[]
+
+// ✅ GOOD - Proper interfaces for test data
+interface TestRootStore {
+  authenticationStore: any
+  businessProfileStore: any
+  venueStore: any
+}
+venues?: TestVenue[]
+```
+
+#### Functional Test Helpers
+```typescript
+// ❌ BAD - Helper functions that ignore parameters
+setupComponentTest({ mockNavigation: true }) // Parameter ignored
+
+// ✅ GOOD - Actually implement the functionality
+if (mockNavigation) {
+  mockNav = createMockNavigation()
+}
+```
+
+**Jest Mock Variable Scope Rules:**
+- Variables referenced in `jest.mock()` must be prefixed with `mock` (case insensitive)
+- Use `const mockSupabaseClient = ...` not `const supabaseClientMock = ...`
+- This prevents "out-of-scope variable" errors
+
+#### Shared Test Utilities Pattern
+```typescript
+// ✅ PREFERRED - Use shared test utilities
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
+
+// Replace manual provider wrapping
+const renderMyComponent = (props = {}) => {
+  return renderWithProviders(
+    <NavigationContainer>
+      <MyComponent {...props} />
+    </NavigationContainer>,
+    { withStoreProvider: false }
+  )
+}
+
+// Setup with automatic Alert mocking
+setupComponentTest({ mockAlert: true })
+```
+
+**Available Test Helpers:**
+- `test/helpers/componentTestHelpers.tsx` - React component test utilities
+- `test/helpers/supabaseMocks.ts` - Centralized Supabase mock factories
+- `renderWithProviders()` - Consistent provider wrapping
+- `createTestRootStore()` - Test store creation with proper types
+- `setupComponentTest()` - Standardized test setup with Alert/navigation mocking
+
+#### Test Refactoring Strategy
+**When refactoring tests for consistency:**
+
+1. **Identify patterns first** - Find common manual wrapping patterns like ThemeProvider
+2. **Start with high-impact files** - Focus on frequently used components first  
+3. **Use batch operations carefully** - Avoid blind search/replace that creates syntax errors
+4. **Verify incrementally** - Run tests after each file to catch issues early
+5. **Maintain 100% pass rate** - Never let any tests fail during refactoring
+
+**Common Refactoring Patterns:**
+```typescript
+// Replace this pattern:
+render(
+  <ThemeProvider>
+    <NavigationContainer>
+      <Component {...props} />
+    </NavigationContainer>
+  </ThemeProvider>
+)
+
+// With this:
+renderWithProviders(
+  <NavigationContainer>
+    <Component {...props} />
+  </NavigationContainer>,
+  { withStoreProvider: false }
+)
+```
+
 ### React Native Test Patterns ✅
 **Button Component Mocking:**
 ```typescript
