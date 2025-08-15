@@ -1,10 +1,10 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react-native'
+import { screen, fireEvent } from '@testing-library/react-native'
 import { BusinessEventInstanceFormSection } from './BusinessEventInstanceFormSection'
 import type { BusinessEventInstanceFormData } from './BusinessEventInstanceFormSection'
 import { EventInstanceStatus } from '@/services/event/businessEventTypes'
-import { ThemeProvider } from '@/theme/context'
 import type { IVenue } from '@/models/VenueModels'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 
 // Mock dependencies
 jest.mock('react-native-safe-area-context', () => ({
@@ -75,12 +75,20 @@ jest.mock('./Dropdown', () => ({
   },
 }))
 
-// Helper function to render with theme
-const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider>
-      {component}
-    </ThemeProvider>
+// Helper function to render BusinessEventInstanceFormSection with shared utilities
+const renderBusinessEventInstanceFormSection = (props = {}) => {
+  const defaultProps = {
+    instance: createMockInstance(),
+    index: 0,
+    venues: mockVenues,
+    errors: {},
+    showRemoveButton: false,
+    onUpdate: jest.fn(),
+    onRemove: jest.fn(),
+  }
+  return renderWithProviders(
+    <BusinessEventInstanceFormSection {...defaultProps} {...props} />,
+    { withStoreProvider: false }
   )
 }
 
@@ -175,41 +183,32 @@ const createMockInstance = (overrides?: Partial<BusinessEventInstanceFormData>):
 }
 
 describe('BusinessEventInstanceFormSection', () => {
-  const defaultProps = {
-    instance: createMockInstance(),
-    index: 0,
-    venues: mockVenues,
-    errors: {},
-    showRemoveButton: false,
-    onUpdate: jest.fn(),
-    onRemove: jest.fn(),
-  }
-
-  beforeEach(() => {
-    jest.clearAllMocks()
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
   })
 
   describe('Rendering', () => {
     it('renders instance header with correct number', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} index={2} />)
+      renderBusinessEventInstanceFormSection({ index: 2 })
       
       expect(screen.getByText('Instance 3')).toBeOnTheScreen()
     })
 
     it('shows remove button when showRemoveButton is true', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} showRemoveButton={true} />)
+      renderBusinessEventInstanceFormSection({ showRemoveButton: true })
       
       expect(screen.getByText('Remove')).toBeOnTheScreen()
     })
 
     it('hides remove button when showRemoveButton is false', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} showRemoveButton={false} />)
+      renderBusinessEventInstanceFormSection({ showRemoveButton: false })
       
       expect(screen.queryByText('Remove')).not.toBeOnTheScreen()
     })
 
     it('renders all form fields', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       expect(screen.getByText('Venue')).toBeOnTheScreen()
       expect(screen.getByText('Start Date & Time')).toBeOnTheScreen()
@@ -227,7 +226,7 @@ describe('BusinessEventInstanceFormSection', () => {
         event_instance_status: 'draft',
       })
       
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} instance={instance} />)
+      renderBusinessEventInstanceFormSection({ instance })
       
       expect(screen.getByDisplayValue('2024-12-25T10:00:00Z')).toBeOnTheScreen()
       expect(screen.getByDisplayValue('2024-12-25T12:00:00Z')).toBeOnTheScreen()
@@ -237,7 +236,7 @@ describe('BusinessEventInstanceFormSection', () => {
     it('handles null max_attendees', () => {
       const instance = createMockInstance({ max_attendees: null })
       
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} instance={instance} />)
+      renderBusinessEventInstanceFormSection({ instance })
       
       expect(screen.getByPlaceholderText('Enter max attendees')).toBeOnTheScreen()
     })
@@ -246,7 +245,7 @@ describe('BusinessEventInstanceFormSection', () => {
   describe('Field Updates', () => {
     it('calls onUpdate when venue changes', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       fireEvent.press(screen.getByTestId('dropdown-businessEvent:venueLabel'))
       
@@ -255,7 +254,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('calls onUpdate when start datetime changes', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       const dateTimeFields = screen.getAllByPlaceholderText('YYYY-MM-DD HH:MM')
       fireEvent.changeText(dateTimeFields[0], '2024-12-25T14:00:00Z') // First field is start datetime
@@ -265,7 +264,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('calls onUpdate when end datetime changes', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       const endFields = screen.getAllByPlaceholderText('YYYY-MM-DD HH:MM')
       fireEvent.changeText(endFields[1], '2024-12-25T16:00:00Z')
@@ -275,7 +274,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('calls onUpdate when max attendees changes', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       const maxAttendeesField = screen.getByPlaceholderText('Enter max attendees')
       fireEvent.changeText(maxAttendeesField, '150')
@@ -285,7 +284,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('calls onUpdate with null when max attendees is empty', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       const maxAttendeesField = screen.getByPlaceholderText('Enter max attendees')
       fireEvent.changeText(maxAttendeesField, '')
@@ -295,7 +294,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('calls onUpdate when status changes', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       fireEvent.press(screen.getByTestId('dropdown-businessEvent:statusLabel'))
       
@@ -306,7 +305,7 @@ describe('BusinessEventInstanceFormSection', () => {
   describe('Remove Functionality', () => {
     it('calls onRemove when remove button is pressed', () => {
       const onRemove = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} showRemoveButton={true} onRemove={onRemove} />)
+      renderBusinessEventInstanceFormSection({ showRemoveButton: true, onRemove })
       
       fireEvent.press(screen.getByText('Remove'))
       
@@ -317,7 +316,7 @@ describe('BusinessEventInstanceFormSection', () => {
   describe('Error Display', () => {
     it('shows venue error', () => {
       const errors = { 'instance_0_venue_id': 'errors.venueRequired' }
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} errors={errors} />)
+      renderBusinessEventInstanceFormSection({ errors })
       
       expect(screen.getByTestId('error-businessEvent:venueLabel')).toBeOnTheScreen()
       expect(screen.getByText('Venue is required')).toBeOnTheScreen()
@@ -325,27 +324,27 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('shows start datetime error', () => {
       const errors = { 'instance_0_start_datetime': 'errors.startDateRequired' }
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} errors={errors} />)
+      renderBusinessEventInstanceFormSection({ errors })
       
       expect(screen.getByText('Start date is required')).toBeOnTheScreen()
     })
 
     it('shows end datetime error', () => {
       const errors = { 'instance_0_end_datetime': 'errors.endDateRequired' }
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} errors={errors} />)
+      renderBusinessEventInstanceFormSection({ errors })
       
       expect(screen.getByText('End date is required')).toBeOnTheScreen()
     })
 
     it('shows max attendees error', () => {
       const errors = { 'instance_0_max_attendees': 'errors.maxAttendeesTooSmall' }
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} errors={errors} />)
+      renderBusinessEventInstanceFormSection({ errors })
       
       expect(screen.getByText('Must be at least 1')).toBeOnTheScreen()
     })
 
     it('does not show errors when none exist', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       expect(screen.queryByText('Venue is required')).not.toBeOnTheScreen()
       expect(screen.queryByText('Start date is required')).not.toBeOnTheScreen()
@@ -356,7 +355,7 @@ describe('BusinessEventInstanceFormSection', () => {
         'instance_0_start_datetime': 'errors.startDateRequired',
         'instance_0_max_attendees': 'errors.maxAttendeesTooSmall'
       }
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} errors={errors} />)
+      renderBusinessEventInstanceFormSection({ errors })
       
       // Fields with errors should have error status
       // This is handled by TextField and Dropdown components internally
@@ -367,14 +366,14 @@ describe('BusinessEventInstanceFormSection', () => {
 
   describe('Venue Options', () => {
     it('formats venue options correctly', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       // The dropdown should be rendered with venue options
       expect(screen.getByTestId('dropdown-businessEvent:venueLabel')).toBeOnTheScreen()
     })
 
     it('handles empty venues list', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} venues={[]} />)
+      renderBusinessEventInstanceFormSection({ venues: [] })
       
       expect(screen.getByTestId('dropdown-businessEvent:venueLabel')).toBeOnTheScreen()
     })
@@ -382,7 +381,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
   describe('Status Options', () => {
     it('provides draft and published status options', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       // Status dropdown should be rendered
       expect(screen.getByTestId('dropdown-businessEvent:statusLabel')).toBeOnTheScreen()
@@ -391,21 +390,21 @@ describe('BusinessEventInstanceFormSection', () => {
 
   describe('Layout and Styling', () => {
     it('arranges datetime fields in a row', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       const dateTimeFields = screen.getAllByPlaceholderText('YYYY-MM-DD HH:MM')
       expect(dateTimeFields).toHaveLength(2) // Start and end datetime
     })
 
     it('arranges max attendees and status in bottom row', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       expect(screen.getByPlaceholderText('Enter max attendees')).toBeOnTheScreen()
       expect(screen.getByTestId('dropdown-businessEvent:statusLabel')).toBeOnTheScreen()
     })
 
     it('applies proper styling to instance container', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       // Container should be rendered without errors
       expect(screen.getByText('Instance 1')).toBeOnTheScreen()
@@ -414,7 +413,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
   describe('Keyboard Types', () => {
     it('sets numeric keyboard for max attendees field', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} />)
+      renderBusinessEventInstanceFormSection()
       
       const maxAttendeesField = screen.getByPlaceholderText('Enter max attendees')
       expect(maxAttendeesField.props.keyboardType).toBe('numeric')
@@ -424,13 +423,13 @@ describe('BusinessEventInstanceFormSection', () => {
   describe('Index Handling', () => {
     it('uses correct error keys based on index', () => {
       const errors = { 'instance_5_venue_id': 'errors.venueRequired' }
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} index={5} errors={errors} />)
+      renderBusinessEventInstanceFormSection({ index: 5, errors })
       
       expect(screen.getByText('Venue is required')).toBeOnTheScreen()
     })
 
     it('displays correct instance number based on index', () => {
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} index={9} />)
+      renderBusinessEventInstanceFormSection({ index: 9 })
       
       expect(screen.getByText('Instance 10')).toBeOnTheScreen() // Index + 1
     })
@@ -439,7 +438,7 @@ describe('BusinessEventInstanceFormSection', () => {
   describe('Data Type Handling', () => {
     it('handles max_attendees as number', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       const maxAttendeesField = screen.getByPlaceholderText('Enter max attendees')
       fireEvent.changeText(maxAttendeesField, '42')
@@ -449,7 +448,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('handles invalid number input for max_attendees', () => {
       const onUpdate = jest.fn()
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} onUpdate={onUpdate} />)
+      renderBusinessEventInstanceFormSection({ onUpdate })
       
       const maxAttendeesField = screen.getByPlaceholderText('Enter max attendees')
       fireEvent.changeText(maxAttendeesField, 'abc')
@@ -459,7 +458,7 @@ describe('BusinessEventInstanceFormSection', () => {
 
     it('preserves event_instance_status type', () => {
       const instance = createMockInstance({ event_instance_status: 'draft' as EventInstanceStatus })
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} instance={instance} />)
+      renderBusinessEventInstanceFormSection({ instance })
       
       expect(screen.getByTestId('dropdown-businessEvent:statusLabel')).toBeOnTheScreen()
     })
@@ -472,21 +471,21 @@ describe('BusinessEventInstanceFormSection', () => {
         name: 'Very Long Venue Name That Should Not Break The Layout And Should Be Handled Gracefully'
       }]
       
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} venues={longNameVenues} />)
+      renderBusinessEventInstanceFormSection({ venues: longNameVenues })
       
       expect(screen.getByTestId('dropdown-businessEvent:venueLabel')).toBeOnTheScreen()
     })
 
     it('handles missing venue_id in instance', () => {
       const instance = createMockInstance({ venue_id: '' })
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} instance={instance} />)
+      renderBusinessEventInstanceFormSection({ instance })
       
       expect(screen.getByText('Select venue')).toBeOnTheScreen()
     })
 
     it('handles zero max_attendees', () => {
       const instance = createMockInstance({ max_attendees: 0 })
-      renderWithTheme(<BusinessEventInstanceFormSection {...defaultProps} instance={instance} />)
+      renderBusinessEventInstanceFormSection({ instance })
       
       expect(screen.getByDisplayValue('0')).toBeOnTheScreen()
     })

@@ -1,10 +1,10 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native'
+import { screen, fireEvent, waitFor } from '@testing-library/react-native'
 import { Alert } from 'react-native'
 import { BusinessEventList } from './BusinessEventList'
-import { ThemeProvider } from '@/theme/context'
 import type { IBusinessEvent } from '@/models/BusinessEventModels'
 import { EventInstanceStatus } from '@/services/event/businessEventTypes'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 
 // Mock dependencies
 jest.mock('react-native-safe-area-context', () => ({
@@ -100,12 +100,22 @@ jest.mock('./Button', () => ({
 // Mock Alert
 jest.spyOn(Alert, 'alert')
 
-// Helper function to render with theme
-const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider>
-      {component}
-    </ThemeProvider>
+// Helper function to render BusinessEventList with shared utilities
+const renderBusinessEventList = (props = {}) => {
+  const defaultProps = {
+    events: [],
+    isLoading: false,
+    isRefreshing: false,
+    onRefresh: jest.fn(),
+    onEventPress: jest.fn(),
+    onEditEvent: jest.fn(),
+    onDeleteEvent: jest.fn(),
+    onCreateEvent: jest.fn(),
+    showActions: true,
+  }
+  return renderWithProviders(
+    <BusinessEventList {...defaultProps} {...props} />,
+    { withStoreProvider: false }
   )
 }
 
@@ -190,25 +200,14 @@ const createMockEvent = (overrides?: Partial<IBusinessEvent>): IBusinessEvent =>
 }
 
 describe('BusinessEventList', () => {
-  const defaultProps = {
-    events: [],
-    isLoading: false,
-    isRefreshing: false,
-    onRefresh: jest.fn(),
-    onEventPress: jest.fn(),
-    onEditEvent: jest.fn(),
-    onDeleteEvent: jest.fn(),
-    onCreateEvent: jest.fn(),
-    showActions: true,
-  }
-
-  beforeEach(() => {
-    jest.clearAllMocks()
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false, // We have custom Alert mocking
   })
 
   describe('Empty State', () => {
     it('shows empty state when no events', () => {
-      renderWithTheme(<BusinessEventList {...defaultProps} />)
+      renderBusinessEventList()
 
       expect(screen.getByTestId('empty-state')).toBeOnTheScreen()
       expect(screen.getByText('No Events')).toBeOnTheScreen()
@@ -218,20 +217,20 @@ describe('BusinessEventList', () => {
 
     it('handles empty state button press', () => {
       const onCreateEvent = jest.fn()
-      renderWithTheme(<BusinessEventList {...defaultProps} onCreateEvent={onCreateEvent} />)
+      renderBusinessEventList({ onCreateEvent })
 
       fireEvent.press(screen.getByTestId('empty-state-button'))
       expect(onCreateEvent).toHaveBeenCalled()
     })
 
     it('hides create button in empty state when no callback', () => {
-      renderWithTheme(<BusinessEventList {...defaultProps} onCreateEvent={undefined} />)
+      renderBusinessEventList({ onCreateEvent: undefined })
 
       expect(screen.queryByTestId('empty-state-button')).not.toBeOnTheScreen()
     })
 
     it('does not show empty state when loading', () => {
-      renderWithTheme(<BusinessEventList {...defaultProps} isLoading={true} />)
+      renderBusinessEventList({ isLoading: true })
 
       expect(screen.queryByTestId('empty-state')).not.toBeOnTheScreen()
     })
@@ -300,7 +299,7 @@ describe('BusinessEventList', () => {
         }),
       ]
 
-      renderWithTheme(<BusinessEventList {...defaultProps} events={events} />)
+      renderBusinessEventList({ events })
 
       // Check section headers
       expect(screen.getByText('Upcoming Events')).toBeOnTheScreen()
@@ -315,7 +314,7 @@ describe('BusinessEventList', () => {
 
     it('only shows sections with events', () => {
       const events = [createMockEvent({ title: 'Only Upcoming' })]
-      renderWithTheme(<BusinessEventList {...defaultProps} events={events} />)
+      renderBusinessEventList({ events })
 
       expect(screen.getByText('Upcoming Events')).toBeOnTheScreen()
       expect(screen.queryByText('Active Events')).not.toBeOnTheScreen()
@@ -330,7 +329,7 @@ describe('BusinessEventList', () => {
         description: 'This is a sample event description',
         statusCounts: { published: 3, draft: 2, scheduled: 0, cancelled: 0, postponed: 0, completed: 0 },
       })
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       expect(screen.getByText('Sample Event')).toBeOnTheScreen()
       expect(screen.getByText('This is a sample event description')).toBeOnTheScreen()
@@ -342,7 +341,7 @@ describe('BusinessEventList', () => {
 
     it('handles events without description', () => {
       const event = createMockEvent({ description: null })
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       expect(screen.getByText('Test Event')).toBeOnTheScreen()
       // Description should not be rendered
@@ -353,7 +352,7 @@ describe('BusinessEventList', () => {
         nextInstance: undefined,
         hasUpcomingInstances: false,
       })
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       expect(screen.queryByText('Next Instance')).not.toBeOnTheScreen()
     })
@@ -362,7 +361,7 @@ describe('BusinessEventList', () => {
       const event = createMockEvent({
         statusCounts: { published: 5, draft: 0, scheduled: 0, cancelled: 0, postponed: 0, completed: 0 },
       })
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       expect(screen.getByText('5')).toBeOnTheScreen()
       expect(screen.queryByText('0')).not.toBeOnTheScreen() // Don't show zero counts
@@ -372,7 +371,7 @@ describe('BusinessEventList', () => {
   describe('Actions', () => {
     it('shows action buttons when showActions is true', () => {
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} showActions={true} />)
+      renderBusinessEventList({ events: [event], showActions: true })
 
       expect(screen.getByText('Edit')).toBeOnTheScreen()
       expect(screen.getByText('Delete')).toBeOnTheScreen()
@@ -380,7 +379,7 @@ describe('BusinessEventList', () => {
 
     it('hides action buttons when showActions is false', () => {
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} showActions={false} />)
+      renderBusinessEventList({ events: [event], showActions: false })
 
       expect(screen.queryByText('Edit')).not.toBeOnTheScreen()
       expect(screen.queryByText('Delete')).not.toBeOnTheScreen()
@@ -389,7 +388,7 @@ describe('BusinessEventList', () => {
     it('handles edit button press', () => {
       const onEditEvent = jest.fn()
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} onEditEvent={onEditEvent} />)
+      renderBusinessEventList({ events: [event], onEditEvent })
 
       fireEvent.press(screen.getByText('Edit'))
       expect(onEditEvent).toHaveBeenCalledWith(event)
@@ -397,7 +396,7 @@ describe('BusinessEventList', () => {
 
     it('shows delete confirmation dialog', async () => {
       const event = createMockEvent({ title: 'Event to Delete' })
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       fireEvent.press(screen.getByText('Delete'))
 
@@ -416,7 +415,7 @@ describe('BusinessEventList', () => {
     it('handles delete confirmation', async () => {
       const onDeleteEvent = jest.fn()
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} onDeleteEvent={onDeleteEvent} />)
+      renderBusinessEventList({ events: [event], onDeleteEvent })
 
       // Mock Alert.alert to immediately call the delete callback
       ;(Alert.alert as jest.Mock).mockImplementationOnce((title, message, buttons) => {
@@ -433,7 +432,7 @@ describe('BusinessEventList', () => {
     it('handles delete cancellation', async () => {
       const onDeleteEvent = jest.fn()
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} onDeleteEvent={onDeleteEvent} />)
+      renderBusinessEventList({ events: [event], onDeleteEvent })
 
       // Mock Alert.alert to do nothing (simulating cancel)
       ;(Alert.alert as jest.Mock).mockImplementationOnce(() => {
@@ -451,14 +450,14 @@ describe('BusinessEventList', () => {
   describe('Create Event Button', () => {
     it('shows create button when callback provided', () => {
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       expect(screen.getByText('Create New Event')).toBeOnTheScreen()
     })
 
     it('hides create button when no callback', () => {
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} onCreateEvent={undefined} />)
+      renderBusinessEventList({ events: [event], onCreateEvent: undefined })
 
       expect(screen.queryByText('Create New Event')).not.toBeOnTheScreen()
     })
@@ -466,7 +465,7 @@ describe('BusinessEventList', () => {
     it('handles create button press', () => {
       const onCreateEvent = jest.fn()
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} onCreateEvent={onCreateEvent} />)
+      renderBusinessEventList({ events: [event], onCreateEvent })
 
       fireEvent.press(screen.getByText('Create New Event'))
       expect(onCreateEvent).toHaveBeenCalled()
@@ -477,7 +476,7 @@ describe('BusinessEventList', () => {
     it('handles event card press', () => {
       const onEventPress = jest.fn()
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} onEventPress={onEventPress} />)
+      renderBusinessEventList({ events: [event], onEventPress })
 
       fireEvent.press(screen.getByTestId('event-card'))
       expect(onEventPress).toHaveBeenCalledWith(event)
@@ -487,9 +486,7 @@ describe('BusinessEventList', () => {
   describe('Pull to Refresh', () => {
     it('shows refresh control when onRefresh provided', () => {
       const event = createMockEvent()
-      const { getByTestId } = renderWithTheme(
-        <BusinessEventList {...defaultProps} events={[event]} onRefresh={jest.fn()} />
-      )
+      const { getByTestId } = renderBusinessEventList({ events: [event], onRefresh: jest.fn() })
 
       // SectionList should have refreshControl prop
       const sectionList = getByTestId('event-card').parent?.parent?.parent
@@ -499,9 +496,11 @@ describe('BusinessEventList', () => {
     it('handles pull to refresh', () => {
       const onRefresh = jest.fn()
       const event = createMockEvent()
-      const { UNSAFE_getByType } = renderWithTheme(
-        <BusinessEventList {...defaultProps} events={[event]} onRefresh={onRefresh} isRefreshing={false} />
-      )
+      const { UNSAFE_getByType } = renderBusinessEventList({
+        events: [event], 
+        onRefresh, 
+        isRefreshing: false 
+      })
 
       const SectionList = require('react-native').SectionList
       const sectionList = UNSAFE_getByType(SectionList)
@@ -515,9 +514,7 @@ describe('BusinessEventList', () => {
   describe('List Performance', () => {
     it('uses SectionList for better performance', () => {
       const event = createMockEvent()
-      const { UNSAFE_getByType } = renderWithTheme(
-        <BusinessEventList {...defaultProps} events={[event]} />
-      )
+      const { UNSAFE_getByType } = renderBusinessEventList({ events: [event] })
 
       const SectionList = require('react-native').SectionList
       expect(() => UNSAFE_getByType(SectionList)).not.toThrow()
@@ -525,9 +522,7 @@ describe('BusinessEventList', () => {
 
     it('provides keyExtractor for list items', () => {
       const event = createMockEvent()
-      const { UNSAFE_getByType } = renderWithTheme(
-        <BusinessEventList {...defaultProps} events={[event]} />
-      )
+      const { UNSAFE_getByType } = renderBusinessEventList({ events: [event] })
 
       const SectionList = require('react-native').SectionList
       const sectionList = UNSAFE_getByType(SectionList)
@@ -537,9 +532,7 @@ describe('BusinessEventList', () => {
 
     it('disables sticky section headers', () => {
       const event = createMockEvent()
-      const { UNSAFE_getByType } = renderWithTheme(
-        <BusinessEventList {...defaultProps} events={[event]} />
-      )
+      const { UNSAFE_getByType } = renderBusinessEventList({ events: [event] })
 
       const SectionList = require('react-native').SectionList
       const sectionList = UNSAFE_getByType(SectionList)
@@ -550,7 +543,7 @@ describe('BusinessEventList', () => {
 
   describe('Edge Cases', () => {
     it('handles empty event arrays', () => {
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[]} />)
+      renderBusinessEventList({ events: [] })
       expect(screen.getByTestId('empty-state')).toBeOnTheScreen()
     })
 
@@ -560,7 +553,7 @@ describe('BusinessEventList', () => {
         createMockEvent({ id: '2', title: 'Event 2' }),
         createMockEvent({ id: '3', title: 'Event 3' }),
       ]
-      renderWithTheme(<BusinessEventList {...defaultProps} events={events} />)
+      renderBusinessEventList({ events })
 
       expect(screen.getByText('Event 1')).toBeOnTheScreen()
       expect(screen.getByText('Event 2')).toBeOnTheScreen()
@@ -570,7 +563,7 @@ describe('BusinessEventList', () => {
 
     it('formats dates correctly', () => {
       const event = createMockEvent()
-      renderWithTheme(<BusinessEventList {...defaultProps} events={[event]} />)
+      renderBusinessEventList({ events: [event] })
 
       // Should display date in locale format
       const dateElement = screen.getByText(/\d{1,2}\/\d{1,2}\/\d{4}/)

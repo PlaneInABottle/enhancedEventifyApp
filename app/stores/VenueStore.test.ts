@@ -1,4 +1,5 @@
 import * as venueService from "@/services/venue/venueService"
+import { createServiceSuccessResponse, createFailureResponse } from "../../test/helpers/supabaseMocks"
 
 import { VenueStore } from "./VenueStore"
 
@@ -14,6 +15,46 @@ const mockVenueService = venueService as jest.Mocked<typeof venueService>
 
 describe("VenueStore", () => {
   let store: any
+
+  // Mock factories for consistent test data
+  const createMockAddress = (overrides = {}) => ({
+    id: "address-1",
+    full_address: "Test Address",
+    city: "İstanbul" as const,
+    country: "Turkey",
+    postal_code: "34000",
+    coordinates: null,
+    created_at: "2025-01-01T00:00:00Z",
+    updated_at: "2025-01-01T00:00:00Z",
+    ...overrides,
+  })
+
+  const createMockVenue = (overrides = {}) => ({
+    id: "venue-1",
+    business_id: "business-1",
+    address_id: "address-1",
+    name: "Test Venue",
+    description: "A test venue",
+    capacity: 100,
+    is_active: true,
+    created_at: "2025-01-01T00:00:00Z",
+    updated_at: "2025-01-01T00:00:00Z",
+    address: createMockAddress(),
+    ...overrides,
+  })
+
+  const createMockVenueData = (overrides = {}) => ({
+    name: "New Venue",
+    description: "A new venue",
+    capacity: 150,
+    address: {
+      full_address: "New Address",
+      city: "Ankara" as const,
+      country: "Turkey",
+      postal_code: "06000",
+    },
+    ...overrides,
+  })
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -38,51 +79,33 @@ describe("VenueStore", () => {
 
   describe("Computed Views", () => {
     const mockVenues = [
-      {
+      createMockVenue({
         id: "venue-1",
-        business_id: "business-1",
-        address_id: "address-1",
         name: "Active Venue 1",
         description: "First active venue",
         capacity: 100,
-        is_active: true,
-        created_at: "2025-01-01T00:00:00Z",
-        updated_at: "2025-01-01T00:00:00Z",
-        address: {
+        address: createMockAddress({
           id: "address-1",
           full_address: "Test Address 1",
-          city: "İstanbul" as const,
-          country: "Turkey",
-          postal_code: "34000",
-          coordinates: null,
-          created_at: "2025-01-01T00:00:00Z",
-          updated_at: "2025-01-01T00:00:00Z",
-        },
-      },
-      {
+        }),
+      }),
+      createMockVenue({
         id: "venue-2",
-        business_id: "business-1",
         address_id: "address-2",
         name: "Inactive Venue",
         description: "Inactive venue",
         capacity: 50,
         is_active: false,
-        created_at: "2025-01-01T00:00:00Z",
-        updated_at: "2025-01-01T00:00:00Z",
         address: null,
-      },
-      {
+      }),
+      createMockVenue({
         id: "venue-3",
-        business_id: "business-1",
         address_id: "address-3",
         name: "Active Venue 2",
         description: "Second active venue",
         capacity: 200,
-        is_active: true,
-        created_at: "2025-01-01T00:00:00Z",
-        updated_at: "2025-01-01T00:00:00Z",
         address: null,
-      },
+      }),
     ]
 
     beforeEach(() => {
@@ -115,18 +138,7 @@ describe("VenueStore", () => {
   })
 
   describe("Utility Actions", () => {
-    const sampleVenue = {
-      id: "venue-1",
-      business_id: "business-1",
-      address_id: "address-1",
-      name: "Test Venue",
-      description: "A test venue",
-      capacity: 100,
-      is_active: true,
-      created_at: "2025-01-01T00:00:00Z",
-      updated_at: "2025-01-01T00:00:00Z",
-      address: null,
-    }
+    const sampleVenue = createMockVenue({ address: null })
 
     it("should clear error state", () => {
       store.setProp("lastError", "Test error")
@@ -187,35 +199,14 @@ describe("VenueStore", () => {
   })
 
   describe("Async Flow Actions", () => {
-    const sampleVenue = {
-      id: "venue-1",
-      business_id: "business-1",
-      address_id: "address-1",
-      name: "Test Venue",
-      description: "A test venue",
-      capacity: 100,
-      is_active: true,
-      created_at: "2025-01-01T00:00:00Z",
-      updated_at: "2025-01-01T00:00:00Z",
-      address: {
-        id: "address-1",
-        full_address: "Test Address",
-        city: "İstanbul" as const,
-        country: "Turkey",
-        postal_code: "34000",
-        coordinates: null,
-        created_at: "2025-01-01T00:00:00Z",
-        updated_at: "2025-01-01T00:00:00Z",
-      },
-    }
+    const sampleVenue = createMockVenue()
 
     describe("fetchVenuesByBusiness", () => {
       it("should fetch venues successfully", async () => {
         const mockVenues = [sampleVenue]
-        mockVenueService.getVenuesByBusiness.mockResolvedValue({
-          success: true,
-          venues: mockVenues,
-        })
+        mockVenueService.getVenuesByBusiness.mockResolvedValue(
+          createServiceSuccessResponse({ venues: mockVenues })
+        )
 
         await store.fetchVenuesByBusiness("business-1")
 
@@ -226,10 +217,9 @@ describe("VenueStore", () => {
       })
 
       it("should handle fetch error", async () => {
-        mockVenueService.getVenuesByBusiness.mockResolvedValue({
-          success: false,
-          error: "errors:fetchVenuesFailed",
-        })
+        mockVenueService.getVenuesByBusiness.mockResolvedValue(
+          createFailureResponse("errors:fetchVenuesFailed")
+        )
 
         await store.fetchVenuesByBusiness("business-1")
 
@@ -249,28 +239,16 @@ describe("VenueStore", () => {
     })
 
     describe("createVenue", () => {
-      const venueData = {
-        name: "New Venue",
-        description: "A new venue",
-        capacity: 150,
-        address: {
-          full_address: "New Address",
-          city: "Ankara" as const,
-          country: "Turkey",
-          postal_code: "06000",
-        },
-      }
+      const venueData = createMockVenueData()
 
       it("should create venue successfully", async () => {
         // Mock both createVenue and getVenuesByBusiness since createVenue calls fetchVenuesByBusiness internally
-        mockVenueService.createVenue.mockResolvedValue({
-          success: true,
-          venue: sampleVenue,
-        })
-        mockVenueService.getVenuesByBusiness.mockResolvedValue({
-          success: true,
-          venues: [sampleVenue], // Return the created venue in the list
-        })
+        mockVenueService.createVenue.mockResolvedValue(
+          createServiceSuccessResponse({ venue: sampleVenue })
+        )
+        mockVenueService.getVenuesByBusiness.mockResolvedValue(
+          createServiceSuccessResponse({ venues: [sampleVenue] }) // Return the created venue in the list
+        )
 
         const result = await store.createVenue("business-1", venueData)
 
@@ -284,10 +262,9 @@ describe("VenueStore", () => {
       })
 
       it("should handle create error", async () => {
-        mockVenueService.createVenue.mockResolvedValue({
-          success: false,
-          error: "errors:createVenueFailed",
-        })
+        mockVenueService.createVenue.mockResolvedValue(
+          createFailureResponse("errors:createVenueFailed")
+        )
 
         const result = await store.createVenue("business-1", venueData)
 
@@ -320,10 +297,9 @@ describe("VenueStore", () => {
 
       it("should update venue successfully", async () => {
         const updatedVenue = { ...sampleVenue, ...updateData }
-        mockVenueService.updateVenue.mockResolvedValue({
-          success: true,
-          venue: updatedVenue,
-        })
+        mockVenueService.updateVenue.mockResolvedValue(
+          createServiceSuccessResponse({ venue: updatedVenue })
+        )
 
         const result = await store.updateVenue("venue-1", updateData)
 
@@ -336,10 +312,9 @@ describe("VenueStore", () => {
       })
 
       it("should handle update error", async () => {
-        mockVenueService.updateVenue.mockResolvedValue({
-          success: false,
-          error: "errors:updateVenueFailed",
-        })
+        mockVenueService.updateVenue.mockResolvedValue(
+          createFailureResponse("errors:updateVenueFailed")
+        )
 
         const result = await store.updateVenue("venue-1", updateData)
 
@@ -368,10 +343,9 @@ describe("VenueStore", () => {
       it("should delete venue successfully", async () => {
         // Mock deleteVenue to return the venue with is_active: false (soft delete)
         const deletedVenue = { ...sampleVenue, is_active: false }
-        mockVenueService.deleteVenue.mockResolvedValue({
-          success: true,
-          venue: deletedVenue, // Return the venue with is_active: false
-        })
+        mockVenueService.deleteVenue.mockResolvedValue(
+          createServiceSuccessResponse({ venue: deletedVenue }) // Return the venue with is_active: false
+        )
 
         const result = await store.deleteVenue("venue-1")
 
@@ -385,10 +359,9 @@ describe("VenueStore", () => {
       })
 
       it("should handle delete error", async () => {
-        mockVenueService.deleteVenue.mockResolvedValue({
-          success: false,
-          error: "errors:deleteVenueFailed",
-        })
+        mockVenueService.deleteVenue.mockResolvedValue(
+          createFailureResponse("errors:deleteVenueFailed")
+        )
 
         const result = await store.deleteVenue("venue-1")
 

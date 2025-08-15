@@ -1,15 +1,8 @@
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
-
+import { fireEvent } from '@testing-library/react-native'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 import { VenuePinContent } from './VenuePinContent'
 import type { VenueWithEvents } from '@/stores/MapStore'
-
-// Mock dependencies
-jest.mock('@/theme/context', () => ({
-  useAppTheme: () => ({
-    themed: (style: any) => style,
-  }),
-}))
 
 // Mock Text component
 jest.mock('./Text', () => {
@@ -21,7 +14,7 @@ jest.mock('./Text', () => {
   }
 })
 
-// Create mock venue data
+// Mock venue factory for consistent test data
 const createMockVenue = (eventCount: number = 1): VenueWithEvents => ({
   venue_id: 'venue-123',
   venue_name: 'Test Venue',
@@ -43,11 +36,20 @@ const createMockVenue = (eventCount: number = 1): VenueWithEvents => ({
 })
 
 describe('VenuePinContent', () => {
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
+  const renderVenuePinContent = (venue: VenueWithEvents, onPress?: () => void) => {
+    return renderWithProviders(
+      <VenuePinContent venue={venue} onPress={onPress} />,
+      { withStoreProvider: false }
+    )
+  }
   it('renders correctly for single event venue', () => {
     const mockVenue = createMockVenue(1)
-    const { getByText } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { getByText } = renderVenuePinContent(mockVenue, jest.fn())
     
     // Should display "1" for single event
     expect(getByText('1')).toBeTruthy()
@@ -55,9 +57,7 @@ describe('VenuePinContent', () => {
 
   it('renders correctly for multiple event venue', () => {
     const mockVenue = createMockVenue(3)
-    const { getByText } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { getByText } = renderVenuePinContent(mockVenue, jest.fn())
     
     // Should display "3" for three events
     expect(getByText('3')).toBeTruthy()
@@ -65,9 +65,7 @@ describe('VenuePinContent', () => {
 
   it('displays correct event count', () => {
     const mockVenue = createMockVenue(5)
-    const { getByText } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { getByText } = renderVenuePinContent(mockVenue, jest.fn())
     
     expect(getByText('5')).toBeTruthy()
   })
@@ -76,9 +74,7 @@ describe('VenuePinContent', () => {
     const mockOnPress = jest.fn()
     const mockVenue = createMockVenue(1)
     
-    const { root } = render(
-      <VenuePinContent venue={mockVenue} onPress={mockOnPress} />
-    )
+    const { root } = renderVenuePinContent(mockVenue, mockOnPress)
     
     // Find the touchable element (first child should be TouchableOpacity)
     const touchable = root.children[0]
@@ -91,9 +87,7 @@ describe('VenuePinContent', () => {
   it('does not crash when onPress is not provided', () => {
     const mockVenue = createMockVenue(1)
     
-    const { root } = render(
-      <VenuePinContent venue={mockVenue} />
-    )
+    const { root } = renderVenuePinContent(mockVenue)
     
     const touchable = root.children[0]
     
@@ -103,9 +97,7 @@ describe('VenuePinContent', () => {
 
   it('displays text with correct size', () => {
     const mockVenue = createMockVenue(2)
-    const { getByTestId } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { getByTestId } = renderVenuePinContent(mockVenue, jest.fn())
     
     // Check that our mocked Text component received the correct size prop
     expect(getByTestId('text-size-xs')).toBeTruthy()
@@ -113,18 +105,14 @@ describe('VenuePinContent', () => {
 
   it('renders correctly for large event counts', () => {
     const mockVenue = createMockVenue(99)
-    const { getByText } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { getByText } = renderVenuePinContent(mockVenue, jest.fn())
     
     expect(getByText('99')).toBeTruthy()
   })
 
   it('renders text with styled properties', () => {
     const mockVenue = createMockVenue(1)
-    const { root } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { root } = renderVenuePinContent(mockVenue, jest.fn())
     
     // Find our mocked Text component
     const texts = root.findAllByType('Text')
@@ -137,18 +125,14 @@ describe('VenuePinContent', () => {
 
   it('handles venues with zero events', () => {
     const mockVenue = createMockVenue(0)
-    const { getByText } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { getByText } = renderVenuePinContent(mockVenue, jest.fn())
     
     expect(getByText('0')).toBeTruthy()
   })
 
   it('component structure is valid', () => {
     const mockVenue = createMockVenue(1)
-    const { root } = render(
-      <VenuePinContent venue={mockVenue} onPress={jest.fn()} />
-    )
+    const { root } = renderVenuePinContent(mockVenue, jest.fn())
     
     // Component should render with children
     expect(root).toBeTruthy()

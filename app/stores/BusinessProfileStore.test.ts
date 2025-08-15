@@ -5,6 +5,11 @@ import {
 } from "@/services/businessProfile/businessProfileService"
 
 import { BusinessProfileStore } from "./BusinessProfileStore"
+import { 
+  createServiceSuccessResponse, 
+  createFailureResponse,
+  setupServiceMocks 
+} from "../../test/helpers/supabaseMocks"
 
 // Mock the service
 jest.mock("@/services/businessProfile/businessProfileService", () => ({
@@ -15,9 +20,11 @@ jest.mock("@/services/businessProfile/businessProfileService", () => ({
 
 describe("BusinessProfileStore", () => {
   let store: typeof BusinessProfileStore.Type
+  const { mockGetBusinessProfile, mockUpdateBusinessProfile, mockUploadLogo } = setupServiceMocks()
 
   beforeEach(() => {
     store = BusinessProfileStore.create()
+    jest.clearAllMocks()
   })
 
   describe("initial state", () => {
@@ -42,10 +49,6 @@ describe("BusinessProfileStore", () => {
   })
 
   describe("fetchProfile action", () => {
-    beforeEach(() => {
-      jest.clearAllMocks()
-    })
-
     it("should fetch business profile successfully", async () => {
       const mockProfile = {
         id: "test-id",
@@ -60,10 +63,7 @@ describe("BusinessProfileStore", () => {
         updated_at: "2025-01-01T00:00:00Z",
       }
 
-      ;(getBusinessProfile as jest.Mock).mockResolvedValue({
-        success: true,
-        profile: mockProfile,
-      })
+      mockGetBusinessProfile.mockResolvedValue(createServiceSuccessResponse({ profile: mockProfile }))
 
       await store.fetchProfile("test-id")
 
@@ -75,10 +75,7 @@ describe("BusinessProfileStore", () => {
     })
 
     it("should handle service error during fetch", async () => {
-      ;(getBusinessProfile as jest.Mock).mockResolvedValue({
-        success: false,
-        error: "Profile not found",
-      })
+      mockGetBusinessProfile.mockResolvedValue(createFailureResponse("Profile not found"))
 
       await store.fetchProfile("invalid-id")
 
@@ -89,7 +86,7 @@ describe("BusinessProfileStore", () => {
     })
 
     it("should handle unexpected error during fetch", async () => {
-      ;(getBusinessProfile as jest.Mock).mockRejectedValue(new Error("Network error"))
+      mockGetBusinessProfile.mockRejectedValue(new Error("Network error"))
 
       await store.fetchProfile("test-id")
 
@@ -114,10 +111,7 @@ describe("BusinessProfileStore", () => {
         updated_at: "2025-01-02T00:00:00Z",
       }
 
-      ;(updateBusinessProfile as jest.Mock).mockResolvedValue({
-        success: true,
-        profile: updatedProfile,
-      })
+      mockUpdateBusinessProfile.mockResolvedValue(createServiceSuccessResponse({ profile: updatedProfile }))
 
       await store.updateProfile("test-id", { business_name: "Updated Business" })
 
@@ -128,10 +122,7 @@ describe("BusinessProfileStore", () => {
     })
 
     it("should handle service error during update", async () => {
-      ;(updateBusinessProfile as jest.Mock).mockResolvedValue({
-        success: false,
-        error: "Update permission denied",
-      })
+      mockUpdateBusinessProfile.mockResolvedValue(createFailureResponse("Update permission denied"))
 
       await store.updateProfile("test-id", { business_name: "New Name" })
 
@@ -156,10 +147,7 @@ describe("BusinessProfileStore", () => {
         updated_at: "2025-01-01T00:00:00Z",
       }
       store.setProp("profile", initialProfile)
-      ;(uploadLogo as jest.Mock).mockResolvedValue({
-        success: true,
-        logoUrl: "https://example.com/new-logo.png",
-      })
+      mockUploadLogo.mockResolvedValue(createServiceSuccessResponse({ logoUrl: "https://example.com/new-logo.png" }))
 
       const mockBuffer = new ArrayBuffer(1024)
       await store.uploadLogo("test-id", mockBuffer, "image/png")
@@ -170,10 +158,7 @@ describe("BusinessProfileStore", () => {
     })
 
     it("should handle service error during upload", async () => {
-      ;(uploadLogo as jest.Mock).mockResolvedValue({
-        success: false,
-        error: "Upload failed",
-      })
+      mockUploadLogo.mockResolvedValue(createFailureResponse("Upload failed"))
 
       const mockBuffer = new ArrayBuffer(1024)
       await store.uploadLogo("test-id", mockBuffer, "image/png")
@@ -185,10 +170,7 @@ describe("BusinessProfileStore", () => {
     it("should handle upload when no profile exists", async () => {
       // Ensure no profile is set
       store.setProp("profile", null)
-      ;(uploadLogo as jest.Mock).mockResolvedValue({
-        success: true,
-        logoUrl: "https://example.com/logo.png",
-      })
+      mockUploadLogo.mockResolvedValue(createServiceSuccessResponse({ logoUrl: "https://example.com/logo.png" }))
 
       const mockBuffer = new ArrayBuffer(1024)
       await store.uploadLogo("test-id", mockBuffer, "image/png")

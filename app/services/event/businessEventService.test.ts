@@ -2,6 +2,7 @@
  * BusinessEvent Service Test Suite
  * 
  * Tests service functions for business event management
+ * Refactored to use shared Supabase mocking utilities
  */
 
 import {
@@ -16,8 +17,15 @@ import {
   deleteEventInstance,
 } from './businessEventService'
 
-// Get the already mocked supabase from the global setup
 import { supabase } from '@/clients/supabase/SupabaseClient'
+import { 
+  createSupabaseMockChain, 
+  createSuccessResponse, 
+  createErrorResponse,
+  COMMON_ERRORS,
+  setupMockChainResponse,
+  MOCK_CHAINS
+} from '../../../test/helpers/supabaseMocks'
 
 // Mock the media service
 jest.mock('@/services/media/mediaService', () => ({
@@ -33,7 +41,7 @@ jest.mock('@/services/media/mediaService', () => ({
 const mockMediaService = require('@/services/media/mediaService')
 
 describe('createEvent', () => {
-  let mockSupabase: any
+  let mockSupabase: ReturnType<typeof createSupabaseMockChain>
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -41,19 +49,8 @@ describe('createEvent', () => {
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2025-01-01T12:00:00.000Z'))
     
-    // Set up the mock chain
-    mockSupabase = {
-      from: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-      order: jest.fn().mockReturnThis(),
-    }
-
-    // Override the supabase.from method to return our chained mock
+    // Set up the mock chain using shared utilities
+    mockSupabase = createSupabaseMockChain()
     ;(supabase.from as jest.Mock).mockReturnValue(mockSupabase)
   })
 
@@ -94,16 +91,10 @@ describe('createEvent', () => {
     }
 
     // Mock event creation - first single() call
-    mockSupabase.single.mockResolvedValueOnce({
-      data: mockCreatedEvent,
-      error: null,
-    })
+    mockSupabase.single.mockResolvedValueOnce(createSuccessResponse(mockCreatedEvent))
 
     // Mock instance creation - second single() call
-    mockSupabase.single.mockResolvedValueOnce({
-      data: mockCreatedInstance,
-      error: null,
-    })
+    mockSupabase.single.mockResolvedValueOnce(createSuccessResponse(mockCreatedInstance))
 
     const result = await createEvent('business-1', eventData)
 
@@ -135,10 +126,7 @@ describe('createEvent', () => {
       ]
     }
 
-    mockSupabase.single.mockResolvedValueOnce({
-      data: null,
-      error: { message: 'Database error' },
-    })
+    mockSupabase.single.mockResolvedValueOnce(COMMON_ERRORS.DATABASE_ERROR)
 
     const result = await createEvent('business-1', eventData)
 
@@ -170,22 +158,13 @@ describe('createEvent', () => {
 })
 
 describe('getEvent', () => {
-  let mockSupabase: any
+  let mockSupabase: ReturnType<typeof createSupabaseMockChain>
 
   beforeEach(() => {
     jest.clearAllMocks()
     
-    mockSupabase = {
-      from: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-      order: jest.fn().mockReturnThis(),
-    }
-
+    // Set up the mock chain using shared utilities
+    mockSupabase = createSupabaseMockChain()
     ;(supabase.from as jest.Mock).mockReturnValue(mockSupabase)
   })
 
@@ -221,10 +200,7 @@ describe('getEvent', () => {
       ]
     }
 
-    mockSupabase.single.mockResolvedValueOnce({
-      data: mockEvent,
-      error: null,
-    })
+    mockSupabase.single.mockResolvedValueOnce(createSuccessResponse(mockEvent))
 
     mockMediaService.getMediaForEntity.mockResolvedValue([])
 
@@ -247,10 +223,7 @@ describe('getEvent', () => {
   })
 
   test('handles event not found', async () => {
-    mockSupabase.single.mockResolvedValueOnce({
-      data: null,
-      error: { code: 'PGRST116', status: 404 },
-    })
+    mockSupabase.single.mockResolvedValueOnce(COMMON_ERRORS.NOT_FOUND)
 
     const result = await getEvent('nonexistent-event')
 
@@ -259,10 +232,7 @@ describe('getEvent', () => {
   })
 
   test('handles database error', async () => {
-    mockSupabase.single.mockResolvedValueOnce({
-      data: null,
-      error: { message: 'Database error' },
-    })
+    mockSupabase.single.mockResolvedValueOnce(COMMON_ERRORS.DATABASE_ERROR)
 
     const result = await getEvent('event-1')
 
@@ -272,22 +242,13 @@ describe('getEvent', () => {
 })
 
 describe('updateEvent', () => {
-  let mockSupabase: any
+  let mockSupabase: ReturnType<typeof createSupabaseMockChain>
 
   beforeEach(() => {
     jest.clearAllMocks()
     
-    mockSupabase = {
-      from: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-      order: jest.fn().mockReturnThis(),
-    }
-
+    // Set up the mock chain using shared utilities
+    mockSupabase = createSupabaseMockChain()
     ;(supabase.from as jest.Mock).mockReturnValue(mockSupabase)
   })
 
@@ -306,10 +267,7 @@ describe('updateEvent', () => {
       updated_at: '2024-01-15T09:00:00.000Z',
     }
 
-    mockSupabase.single.mockResolvedValueOnce({
-      data: mockUpdatedEvent,
-      error: null,
-    })
+    mockSupabase.single.mockResolvedValueOnce(createSuccessResponse(mockUpdatedEvent))
 
     const result = await updateEvent('event-1', updateData)
 

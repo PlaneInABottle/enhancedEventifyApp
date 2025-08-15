@@ -1,8 +1,7 @@
 import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
-import { render, screen, fireEvent } from "@testing-library/react-native"
-
-import { ThemeProvider } from "@/theme/context"
+import { screen, fireEvent } from "@testing-library/react-native"
+import { renderWithProviders, setupComponentTest } from '../../../test/helpers/componentTestHelpers'
 
 import { ProfileAvatarSection } from "./ProfileAvatarSection"
 
@@ -25,31 +24,35 @@ jest.mock("react-native-safe-area-context", () => ({
 }))
 
 describe("ProfileAvatarSection", () => {
-  const renderComponent = (props = {}) => {
-    return render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <ProfileAvatarSection {...props} />
-        </NavigationContainer>
-      </ThemeProvider>,
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
+  const renderProfileAvatarSection = (props = {}) => {
+    return renderWithProviders(
+      <NavigationContainer>
+        <ProfileAvatarSection {...props} />
+      </NavigationContainer>,
+      { withStoreProvider: false }
     )
   }
 
   it("should render correctly with display name", () => {
-    renderComponent({ displayName: "John Doe" })
+    renderProfileAvatarSection({ displayName: "John Doe" })
 
     expect(screen.getByText("John Doe")).toBeOnTheScreen()
     expect(screen.getByText("JD")).toBeOnTheScreen()
   })
 
   it('should render "common:notSet" when no display name provided', () => {
-    renderComponent({ displayName: null })
+    renderProfileAvatarSection({ displayName: null })
 
     expect(screen.getByText("common:notSet")).toBeOnTheScreen()
   })
 
   it("should show uploading indicator when isUploading is true", () => {
-    renderComponent({
+    renderProfileAvatarSection({
       displayName: "John Doe",
       isUploading: true,
     })
@@ -59,7 +62,7 @@ describe("ProfileAvatarSection", () => {
 
   it("should call onAvatarPress when avatar is pressed", () => {
     const mockOnAvatarPress = jest.fn()
-    renderComponent({
+    renderProfileAvatarSection({
       displayName: "John Doe",
       onAvatarPress: mockOnAvatarPress,
     })

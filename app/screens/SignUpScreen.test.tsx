@@ -1,9 +1,9 @@
 import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
-import { render, screen, fireEvent, waitFor } from "@testing-library/react-native"
+import { screen, fireEvent, waitFor } from "@testing-library/react-native"
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 
 import { useStores } from "@/models"
-import { ThemeProvider } from "@/theme/context"
 
 import { SignUpScreen } from "./SignUpScreen"
 
@@ -32,9 +32,23 @@ jest.mock("react-native-safe-area-context", () => ({
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 
 describe("SignUpScreen", () => {
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
   const defaultProps = {
     navigation: { navigate: jest.fn() } as any,
     route: { key: "SignUp", name: "SignUp" as const },
+  }
+
+  const renderSignUpScreen = (props = {}) => {
+    return renderWithProviders(
+      <NavigationContainer>
+        <SignUpScreen {...defaultProps} {...props} />
+      </NavigationContainer>,
+      { withStoreProvider: false }
+    )
   }
 
   beforeEach(() => {
@@ -49,13 +63,7 @@ describe("SignUpScreen", () => {
   })
 
   it("should render sign up form elements", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...defaultProps} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen()
 
     expect(screen.getByTestId("signup-heading")).toBeTruthy()
     expect(screen.getByText("signUpScreen:signUp")).toBeTruthy()
@@ -63,13 +71,7 @@ describe("SignUpScreen", () => {
   })
 
   it("should display all form fields", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...defaultProps} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen()
 
     expect(screen.getByText("signUpScreen:emailFieldLabel")).toBeTruthy()
     expect(screen.getByPlaceholderText("signUpScreen:emailFieldPlaceholder")).toBeTruthy()
@@ -81,13 +83,7 @@ describe("SignUpScreen", () => {
   })
 
   it("should handle form input changes", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...defaultProps} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen()
 
     const emailInput = screen.getByPlaceholderText("signUpScreen:emailFieldPlaceholder")
     const passwordInput = screen.getByPlaceholderText("signUpScreen:passwordFieldPlaceholder")
@@ -110,13 +106,7 @@ describe("SignUpScreen", () => {
       requiresEmailVerification: false,
     })
 
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...defaultProps} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen()
 
     const emailInput = screen.getByPlaceholderText("signUpScreen:emailFieldPlaceholder")
     const passwordInput = screen.getByPlaceholderText("signUpScreen:passwordFieldPlaceholder")
@@ -147,13 +137,7 @@ describe("SignUpScreen", () => {
       requiresEmailVerification: false,
     })
 
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...defaultProps} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen()
 
     const emailInput = screen.getByPlaceholderText("signUpScreen:emailFieldPlaceholder")
     const passwordInput = screen.getByPlaceholderText("signUpScreen:passwordFieldPlaceholder")
@@ -184,13 +168,7 @@ describe("SignUpScreen", () => {
     mockAuthenticationStore.lastError = "errors:emailAlreadyInUse"
     mockAuthenticationStore.isLoading = true
 
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...defaultProps} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen()
 
     // Check error display
     expect(screen.getByText("errors:emailAlreadyInUse")).toBeTruthy()
@@ -207,17 +185,10 @@ describe("SignUpScreen", () => {
   it("should navigate to login screen when login link is pressed", () => {
     const mockNavigate = jest.fn()
     const propsWithMockNav = {
-      ...defaultProps,
       navigation: { navigate: mockNavigate } as any,
     }
 
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <SignUpScreen {...propsWithMockNav} />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderSignUpScreen(propsWithMockNav)
 
     const loginLink = screen.getByTestId("login-link")
     expect(loginLink).toBeTruthy()

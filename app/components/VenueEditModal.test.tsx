@@ -1,10 +1,8 @@
 import React from "react"
-import { render, screen, fireEvent } from "@testing-library/react-native"
-
+import { screen, fireEvent } from "@testing-library/react-native"
 import type { IVenue } from "@/models/VenueModels"
-import { ThemeProvider } from "@/theme/context"
-
 import { VenueEditModal } from "./VenueEditModal"
+import { renderWithProviders, setupComponentTest, createMockTranslations } from '../../test/helpers/componentTestHelpers'
 
 // Mock SafeAreaProvider
 jest.mock("react-native-safe-area-context", () => ({
@@ -59,7 +57,7 @@ jest.mock("@/i18n/translate", () => ({
   },
 }))
 
-// Helper function to render VenueEditModal with theme
+// Helper function to render VenueEditModal with shared utilities
 const renderVenueEditModal = (props: Partial<React.ComponentProps<typeof VenueEditModal>> = {}) => {
   const defaultProps = {
     visible: true,
@@ -67,10 +65,9 @@ const renderVenueEditModal = (props: Partial<React.ComponentProps<typeof VenueEd
     onSave: jest.fn(),
     venue: null,
   }
-  return render(
-    <ThemeProvider>
-      <VenueEditModal {...defaultProps} {...props} />
-    </ThemeProvider>,
+  return renderWithProviders(
+    <VenueEditModal {...defaultProps} {...props} />,
+    { withStoreProvider: false }
   )
 }
 

@@ -1,8 +1,7 @@
 import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
-import { render, screen, fireEvent } from "@testing-library/react-native"
-
-import { ThemeProvider } from "@/theme/context"
+import { screen, fireEvent } from "@testing-library/react-native"
+import { renderWithProviders, setupComponentTest } from '../../../test/helpers/componentTestHelpers'
 
 import { ProfileInfoCard, ProfileField } from "./ProfileInfoCard"
 
@@ -13,31 +12,35 @@ jest.mock("react-native-safe-area-context", () => ({
 }))
 
 describe("ProfileInfoCard", () => {
-  const renderComponent = (props = {}) => {
-    return render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <ProfileInfoCard {...props} />
-        </NavigationContainer>
-      </ThemeProvider>,
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
+  const renderProfileInfoCard = (props = {}) => {
+    return renderWithProviders(
+      <NavigationContainer>
+        <ProfileInfoCard {...props} />
+      </NavigationContainer>,
+      { withStoreProvider: false }
     )
   }
 
   it("should render with title", () => {
-    renderComponent({ title: "Profile Information" })
+    renderProfileInfoCard({ title: "Profile Information" })
 
     expect(screen.getByText("Profile Information")).toBeOnTheScreen()
   })
 
   it("should render with title translation key", () => {
-    renderComponent({ titleTx: "profile:profileInformation" })
+    renderProfileInfoCard({ titleTx: "profile:profileInformation" })
 
     expect(screen.getByText("profile:profileInformation")).toBeOnTheScreen()
   })
 
   it("should render view content when not editing", () => {
     const viewContent = <ProfileField label="Name" value="John Doe" />
-    renderComponent({
+    renderProfileInfoCard({
       title: "Info",
       viewContent,
       isEditing: false,
@@ -51,7 +54,7 @@ describe("ProfileInfoCard", () => {
     const editContent = <ProfileField label="Edit Name" value="Edit John Doe" />
     const viewContent = <ProfileField label="Name" value="John Doe" />
 
-    renderComponent({
+    renderProfileInfoCard({
       title: "Info",
       viewContent,
       editContent,
@@ -64,7 +67,7 @@ describe("ProfileInfoCard", () => {
 
   it("should call onPress when pressable and pressed", () => {
     const mockOnPress = jest.fn()
-    renderComponent({
+    renderProfileInfoCard({
       title: "Info",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       pressable: true,
@@ -76,7 +79,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should render caret icon when pressable and not editing", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Info",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       pressable: true,
@@ -88,7 +91,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should render header icon when provided", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Profile Information",
       headerIcon: "view",
       viewContent: <ProfileField label="Name" value="John Doe" />,
@@ -98,7 +101,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should not render caret icon when editing", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Info",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       pressable: true,
@@ -109,7 +112,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should handle missing content gracefully", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Empty Card",
     })
 
@@ -118,7 +121,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should use titleTx when both title and titleTx are provided", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Direct Title",
       titleTx: "profile:profileInformation",
     })
@@ -129,7 +132,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should show caret icon when pressable even without onPress", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Pressable Card",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       pressable: true,
@@ -143,7 +146,7 @@ describe("ProfileInfoCard", () => {
 
   it("should apply custom styles correctly", () => {
     const customStyle = { marginTop: 20, backgroundColor: "red" }
-    renderComponent({
+    renderProfileInfoCard({
       title: "Styled Card",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       style: customStyle,
@@ -155,7 +158,7 @@ describe("ProfileInfoCard", () => {
 
   it("should use TouchableOpacity when pressable with onPress", () => {
     const mockOnPress = jest.fn()
-    renderComponent({
+    renderProfileInfoCard({
       title: "Touchable Card",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       pressable: true,
@@ -168,7 +171,7 @@ describe("ProfileInfoCard", () => {
   })
 
   it("should use View when not pressable", () => {
-    renderComponent({
+    renderProfileInfoCard({
       title: "Non-pressable Card",
       viewContent: <ProfileField label="Name" value="John Doe" />,
       pressable: false,
@@ -181,12 +184,11 @@ describe("ProfileInfoCard", () => {
 
 describe("ProfileField", () => {
   const renderProfileField = (props = {}) => {
-    return render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <ProfileField {...props} />
-        </NavigationContainer>
-      </ThemeProvider>,
+    return renderWithProviders(
+      <NavigationContainer>
+        <ProfileField {...props} />
+      </NavigationContainer>,
+      { withStoreProvider: false }
     )
   }
 

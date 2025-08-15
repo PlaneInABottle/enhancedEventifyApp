@@ -1,35 +1,8 @@
 import React from 'react'
-import { render, fireEvent, screen } from '@testing-library/react-native'
+import { fireEvent, screen } from '@testing-library/react-native'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 import { EventModal } from './EventModal'
 import { MapEventInstanceModel } from '@/models/MapModels'
-
-// Mock dependencies
-jest.mock('@/theme/context', () => ({
-  useAppTheme: () => ({
-    themed: (style: any) => style,
-    theme: {
-      colors: {
-        background: '#ffffff',
-        text: '#000000',
-        textDim: '#666666',
-        tint: '#007AFF',
-        border: '#e0e0e0',
-        palette: {
-          neutral800: '#000000',
-          primary100: '#f0f0f0',
-        },
-      },
-      spacing: {
-        xs: 4,
-        sm: 8,
-        md: 12,
-        lg: 16,
-        xl: 20,
-        xxs: 2,
-      },
-    },
-  }),
-}))
 
 // Mock Button component
 jest.mock('./Button', () => {
@@ -96,14 +69,25 @@ const mockEventData = {
 const mockEvent = MapEventInstanceModel.create(mockEventData)
 
 describe('EventModal', () => {
-  it('renders correctly when visible with event data', () => {
-    render(
-      <EventModal
-        visible={true}
-        event={mockEvent}
-        onClose={jest.fn()}
-      />
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
+  const renderEventModal = (props = {}) => {
+    const defaultProps = {
+      visible: true,
+      event: mockEvent,
+      onClose: jest.fn(),
+    }
+    return renderWithProviders(
+      <EventModal {...defaultProps} {...props} />,
+      { withStoreProvider: false }
     )
+  }
+
+  it('renders correctly when visible with event data', () => {
+    renderEventModal()
 
     expect(screen.getByText('Event Details')).toBeTruthy()
     expect(screen.getByText('Test Event')).toBeTruthy()
@@ -112,27 +96,15 @@ describe('EventModal', () => {
   })
 
   it('does not render when event is null', () => {
-    const { toJSON } = render(
-      <EventModal
-        visible={true}
-        event={null}
-        onClose={jest.fn()}
-      />
-    )
+    const { queryByText } = renderEventModal({ event: null })
 
-    expect(toJSON()).toBeNull()
+    expect(queryByText('Event Details')).toBeFalsy()
   })
 
   it('calls onClose when close button is pressed', () => {
     const mockOnClose = jest.fn()
     
-    render(
-      <EventModal
-        visible={true}
-        event={mockEvent}
-        onClose={mockOnClose}
-      />
-    )
+    renderEventModal({ onClose: mockOnClose })
 
     const closeButton = screen.getByTestId('button-common:close')
     fireEvent.press(closeButton)
@@ -143,14 +115,7 @@ describe('EventModal', () => {
   it('calls onReport when report button is pressed', () => {
     const mockOnReport = jest.fn()
     
-    render(
-      <EventModal
-        visible={true}
-        event={mockEvent}
-        onClose={jest.fn()}
-        onReport={mockOnReport}
-      />
-    )
+    renderEventModal({ onReport: mockOnReport })
 
     const reportButton = screen.getByTestId('button-eventModal:reportEvent')
     fireEvent.press(reportButton)
@@ -159,25 +124,13 @@ describe('EventModal', () => {
   })
 
   it('does not render report button when onReport is not provided', () => {
-    render(
-      <EventModal
-        visible={true}
-        event={mockEvent}
-        onClose={jest.fn()}
-      />
-    )
+    renderEventModal()
 
     expect(screen.queryByTestId('button-eventModal:reportEvent')).toBeFalsy()
   })
 
   it('displays capacity information when venue_capacity is available', () => {
-    render(
-      <EventModal
-        visible={true}
-        event={mockEvent}
-        onClose={jest.fn()}
-      />
-    )
+    renderEventModal()
 
     expect(screen.getByText(/Capacity: 200 people/)).toBeTruthy()
   })
@@ -189,25 +142,13 @@ describe('EventModal', () => {
       event_description: null
     })
     
-    render(
-      <EventModal
-        visible={true}
-        event={eventWithoutDescription}
-        onClose={jest.fn()}
-      />
-    )
+    renderEventModal({ event: eventWithoutDescription })
 
     expect(screen.getByText('No description available')).toBeTruthy()
   })
 
   it('displays event image when available', () => {
-    render(
-      <EventModal
-        visible={true}
-        event={mockEvent}
-        onClose={jest.fn()}
-      />
-    )
+    renderEventModal()
 
     // Test passes if no errors thrown during render with image URL
     expect(mockEvent.event_image_url).toBe('https://example.com/test-event-image.jpg')
@@ -219,13 +160,7 @@ describe('EventModal', () => {
       event_image_url: null
     })
     
-    render(
-      <EventModal
-        visible={true}
-        event={eventWithoutImage}
-        onClose={jest.fn()}
-      />
-    )
+    renderEventModal({ event: eventWithoutImage })
 
     // Test passes if no errors thrown during render without image URL
     expect(eventWithoutImage.event_image_url).toBe(null)

@@ -56,74 +56,80 @@ jest.mock("../app/i18n/index.ts", () => ({
 
 declare const tron
 
-// Mock Supabase
-jest.mock("@supabase/supabase-js", () => ({
-  createClient: jest.fn(() => ({
-    auth: {
-      signIn: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      getUser: jest.fn(),
-      onAuthStateChange: jest.fn(),
-    },
+// Centralized Supabase mock implementation
+const createSupabaseQueryChain = () => ({
+  select: jest.fn().mockReturnThis(),
+  insert: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  delete: jest.fn().mockReturnThis(),
+  eq: jest.fn().mockReturnThis(),
+  neq: jest.fn().mockReturnThis(),
+  lt: jest.fn().mockReturnThis(),
+  lte: jest.fn().mockReturnThis(),
+  gt: jest.fn().mockReturnThis(),
+  gte: jest.fn().mockReturnThis(),
+  in: jest.fn().mockReturnThis(),
+  contains: jest.fn().mockReturnThis(),
+  order: jest.fn().mockReturnThis(),
+  limit: jest.fn().mockReturnThis(),
+  range: jest.fn().mockReturnThis(),
+  single: jest.fn(),
+  maybeSingle: jest.fn(),
+})
+
+const createSupabaseClientMock = () => ({
+  auth: {
+    signIn: jest.fn(),
+    signUp: jest.fn(),
+    signOut: jest.fn(),
+    getUser: jest.fn(),
+    getSession: jest.fn(),
+    onAuthStateChange: jest.fn(),
+    resetPasswordForEmail: jest.fn(),
+    updateUser: jest.fn(),
+    setSession: jest.fn(),
+    refreshSession: jest.fn(),
+  },
+  from: jest.fn(() => createSupabaseQueryChain()),
+  storage: {
     from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
+      upload: jest.fn(),
+      download: jest.fn(),
+      remove: jest.fn(),
+      list: jest.fn(),
+      getPublicUrl: jest.fn(),
+      createSignedUrl: jest.fn(),
     })),
-  })),
+  },
+  realtime: {
+    channel: jest.fn(() => ({
+      on: jest.fn(),
+      off: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+    })),
+  },
+  rpc: jest.fn(),
+})
+
+// Mock @supabase/supabase-js
+jest.mock("@supabase/supabase-js", () => ({
+  createClient: jest.fn(() => createSupabaseClientMock()),
 }))
 
-// Mock Supabase client specifically to prevent env var errors
+// Mock app-specific Supabase clients (reuse the same implementation)
+const mockSupabaseClient = createSupabaseClientMock()
+
 jest.mock("../app/clients/supabase/SupabaseClient", () => ({
   __esModule: true,
-  default: {
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-    })),
-  },
-  supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-    })),
-  },
+  default: mockSupabaseClient,
+  supabase: mockSupabaseClient,
 }))
 
 jest.mock("../app/clients/supabase", () => ({
   __esModule: true,
-  default: {
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-    })),
-  },
-  supabase: {
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
-    })),
-  },
+  default: mockSupabaseClient,
+  supabase: mockSupabaseClient,
 }))
 
 // Mock react-native-keyboard-controller

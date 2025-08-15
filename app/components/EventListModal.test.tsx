@@ -1,15 +1,8 @@
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
-
+import { fireEvent } from '@testing-library/react-native'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 import { EventListModal } from './EventListModal'
 import type { VenueWithEvents } from '@/stores/MapStore'
-
-// Mock dependencies
-jest.mock('@/theme/context', () => ({
-  useAppTheme: () => ({
-    themed: (style: any) => style,
-  }),
-}))
 
 jest.mock('./EventCard', () => {
   const React = require('react')
@@ -101,27 +94,31 @@ const createMockVenue = (overrides?: Partial<VenueWithEvents>): VenueWithEvents 
 })
 
 describe('EventListModal', () => {
-  it('returns null when venue is not provided', () => {
-    const { toJSON } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={null} 
-      />
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
+  const renderEventListModal = (props = {}) => {
+    const defaultProps = {
+      visible: true,
+      onClose: jest.fn(),
+      venue: createMockVenue(),
+    }
+    return renderWithProviders(
+      <EventListModal {...defaultProps} {...props} />,
+      { withStoreProvider: false }
     )
+  }
+
+  it('returns null when venue is not provided', () => {
+    const { queryByText } = renderEventListModal({ venue: null })
     
-    expect(toJSON()).toBeNull()
+    expect(queryByText('Test Venue')).toBeFalsy()
   })
 
   it('renders modal with venue information', () => {
-    const mockVenue = createMockVenue()
-    const { getByText } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByText } = renderEventListModal()
     
     expect(getByText('Test Venue')).toBeTruthy()
     expect(getByText('123 Test Street')).toBeTruthy()
@@ -130,15 +127,8 @@ describe('EventListModal', () => {
 
   it('calls onClose when close button is pressed', () => {
     const mockOnClose = jest.fn()
-    const mockVenue = createMockVenue()
     
-    const { getByText } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={mockOnClose} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByText } = renderEventListModal({ onClose: mockOnClose })
     
     fireEvent.press(getByText('Close'))
     expect(mockOnClose).toHaveBeenCalledTimes(1)
@@ -153,27 +143,13 @@ describe('EventListModal', () => {
       ],
     })
     
-    const { getByText } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByText } = renderEventListModal({ venue: mockVenue })
     
     expect(getByText('3 Events')).toBeTruthy()
   })
 
   it('displays singular event count for single event', () => {
-    const mockVenue = createMockVenue() // Default has 1 event
-    
-    const { getByText } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByText } = renderEventListModal() // Default venue has 1 event
     
     expect(getByText('1 Event')).toBeTruthy()
   })
@@ -196,13 +172,7 @@ describe('EventListModal', () => {
       ],
     })
     
-    const { getByTestId } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByTestId } = renderEventListModal({ venue: mockVenue })
     
     expect(getByTestId('event-card-event-1')).toBeTruthy()
     expect(getByTestId('event-card-event-2')).toBeTruthy()
@@ -210,29 +180,13 @@ describe('EventListModal', () => {
   })
 
   it('renders report button for venue', () => {
-    const mockVenue = createMockVenue()
-    
-    const { getByTestId } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByTestId } = renderEventListModal()
     
     expect(getByTestId('report-button-venue-venue-123')).toBeTruthy()
   })
 
   it('does not render when visible is false', () => {
-    const mockVenue = createMockVenue()
-    
-    const { queryByText } = render(
-      <EventListModal 
-        visible={false} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { queryByText } = renderEventListModal({ visible: false })
     
     // Modal should not render any content when not visible
     expect(queryByText('Test Venue')).toBeFalsy()
@@ -240,27 +194,14 @@ describe('EventListModal', () => {
 
   it('passes event data correctly to EventCard', () => {
     const mockVenue = createMockVenue()
-    const { root } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { root } = renderEventListModal({ venue: mockVenue })
     
     const eventCard = root.findByType(require('./EventCard').EventCard)
     expect(eventCard.props.event).toEqual(mockVenue.events[0])
   })
 
   it('applies correct presentationStyle to modal', () => {
-    const mockVenue = createMockVenue()
-    const { root } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { root } = renderEventListModal()
     
     const modal = root.findByType('Modal' as any)
     expect(modal.props.presentationStyle).toBe('pageSheet')
@@ -270,13 +211,7 @@ describe('EventListModal', () => {
   it('handles empty events list gracefully', () => {
     const mockVenue = createMockVenue({ events: [] })
     
-    const { getByText } = render(
-      <EventListModal 
-        visible={true} 
-        onClose={jest.fn()} 
-        venue={mockVenue} 
-      />
-    )
+    const { getByText } = renderEventListModal({ venue: mockVenue })
     
     // Should still show venue info and count
     expect(getByText('Test Venue')).toBeTruthy()

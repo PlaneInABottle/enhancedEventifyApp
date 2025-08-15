@@ -1,36 +1,14 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native'
+import { screen, fireEvent, waitFor } from '@testing-library/react-native'
 import { Alert } from 'react-native'
 import { BusinessEventForm } from './BusinessEventForm'
 import { EventInstanceStatus } from '@/services/event/businessEventTypes'
-import { ThemeProvider } from '@/theme/context'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 
 // Mock dependencies
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: any) => children,
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-}))
-jest.mock('@/i18n/translate', () => ({
-  translate: jest.fn((key: string) => {
-    const translations: Record<string, string> = {
-      'businessEvent:eventDetails': 'Event Details',
-      'businessEvent:titleLabel': 'Event Title',
-      'businessEvent:titlePlaceholder': 'Enter event title',
-      'businessEvent:descriptionLabel': 'Event Description',
-      'businessEvent:descriptionPlaceholder': 'Enter event description',
-      'businessEvent:eventInstances': 'Event Instances',
-      'businessEvent:addInstance': 'Add Instance',
-      'businessEvent:createEvent': 'Create Event',
-      'businessEvent:validationErrorTitle': 'Validation Error',
-      'businessEvent:validationErrorMessage': 'Please fix the errors and try again',
-      'common:error': 'Error',
-      'common:ok': 'OK',
-      'errors.titleRequired': 'Title is required',
-      'errors.titleTooShort': 'Title is too short',
-      'errors.instancesRequired': 'At least one instance is required',
-    }
-    return translations[key] || key
-  }),
 }))
 
 jest.mock('@/models', () => ({
@@ -47,6 +25,28 @@ jest.mock('@/models', () => ({
   }),
 }))
 
+// Mock translate function
+jest.mock('@/i18n/translate', () => ({
+  translate: (key: string, options?: any) => {
+    const translations: Record<string, string> = {
+      'businessEvent:eventDetails': 'Event Details',
+      'businessEvent:titleLabel': 'Event Title',
+      'businessEvent:titlePlaceholder': 'Enter event title',
+      'businessEvent:descriptionLabel': 'Event Description',
+      'businessEvent:descriptionPlaceholder': 'Enter event description',
+      'businessEvent:eventInstances': 'Event Instances',
+      'businessEvent:addInstance': 'Add Instance',
+      'businessEvent:createEvent': 'Create Event',
+      'businessEvent:validationErrorTitle': 'Validation Error',
+      'businessEvent:validationErrorMessage': 'Please fix the errors and try again',
+      'errors.titleRequired': 'Title is required',
+      'errors.titleTooShort': 'Title is too short',
+      'errors.instancesRequired': 'At least one instance is required',
+    }
+    return translations[key] || key
+  },
+}))
+
 jest.mock('./BusinessEventInstanceFormSection', () => ({
   BusinessEventInstanceFormSection: ({ instance, index, onRemove, onUpdate, showRemoveButton }: any) => {
     const React = require('react')
@@ -61,31 +61,50 @@ jest.mock('./BusinessEventInstanceFormSection', () => ({
   },
 }))
 
-// Mock Alert
-jest.spyOn(Alert, 'alert')
-
-// Helper function to render with theme
-const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider>
-      {component}
-    </ThemeProvider>
-  )
-}
-
 describe('BusinessEventForm', () => {
   const defaultProps = {
     onSubmit: jest.fn(),
     isSubmitting: false,
   }
 
-  beforeEach(() => {
-    jest.clearAllMocks()
+  // Mock factories for consistent test data
+  const createMockEventInstance = (overrides = {}) => ({
+    id: 'temp-1',
+    venue_id: 'venue-1',
+    start_datetime: '2024-03-01T10:00:00Z',
+    end_datetime: '2024-03-01T12:00:00Z',
+    max_attendees: 50,
+    event_instance_status: 'published' as EventInstanceStatus,
+    ...overrides,
+  })
+
+  const createFutureEventInstance = (daysInFuture = 7, overrides = {}) => {
+    const futureDate = new Date()
+    futureDate.setDate(futureDate.getDate() + daysInFuture)
+    const endDate = new Date(futureDate)
+    endDate.setHours(endDate.getHours() + 2)
+
+    return createMockEventInstance({
+      start_datetime: futureDate.toISOString(),
+      end_datetime: endDate.toISOString(),
+      ...overrides,
+    })
+  }
+
+  const createMockEventData = (overrides = {}) => ({
+    title: 'Test Event',
+    description: 'Test Description',
+    ...overrides,
+  })
+
+  // Setup component test with Alert mocking
+  setupComponentTest({
+    mockAlert: true,
   })
 
   describe('Rendering', () => {
     it('renders all form fields', () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} />, { withStoreProvider: false })
 
       expect(screen.getByText('Event Details')).toBeOnTheScreen()
       expect(screen.getByPlaceholderText('Enter event title')).toBeOnTheScreen()
@@ -96,51 +115,38 @@ describe('BusinessEventForm', () => {
     })
 
     it('displays initial values when provided', () => {
-      const initialData = {
-        title: 'Test Event',
-        description: 'Test Description',
-      }
-      renderWithTheme(<BusinessEventForm {...defaultProps} initialData={initialData} />)
+      const initialData = createMockEventData()
+      renderWithProviders(<BusinessEventForm {...defaultProps} initialData={initialData} />, { withStoreProvider: false })
 
       expect(screen.getByDisplayValue('Test Event')).toBeOnTheScreen()
       expect(screen.getByDisplayValue('Test Description')).toBeOnTheScreen()
     })
 
     it('renders instances when present in initial data', () => {
-      const initialData = {
-        title: 'Test Event',
-        instances: [
-          {
-            id: 'temp-1',
-            venue_id: 'venue-1',
-            start_datetime: '2024-03-01T10:00:00Z',
-            end_datetime: '2024-03-01T12:00:00Z',
-            max_attendees: 50,
-            event_instance_status: 'published' as EventInstanceStatus,
-          },
-        ],
-      }
-      renderWithTheme(<BusinessEventForm {...defaultProps} initialData={initialData} />)
+      const initialData = createMockEventData({
+        instances: [createMockEventInstance()],
+      })
+      renderWithProviders(<BusinessEventForm {...defaultProps} initialData={initialData} />, { withStoreProvider: false })
 
       expect(screen.getByTestId('instance-section-0')).toBeOnTheScreen()
       expect(screen.getByText('Instance 1')).toBeOnTheScreen()
     })
 
     it('shows error message when provided', () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} errorMessage="errors.someError" />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} errorMessage="errors.someError" />)
 
       expect(screen.getByText('errors.someError')).toBeOnTheScreen()
     })
 
     it('disables submit button when submitting', () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} isSubmitting={true} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} isSubmitting={true} />)
 
       const submitButton = screen.getByText('Create Event')
       expect(submitButton).toBeDisabled()
     })
 
     it('starts with one empty instance by default', () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} />, { withStoreProvider: false })
 
       expect(screen.getByTestId('instance-section-0')).toBeOnTheScreen()
       expect(screen.queryByTestId('remove-instance-0')).not.toBeOnTheScreen() // No remove button when only one instance
@@ -150,7 +156,7 @@ describe('BusinessEventForm', () => {
   describe('Interactions', () => {
     it('updates title field', () => {
       const onSubmit = jest.fn()
-      renderWithTheme(<BusinessEventForm {...defaultProps} onSubmit={onSubmit} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} onSubmit={onSubmit} />)
 
       const titleInput = screen.getByPlaceholderText('Enter event title')
       fireEvent.changeText(titleInput, 'New Event Title')
@@ -162,7 +168,7 @@ describe('BusinessEventForm', () => {
 
     it('updates description field', () => {
       const onSubmit = jest.fn()
-      renderWithTheme(<BusinessEventForm {...defaultProps} onSubmit={onSubmit} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} onSubmit={onSubmit} />)
 
       const descriptionInput = screen.getByPlaceholderText('Enter event description')
       fireEvent.changeText(descriptionInput, 'New Description')
@@ -173,7 +179,7 @@ describe('BusinessEventForm', () => {
     })
 
     it('adds new instance', () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} />, { withStoreProvider: false })
 
       const addButton = screen.getByText('Add Instance')
       fireEvent.press(addButton)
@@ -185,27 +191,19 @@ describe('BusinessEventForm', () => {
     })
 
     it('removes instance', () => {
-      const initialData = {
+      const initialData = createMockEventData({
         instances: [
-          {
-            id: 'temp-1',
-            venue_id: 'venue-1',
-            start_datetime: '2024-03-01T10:00:00Z',
-            end_datetime: '2024-03-01T12:00:00Z',
-            max_attendees: 50,
-            event_instance_status: 'published' as EventInstanceStatus,
-          },
-          {
-            id: 'temp-2',
+          createMockEventInstance({ id: 'temp-1' }),
+          createMockEventInstance({ 
+            id: 'temp-2', 
             venue_id: 'venue-2',
             start_datetime: '2024-03-02T10:00:00Z',
             end_datetime: '2024-03-02T12:00:00Z',
             max_attendees: 30,
-            event_instance_status: 'published' as EventInstanceStatus,
-          },
+          }),
         ],
-      }
-      renderWithTheme(<BusinessEventForm {...defaultProps} initialData={initialData} />)
+      })
+      renderWithProviders(<BusinessEventForm {...defaultProps} initialData={initialData} />, { withStoreProvider: false })
 
       const removeButton = screen.getByTestId('remove-instance-0')
       fireEvent.press(removeButton)
@@ -216,7 +214,7 @@ describe('BusinessEventForm', () => {
     })
 
     it('limits instances to 10', () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} />, { withStoreProvider: false })
 
       const addButton = screen.getByText('Add Instance')
       
@@ -235,7 +233,7 @@ describe('BusinessEventForm', () => {
 
   describe('Validation', () => {
     it('shows validation error alert when form is invalid', async () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} />, { withStoreProvider: false })
 
       const submitButton = screen.getByText('Create Event')
       fireEvent.press(submitButton)
@@ -250,27 +248,13 @@ describe('BusinessEventForm', () => {
     })
 
     it('submits form with valid data', async () => {
-      // Use future dates to pass validation
-      const futureDate = new Date()
-      futureDate.setDate(futureDate.getDate() + 7)
-      const endDate = new Date(futureDate)
-      endDate.setHours(endDate.getHours() + 2)
-      
-      const initialData = {
+      const futureInstance = createFutureEventInstance()
+      const initialData = createMockEventData({
         title: 'Valid Event Title',
         description: 'Valid description',
-        instances: [
-          {
-            id: 'temp-1',
-            venue_id: 'venue-1',
-            start_datetime: futureDate.toISOString(),
-            end_datetime: endDate.toISOString(),
-            max_attendees: 50,
-            event_instance_status: 'published' as EventInstanceStatus,
-          },
-        ],
-      }
-      renderWithTheme(<BusinessEventForm {...defaultProps} initialData={initialData} />)
+        instances: [futureInstance],
+      })
+      renderWithProviders(<BusinessEventForm {...defaultProps} initialData={initialData} />, { withStoreProvider: false })
 
       const submitButton = screen.getByText('Create Event')
       fireEvent.press(submitButton)
@@ -282,8 +266,8 @@ describe('BusinessEventForm', () => {
           instances: expect.arrayContaining([
             expect.objectContaining({
               venue_id: 'venue-1',
-              start_datetime: futureDate.toISOString(),
-              end_datetime: endDate.toISOString(),
+              start_datetime: futureInstance.start_datetime,
+              end_datetime: futureInstance.end_datetime,
               max_attendees: 50,
               event_instance_status: 'published',
             })
@@ -294,7 +278,7 @@ describe('BusinessEventForm', () => {
     })
 
     it('validates minimum title length', async () => {
-      renderWithTheme(<BusinessEventForm {...defaultProps} />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} />, { withStoreProvider: false })
 
       const titleInput = screen.getByPlaceholderText('Enter event title')
       fireEvent.changeText(titleInput, 'AB') // Too short
@@ -312,26 +296,11 @@ describe('BusinessEventForm', () => {
   describe('Form State Management', () => {
     it('maintains instance data when adding/removing instances', () => {
       const onSubmit = jest.fn()
-      // Use future dates to pass validation
-      const futureDate = new Date()
-      futureDate.setDate(futureDate.getDate() + 7)
-      const endDate = new Date(futureDate)
-      endDate.setHours(endDate.getHours() + 2)
-      
-      const initialData = {
-        title: 'Test Event',
-        instances: [
-          {
-            id: 'temp-1',
-            venue_id: 'venue-1',
-            start_datetime: futureDate.toISOString(),
-            end_datetime: endDate.toISOString(),
-            max_attendees: 50,
-            event_instance_status: 'published' as EventInstanceStatus,
-          },
-        ],
-      }
-      renderWithTheme(<BusinessEventForm {...defaultProps} initialData={initialData} onSubmit={onSubmit} />)
+      const futureInstance = createFutureEventInstance()
+      const initialData = createMockEventData({
+        instances: [futureInstance],
+      })
+      renderWithProviders(<BusinessEventForm {...defaultProps} initialData={initialData} onSubmit={onSubmit} />)
 
       // Add another instance
       fireEvent.press(screen.getByText('Add Instance'))
@@ -344,8 +313,8 @@ describe('BusinessEventForm', () => {
       
       expect(onSubmit).toHaveBeenCalledWith({
         title: 'Test Event',
-        description: '',
-        instances: [initialData.instances[0]]
+        description: 'Test Description',
+        instances: [futureInstance]
       })
     })
   })

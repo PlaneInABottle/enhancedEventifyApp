@@ -1,5 +1,11 @@
 import { AuthStore } from "./AuthStore"
 import { RootStoreModel } from "@/models/RootStore"
+import { 
+  createMockUser, 
+  createMockBusinessUser, 
+  createMockSession, 
+  createMockAuthResponse 
+} from "../../test/helpers/supabaseMocks"
 
 /**
  * Unit tests for AuthStore - MobX State Tree store
@@ -50,10 +56,7 @@ describe("AuthStore", () => {
     })
 
     it("should return correct user properties when user exists", () => {
-      const mockUser = {
-        id: "user-123",
-        email: "test@example.com",
-        userType: "user",
+      const mockUser = createMockUser({
         profile: {
           id: "profile-123",
           display_name: "Test User",
@@ -63,8 +66,7 @@ describe("AuthStore", () => {
           created_at: "2024-01-01T00:00:00Z",
           updated_at: "2024-01-01T00:00:00Z",
         },
-        businessProfile: null,
-      }
+      })
 
       store.setProp("user", mockUser)
 
@@ -83,23 +85,11 @@ describe("AuthStore", () => {
     }
 
     it("should handle successful sign in", async () => {
-      const mockUser = {
-        id: "user-123",
-        email: "test@example.com",
-        userType: "user",
-        profile: null,
-        businessProfile: null,
-        userRole: "user",
-        permissions: [],
-        isBusinessUser: false,
-        businessStatus: "none",
-      }
-
-      const mockResult = {
-        success: true,
+      const mockUser = createMockUser()
+      const mockResult = createMockAuthResponse(true, {
         user: mockUser,
         session: { access_token: "mock-token" },
-      }
+      })
 
       // Use the already mocked signIn
       const { signIn } = require("@/services/auth")
@@ -115,10 +105,9 @@ describe("AuthStore", () => {
     })
 
     it("should handle sign in failure", async () => {
-      const mockResult = {
-        success: false,
+      const mockResult = createMockAuthResponse(false, {
         error: "errors:invalidCredentials",
-      }
+      })
 
       const { signIn } = require("@/services/auth")
       signIn.mockResolvedValue(mockResult)
@@ -142,24 +131,12 @@ describe("AuthStore", () => {
     }
 
     it("should handle successful sign up without email verification", async () => {
-      const mockUser = {
-        id: "user-123",
-        email: "test@example.com",
-        userType: "user",
-        profile: null,
-        businessProfile: null,
-        userRole: "user",
-        permissions: [],
-        isBusinessUser: false,
-        businessStatus: "none",
-      }
-
-      const mockResult = {
-        success: true,
+      const mockUser = createMockUser()
+      const mockResult = createMockAuthResponse(true, {
         user: mockUser,
         session: { access_token: "mock-token" },
         requiresEmailVerification: false,
-      }
+      })
 
       const { signUp } = require("@/services/auth")
       signUp.mockResolvedValue(mockResult)
@@ -227,24 +204,15 @@ describe("AuthStore", () => {
         userType: "business" as const,
       }
 
-      const mockUser = {
-        id: "business-123",
+      const mockUser = createMockBusinessUser({
         email: "business@example.com",
-        userType: "business",
-        profile: null,
-        businessProfile: null,
-        userRole: "business",
-        permissions: [],
-        isBusinessUser: true,
-        businessStatus: "pending",
-      }
+      })
 
-      const mockResult = {
-        success: true,
+      const mockResult = createMockAuthResponse(true, {
         user: mockUser,
         session: { access_token: "mock-token" },
         requiresEmailVerification: false,
-      }
+      })
 
       const { signUp } = require("@/services/auth")
       signUp.mockResolvedValue(mockResult)
@@ -344,26 +312,8 @@ describe("AuthStore", () => {
     })
 
     it("should handle SIGNED_IN event", () => {
-      const mockSession = {
-        user: {
-          id: "user-123",
-          email: "test@example.com",
-        },
-        access_token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMyIsInVzZXJfcm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6W10sImlzX2J1c2luZXNzX3VzZXIiOmZhbHNlLCJidXNpbmVzc19zdGF0dXMiOiJub25lIn0.mock-signature",
-      }
-
-      const expectedUser = {
-        id: "user-123",
-        email: "test@example.com",
-        userType: "user",
-        profile: null,
-        businessProfile: null,
-        userRole: "user",
-        permissions: [],
-        isBusinessUser: false,
-        businessStatus: "none",
-      }
+      const mockSession = createMockSession()
+      const expectedUser = createMockUser()
 
       const { buildUserFromSession } = require("@/services/auth")
       buildUserFromSession.mockReturnValue(expectedUser)

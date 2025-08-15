@@ -1,6 +1,10 @@
 import { getEventsInBounds } from "@/services/map"
 
 import { MapStore } from "./MapStore"
+import { 
+  createServiceSuccessResponse, 
+  createFailureResponse 
+} from "../../test/helpers/supabaseMocks"
 
 // Mock the map service
 jest.mock("@/services/map", () => ({
@@ -8,6 +12,36 @@ jest.mock("@/services/map", () => ({
 }))
 
 const mockGetEventsInBounds = getEventsInBounds as jest.MockedFunction<typeof getEventsInBounds>
+
+// Mock event factory for consistent test data
+const createMockMapEvent = (overrides = {}) => ({
+  instance_id: "123",
+  event_id: "456",
+  venue_id: "789",
+  start_datetime: "2025-01-27T10:00:00Z",
+  end_datetime: "2025-01-27T12:00:00Z",
+  event_instance_status: "scheduled",
+  max_attendees: 100,
+  event_title: "Test Event",
+  event_description: "Test Description",
+  venue_name: "Test Venue",
+  venue_capacity: 200,
+  coordinates: {
+    type: "Point" as const,
+    coordinates: [29.0, 41.0] as [number, number],
+  },
+  full_address: "Test Address",
+  city: "Istanbul",
+  ...overrides,
+})
+
+// Mock bounds for consistent test data
+const createMockBounds = () => ({
+  north: 41.1,
+  south: 40.9,
+  east: 29.1,
+  west: 28.9,
+})
 
 describe("MapStore", () => {
   let store: typeof MapStore.Type
@@ -33,40 +67,11 @@ describe("MapStore", () => {
 
   describe("loadEventsInBounds", () => {
     it("should successfully load events", async () => {
-      const mockEvents = [
-        {
-          instance_id: "123",
-          event_id: "456",
-          venue_id: "789",
-          start_datetime: "2025-01-27T10:00:00Z",
-          end_datetime: "2025-01-27T12:00:00Z",
-          event_instance_status: "scheduled",
-          max_attendees: 100,
-          event_title: "Test Event",
-          event_description: "Test Description",
-          venue_name: "Test Venue",
-          venue_capacity: 200,
-          coordinates: {
-            type: "Point" as const,
-            coordinates: [29.0, 41.0] as [number, number],
-          },
-          full_address: "Test Address",
-          city: "Istanbul",
-        },
-      ]
+      const mockEvents = [createMockMapEvent()]
 
-      mockGetEventsInBounds.mockResolvedValue({
-        success: true,
-        events: mockEvents,
-      })
+      mockGetEventsInBounds.mockResolvedValue(createServiceSuccessResponse({ events: mockEvents }))
 
-      const bounds = {
-        north: 41.1,
-        south: 40.9,
-        east: 29.1,
-        west: 28.9,
-      }
-
+      const bounds = createMockBounds()
       const result = await store.loadEventsInBounds(bounds)
 
       expect(result.success).toBe(true)
@@ -77,18 +82,9 @@ describe("MapStore", () => {
     })
 
     it("should handle service errors", async () => {
-      mockGetEventsInBounds.mockResolvedValue({
-        success: false,
-        error: "Database error",
-      })
+      mockGetEventsInBounds.mockResolvedValue(createFailureResponse("Database error"))
 
-      const bounds = {
-        north: 41.1,
-        south: 40.9,
-        east: 29.1,
-        west: 28.9,
-      }
-
+      const bounds = createMockBounds()
       const result = await store.loadEventsInBounds(bounds)
 
       expect(result.success).toBe(false)
@@ -100,13 +96,7 @@ describe("MapStore", () => {
     it("should handle unexpected errors", async () => {
       mockGetEventsInBounds.mockRejectedValue(new Error("Network error"))
 
-      const bounds = {
-        north: 41.1,
-        south: 40.9,
-        east: 29.1,
-        west: 28.9,
-      }
-
+      const bounds = createMockBounds()
       const result = await store.loadEventsInBounds(bounds)
 
       expect(result.success).toBe(false)
@@ -118,40 +108,12 @@ describe("MapStore", () => {
   describe("actions", () => {
     it("should clear events", async () => {
       // Use loadEventsInBounds to add events properly through MST
-      const mockEvents = [
-        {
-          instance_id: "123",
-          event_id: "456",
-          venue_id: "789",
-          start_datetime: "2025-01-27T10:00:00Z",
-          end_datetime: "2025-01-27T12:00:00Z",
-          event_instance_status: "scheduled",
-          max_attendees: 100,
-          event_title: "Test Event",
-          event_description: "Test Description",
-          venue_name: "Test Venue",
-          venue_capacity: 200,
-          coordinates: {
-            type: "Point" as const,
-            coordinates: [29.0, 41.0] as [number, number],
-          },
-          full_address: "Test Address",
-          city: "Istanbul",
-        },
-      ]
+      const mockEvents = [createMockMapEvent()]
 
-      mockGetEventsInBounds.mockResolvedValue({
-        success: true,
-        events: mockEvents,
-      })
+      mockGetEventsInBounds.mockResolvedValue(createServiceSuccessResponse({ events: mockEvents }))
 
       // Load events first
-      await store.loadEventsInBounds({
-        north: 41.1,
-        south: 40.9,
-        east: 29.1,
-        west: 28.9,
-      })
+      await store.loadEventsInBounds(createMockBounds())
 
       expect(store.events.length).toBe(1)
 

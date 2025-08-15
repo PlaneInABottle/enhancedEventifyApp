@@ -1,15 +1,9 @@
 import React from 'react'
-import { render } from '@testing-library/react-native'
-
 import { EventCard } from './EventCard'
 import { MapEventInstanceModel } from '@/models/MapModels'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 
-// Mock dependencies
-jest.mock('@/theme/context', () => ({
-  useAppTheme: () => ({
-    themed: (style: any) => style,
-  }),
-}))
+// Mock ReportButton component
 jest.mock('./ReportButton', () => {
   const React = require('react')
   const { TouchableOpacity, Text } = require('react-native')
@@ -47,9 +41,13 @@ const createMockEvent = (overrides?: Partial<typeof MapEventInstanceModel.Type>)
 })
 
 describe('EventCard', () => {
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
   it('renders all required event information', () => {
     const mockEvent = createMockEvent()
-    const { getByText } = render(<EventCard event={mockEvent as any} />)
+    const { getByText } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     // Verify event title is displayed
     expect(getByText('Test Event Title')).toBeTruthy()
@@ -65,7 +63,7 @@ describe('EventCard', () => {
     const mockEvent = createMockEvent({
       event_description: 'This is a detailed event description',
     })
-    const { getByText } = render(<EventCard event={mockEvent as any} />)
+    const { getByText } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     expect(getByText('This is a detailed event description')).toBeTruthy()
   })
@@ -74,7 +72,7 @@ describe('EventCard', () => {
     const mockEvent = createMockEvent({
       event_description: null,
     })
-    const { queryByText, getByText } = render(<EventCard event={mockEvent as any} />)
+    const { queryByText, getByText } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     // Title and venue should still be rendered
     expect(getByText('Test Event Title')).toBeTruthy()
@@ -86,7 +84,7 @@ describe('EventCard', () => {
 
   it('renders ReportButton with correct props', () => {
     const mockEvent = createMockEvent()
-    const { getByTestId } = render(<EventCard event={mockEvent as any} />)
+    const { getByTestId } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     const reportButton = getByTestId('report-button-event-event-123')
     expect(reportButton).toBeTruthy()
@@ -96,7 +94,7 @@ describe('EventCard', () => {
     const mockEvent = createMockEvent({
       event_title: 'This is a very long event title that should be truncated after two lines to prevent layout issues',
     })
-    const { root } = render(<EventCard event={mockEvent as any} />)
+    const { root } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     // Find the title Text component
     const titleText = root.findByProps({ preset: 'subheading' })
@@ -107,7 +105,7 @@ describe('EventCard', () => {
     const mockEvent = createMockEvent({
       venue_name: 'This is a very long venue name that should be truncated',
     })
-    const { root } = render(<EventCard event={mockEvent as any} />)
+    const { root } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     // Find the venue Text component by traversing the tree
     const texts = root.findAllByType('Text')
@@ -121,7 +119,7 @@ describe('EventCard', () => {
     const mockEvent = createMockEvent({
       event_description: 'This is a very long description that should be truncated after two lines',
     })
-    const { root } = render(<EventCard event={mockEvent as any} />)
+    const { root } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     // Find the description Text component
     const texts = root.findAllByType('Text')
@@ -133,7 +131,7 @@ describe('EventCard', () => {
 
   it('applies correct styles from theme', () => {
     const mockEvent = createMockEvent()
-    const { root } = render(<EventCard event={mockEvent as any} />)
+    const { root } = renderWithProviders(<EventCard event={mockEvent as any} />, { withStoreProvider: false })
     
     // Check that the component renders with views that have styles
     const views = root.findAllByType('View')
@@ -152,7 +150,7 @@ describe('EventCard', () => {
     })
     
     // Should render without crashing
-    const { getByText } = render(<EventCard event={minimalEvent as any} />)
+    const { getByText } = renderWithProviders(<EventCard event={minimalEvent as any} />, { withStoreProvider: false })
     expect(getByText('Test Event Title')).toBeTruthy()
     expect(getByText('Test Venue')).toBeTruthy()
   })

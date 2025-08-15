@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native'
 
 import { TabNavigation, ListTabScreen } from './TabNavigation'
 import { useStores } from '@/models/helpers/useStores'
+import { renderWithProviders } from '../../test/helpers/componentTestHelpers'
 
 // Mock dependencies
 jest.mock('@/theme/context', () => ({
@@ -77,14 +78,26 @@ jest.mock('mobx-react-lite', () => {
 
 const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 
-const createMockEvent = (id: string) => ({
+// Mock factories for consistent test data
+const createMockEvent = (id: string, overrides = {}) => ({
   instance_id: id,
   event_id: `event-${id}`,
   venue_id: 'venue-123',
   event_title: `Test Event ${id}`,
   venue_name: 'Test Venue',
   formattedStartTime: 'Sep 15, 2025, 6:00 PM',
-  // ... other required fields
+  start_datetime: '2025-09-15T18:00:00Z',
+  end_datetime: '2025-09-15T20:00:00Z',
+  event_description: 'Test event description',
+  max_attendees: 100,
+  attendee_count: 25,
+  ...overrides,
+})
+
+const createMockMapStore = (events = []) => ({
+  events,
+  isLoading: false,
+  lastError: null,
 })
 
 // ListTabScreen is now imported at the top
@@ -126,7 +139,7 @@ describe('ListTabScreen', () => {
 
   it('renders empty state when no events in store', () => {
     mockUseStores.mockReturnValue({
-      mapStore: { events: [] },
+      mapStore: createMockMapStore([]),
     } as any)
 
     const { getByText } = render(<ListTabScreen />)
@@ -143,7 +156,7 @@ describe('ListTabScreen', () => {
     ]
 
     mockUseStores.mockReturnValue({
-      mapStore: { events: mockEvents },
+      mapStore: createMockMapStore(mockEvents),
     } as any)
 
     const { getByTestId } = render(<ListTabScreen />)
@@ -170,7 +183,7 @@ describe('ListTabScreen', () => {
     // Update the mock events
     mockEvents = [createMockEvent('1')]
     
-    // Force re-render to simulate MobX update
+    // Force re-render to simulate MobX update  
     rerender(<ListTabScreen />)
 
     expect(queryByText('No Events Found')).toBeFalsy()
@@ -180,7 +193,7 @@ describe('ListTabScreen', () => {
   it('passes correct props to EventCard components', () => {
     const mockEvent = createMockEvent('1')
     mockUseStores.mockReturnValue({
-      mapStore: { events: [mockEvent] },
+      mapStore: createMockMapStore([mockEvent]),
     } as any)
 
     const { root } = render(<ListTabScreen />)

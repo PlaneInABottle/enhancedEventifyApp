@@ -1,8 +1,6 @@
 import React from "react"
-import { render, screen, fireEvent } from "@testing-library/react-native"
-
-import { ThemeProvider } from "@/theme/context"
-
+import { screen, fireEvent } from "@testing-library/react-native"
+import { renderWithProviders, setupComponentTest } from "../../test/helpers/componentTestHelpers"
 import { Dropdown, DropdownOption } from "./Dropdown"
 
 // Mock data
@@ -12,21 +10,24 @@ const mockOptions: DropdownOption<string>[] = [
   { label: "Option 3", value: "option3" },
 ]
 
-// Helper function to render Dropdown with theme
+// Helper function to render Dropdown with shared utilities
 const renderDropdown = (props: Partial<React.ComponentProps<typeof Dropdown>> = {}) => {
   const defaultProps = {
     options: mockOptions,
     label: "Test Dropdown",
     placeholder: "Select an option",
   }
-  return render(
-    <ThemeProvider>
-      <Dropdown {...defaultProps} {...props} />
-    </ThemeProvider>,
+  return renderWithProviders(
+    <Dropdown {...defaultProps} {...props} />,
+    { withStoreProvider: false }
   )
 }
 
 describe("Dropdown Component", () => {
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
   describe("Basic Rendering", () => {
     test("renders dropdown with label and placeholder", () => {
       renderDropdown()

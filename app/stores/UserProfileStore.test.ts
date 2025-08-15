@@ -2,6 +2,10 @@ import { UserProfileModel } from "@/models/ProfileModels"
 import * as profileService from "@/services/profile/profileService"
 
 import { UserProfileStore } from "./UserProfileStore"
+import { 
+  createServiceSuccessResponse, 
+  createFailureResponse 
+} from "../../test/helpers/supabaseMocks"
 
 // Mock the profile service
 jest.mock("@/services/profile/profileService", () => ({
@@ -76,10 +80,7 @@ describe("UserProfileStore", () => {
 
   describe("fetchProfile flow", () => {
     it("should fetch profile successfully", async () => {
-      mockProfileService.getUserProfile.mockResolvedValue({
-        success: true,
-        profile: mockProfile,
-      })
+      mockProfileService.getUserProfile.mockResolvedValue(createServiceSuccessResponse({ profile: mockProfile }))
 
       const result = await store.fetchProfile("user-123")
 
@@ -91,10 +92,7 @@ describe("UserProfileStore", () => {
     })
 
     it("should handle fetch profile error", async () => {
-      mockProfileService.getUserProfile.mockResolvedValue({
-        success: false,
-        error: "errors:profileNotFound",
-      })
+      mockProfileService.getUserProfile.mockResolvedValue(createFailureResponse("errors:profileNotFound"))
 
       const result = await store.fetchProfile("user-123")
 
@@ -124,10 +122,7 @@ describe("UserProfileStore", () => {
       // Set up initial profile
       store.setProfile(mockProfile)
 
-      mockProfileService.updateUserProfile.mockResolvedValue({
-        success: true,
-        profile: mockUpdatedProfile,
-      })
+      mockProfileService.updateUserProfile.mockResolvedValue(createServiceSuccessResponse({ profile: mockUpdatedProfile }))
 
       const result = await store.updateProfile("user-123", mockUpdates)
 
@@ -141,10 +136,7 @@ describe("UserProfileStore", () => {
     })
 
     it("should handle update profile error", async () => {
-      mockProfileService.updateUserProfile.mockResolvedValue({
-        success: false,
-        error: "errors:validationFailed",
-      })
+      mockProfileService.updateUserProfile.mockResolvedValue(createFailureResponse("errors:validationFailed"))
 
       const result = await store.updateProfile("user-123", mockUpdates)
 
@@ -164,10 +156,7 @@ describe("UserProfileStore", () => {
     })
 
     it("should upload avatar successfully and update profile", async () => {
-      mockProfileService.uploadAvatar.mockResolvedValue({
-        success: true,
-        avatarUrl: mockAvatarUrl,
-      })
+      mockProfileService.uploadAvatar.mockResolvedValue(createServiceSuccessResponse({ avatarUrl: mockAvatarUrl }))
 
       const mockArrayBuffer = new ArrayBuffer(8)
       const result = await store.uploadAvatar("user-123", mockArrayBuffer, "image/jpeg")
@@ -184,10 +173,7 @@ describe("UserProfileStore", () => {
     })
 
     it("should handle upload avatar error", async () => {
-      mockProfileService.uploadAvatar.mockResolvedValue({
-        success: false,
-        error: "errors:fileTooLarge",
-      })
+      mockProfileService.uploadAvatar.mockResolvedValue(createFailureResponse("errors:fileTooLarge"))
 
       const mockArrayBuffer = new ArrayBuffer(8)
       const result = await store.uploadAvatar("user-123", mockArrayBuffer, "image/jpeg")

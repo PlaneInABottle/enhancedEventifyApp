@@ -1,54 +1,38 @@
 import React from "react"
-import { NavigationContainer } from "@react-navigation/native"
-import { render, screen, fireEvent } from "@testing-library/react-native"
-
-import { ThemeProvider } from "@/theme/context"
-
+import { screen, fireEvent } from "@testing-library/react-native"
+import { renderWithProviders, setupComponentTest } from "../../test/helpers/componentTestHelpers"
 import { BusinessTypeMultiSelect } from "./BusinessTypeMultiSelect"
 
-// Mock SafeAreaProvider
-jest.mock("react-native-safe-area-context", () => ({
-  SafeAreaProvider: ({ children }: any) => children,
-  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-}))
-
 describe("BusinessTypeMultiSelect", () => {
-  const mockOnValueChange = jest.fn()
-
-  beforeEach(() => {
-    jest.clearAllMocks()
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
   })
 
-  it("renders with placeholder text when no values selected", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <BusinessTypeMultiSelect
-            value={[]}
-            onValueChange={mockOnValueChange}
-            labelTx="profile:businessTypes"
-            placeholderTx="common:chooseOption"
-          />
-        </NavigationContainer>
-      </ThemeProvider>,
+  const mockOnValueChange = jest.fn()
+
+  const renderBusinessTypeSelect = (props = {}) => {
+    const defaultProps = {
+      value: [],
+      onValueChange: mockOnValueChange,
+      labelTx: "profile:businessTypes",
+      ...props,
+    }
+    return renderWithProviders(
+      <BusinessTypeMultiSelect {...defaultProps} />,
+      { withNavigation: true, withStoreProvider: false }
     )
+  }
+
+  it("renders with placeholder text when no values selected", () => {
+    renderBusinessTypeSelect({ placeholderTx: "common:chooseOption" })
 
     expect(screen.getByTestId("business-type-label")).toBeOnTheScreen()
     expect(screen.getByTestId("business-type-selection")).toBeOnTheScreen()
   })
 
   it("displays selected business types", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <BusinessTypeMultiSelect
-            value={["restaurant", "bar"]}
-            onValueChange={mockOnValueChange}
-            labelTx="profile:businessTypes"
-          />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderBusinessTypeSelect({ value: ["restaurant", "bar"] })
 
     const selectionText = screen.getByTestId("business-type-selection")
     expect(selectionText).toBeOnTheScreen()
@@ -58,17 +42,7 @@ describe("BusinessTypeMultiSelect", () => {
   })
 
   it("opens modal when selection container is pressed", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <BusinessTypeMultiSelect
-            value={[]}
-            onValueChange={mockOnValueChange}
-            labelTx="profile:businessTypes"
-          />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderBusinessTypeSelect()
 
     // Press the selection container
     const selectionContainer = screen.getByTestId("business-type-selector")
@@ -83,18 +57,7 @@ describe("BusinessTypeMultiSelect", () => {
   })
 
   it("handles disabled state correctly", () => {
-    render(
-      <ThemeProvider>
-        <NavigationContainer>
-          <BusinessTypeMultiSelect
-            value={[]}
-            onValueChange={mockOnValueChange}
-            labelTx="profile:businessTypes"
-            disabled={true}
-          />
-        </NavigationContainer>
-      </ThemeProvider>,
-    )
+    renderBusinessTypeSelect({ disabled: true })
 
     const selectionContainer = screen.getByTestId("business-type-selector")
     fireEvent.press(selectionContainer)

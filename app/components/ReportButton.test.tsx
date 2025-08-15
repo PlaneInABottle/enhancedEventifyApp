@@ -1,10 +1,11 @@
 import React from 'react'
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native'
+import { fireEvent, waitFor, act } from '@testing-library/react-native'
 import { Alert } from 'react-native'
-
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 import { ReportButton } from './ReportButton'
 import { supabase } from '@/clients/supabase'
 import { useStores } from '@/models'
+import { createSupabaseMockChain, createSuccessResponse, createErrorResponse } from '../../test/helpers/supabaseMocks'
 
 // Mock dependencies
 jest.mock('@/clients/supabase', () => ({
@@ -13,14 +14,6 @@ jest.mock('@/clients/supabase', () => ({
   },
 }))
 jest.mock('@/models')
-jest.mock('@/theme/context', () => ({
-  useAppTheme: () => ({
-    themed: (style: any) => style,
-  }),
-}))
-jest.mock('mobx-react-lite', () => ({
-  observer: (component: any) => component,
-}))
 jest.mock('./Button', () => {
   const React = require('react')
   const { TouchableOpacity, Text } = require('react-native')
@@ -70,32 +63,44 @@ const mockUseStores = useStores as jest.MockedFunction<typeof useStores>
 jest.spyOn(Alert, 'alert')
 
 describe('ReportButton', () => {
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false, // We're testing Alert.alert manually
+  })
+
   const mockAuthStore = {
     user: { id: 'user-123' },
+  }
+
+  const renderReportButton = (props = {}) => {
+    const defaultProps = {
+      contentType: 'event' as const,
+      contentId: 'event-123',
+    }
+    return renderWithProviders(
+      <ReportButton {...defaultProps} {...props} />,
+      { withStoreProvider: false }
+    )
   }
 
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseStores.mockReturnValue({ authenticationStore: mockAuthStore } as any)
     
-    // Mock supabase.from chain
-    const mockInsert = jest.fn().mockResolvedValue({ error: null })
-    const mockFrom = jest.fn().mockReturnValue({ insert: mockInsert } as any)
-    mockSupabase.from = mockFrom
+    // Set up Supabase mock chain using shared utilities
+    const mockSupabaseChain = createSupabaseMockChain()
+    mockSupabaseChain.insert.mockResolvedValue(createSuccessResponse({}))
+    mockSupabase.from.mockReturnValue(mockSupabaseChain)
   })
 
   it('renders report button', () => {
-    const { getByText } = render(
-      <ReportButton contentType="event" contentId="event-123" />
-    )
+    const { getByText } = renderReportButton()
     
     expect(getByText('common:report')).toBeTruthy()
   })
 
   it('opens modal when button is pressed', async () => {
-    const { getByText, queryByTestId } = render(
-      <ReportButton contentType="event" contentId="event-123" />
-    )
+    const { getByText, queryByTestId } = renderReportButton()
     
     expect(queryByTestId('report-modal')).toBeFalsy()
     
@@ -109,19 +114,18 @@ describe('ReportButton', () => {
   })
 
   it('submits report successfully', async () => {
-    const mockInsert = jest.fn().mockResolvedValue({ error: null })
-    mockSupabase.from.mockReturnValue({ insert: mockInsert } as any)
+    const mockSupabaseChain = createSupabaseMockChain()
+    mockSupabaseChain.insert.mockResolvedValue(createSuccessResponse({}))
+    mockSupabase.from.mockReturnValue(mockSupabaseChain)
 
-    const { getByText, queryByTestId } = render(
-      <ReportButton contentType="event" contentId="event-123" />
-    )
+    const { getByText, queryByTestId } = renderReportButton()
     
     await act(async () => {
       fireEvent.press(getByText('common:report'))
     })
 
     await waitFor(() => {
-      expect(mockInsert).toHaveBeenCalledWith({
+      expect(mockSupabaseChain.insert).toHaveBeenCalledWith({
         reporter_id: 'user-123',
         content_type: 'event',
         content_id: 'event-123',
@@ -137,14 +141,12 @@ describe('ReportButton', () => {
   })
 
   it('handles duplicate report error', async () => {
-    const mockInsert = jest.fn().mockResolvedValue({
-      error: { code: '23505', message: 'duplicate key violation' }
-    })
-    mockSupabase.from.mockReturnValue({ insert: mockInsert } as any)
+    const mockSupabaseChain = createSupabaseMockChain()
+    const duplicateError = createErrorResponse('duplicate key violation', '23505', 409)
+    mockSupabaseChain.insert.mockResolvedValue(duplicateError)
+    mockSupabase.from.mockReturnValue(mockSupabaseChain)
 
-    const { getByText, queryByTestId } = render(
-      <ReportButton contentType="event" contentId="event-123" />
-    )
+    const { getByText, queryByTestId } = renderReportButton()
     
     await act(async () => {
       fireEvent.press(getByText('common:report'))
@@ -159,14 +161,12 @@ describe('ReportButton', () => {
   })
 
   it('handles generic error', async () => {
-    const mockInsert = jest.fn().mockResolvedValue({
-      error: { code: 'GENERIC', message: 'Something went wrong' }
-    })
-    mockSupabase.from.mockReturnValue({ insert: mockInsert } as any)
+    const mockSupabaseChain = createSupabaseMockChain()
+    const genericError = createErrorResponse('Something went wrong', 'GENERIC', 400)
+    mockSupabaseChain.insert.mockResolvedValue(genericError)
+    mockSupabase.from.mockReturnValue(mockSupabaseChain)
 
-    const { getByText, queryByTestId } = render(
-      <ReportButton contentType="event" contentId="event-123" />
-    )
+    const { getByText, queryByTestId } = renderReportButton()
     
     await act(async () => {
       fireEvent.press(getByText('common:report'))
@@ -185,9 +185,7 @@ describe('ReportButton', () => {
       authenticationStore: { user: null } 
     } as any)
 
-    const { getByText, queryByTestId } = render(
-      <ReportButton contentType="event" contentId="event-123" />
-    )
+    const { getByText, queryByTestId } = renderReportButton()
     
     await act(async () => {
       fireEvent.press(getByText('common:report'))

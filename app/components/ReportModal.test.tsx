@@ -1,14 +1,9 @@
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react-native'
-
+import { fireEvent } from '@testing-library/react-native'
+import { renderWithProviders, setupComponentTest } from '../../test/helpers/componentTestHelpers'
 import { ReportModal } from './ReportModal'
 
-// Mock dependencies
-jest.mock('@/theme/context', () => ({
-  useAppTheme: () => ({
-    themed: (style: any) => style,
-  }),
-}))
+// Mock dependencies - theme is provided by renderWithProviders
 
 // Mock Text component to render tx prop
 jest.mock('./Text', () => ({
@@ -74,6 +69,11 @@ jest.mock('./TextField', () => {
 })
 
 describe('ReportModal', () => {
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
+  })
+
   const defaultProps = {
     visible: true,
     onClose: jest.fn(),
@@ -81,27 +81,30 @@ describe('ReportModal', () => {
     isSubmitting: false,
   }
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
   it('renders when visible', () => {
-    const { root } = render(<ReportModal {...defaultProps} />)
+    const { root } = renderWithProviders(
+      <ReportModal {...defaultProps} />,
+      { withStoreProvider: false }
+    )
     
     expect(root).toHaveTextContent(/Report Content/)
     expect(root).toHaveTextContent(/Why are you reporting this/)
   })
 
   it('does not render when not visible', () => {
-    const { queryByText } = render(
-      <ReportModal {...defaultProps} visible={false} />
+    const { queryByText } = renderWithProviders(
+      <ReportModal {...defaultProps} visible={false} />,
+      { withStoreProvider: false }
     )
     
     expect(queryByText('Report Content')).toBeFalsy()
   })
 
   it('shows all report reasons', () => {
-    const { root } = render(<ReportModal {...defaultProps} />)
+    const { root } = renderWithProviders(
+      <ReportModal {...defaultProps} />,
+      { withStoreProvider: false }
+    )
     
     expect(root).toHaveTextContent(/Inappropriate content/)
     expect(root).toHaveTextContent(/Spam/)
@@ -112,7 +115,10 @@ describe('ReportModal', () => {
 
 
   it('calls onSubmit with selected reason', () => {
-    const { getByTestId, getByLabelText } = render(<ReportModal {...defaultProps} />)
+    const { getByTestId, getByLabelText } = renderWithProviders(
+      <ReportModal {...defaultProps} />,
+      { withStoreProvider: false }
+    )
     
     // Select spam using accessibility label
     fireEvent.press(getByLabelText('Select spam as report reason'))
@@ -124,7 +130,10 @@ describe('ReportModal', () => {
   })
 
   it('calls onClose when close button is pressed', () => {
-    const { getByLabelText } = render(<ReportModal {...defaultProps} />)
+    const { getByLabelText } = renderWithProviders(
+      <ReportModal {...defaultProps} />,
+      { withStoreProvider: false }
+    )
     
     fireEvent.press(getByLabelText('Close report modal'))
     
@@ -132,7 +141,10 @@ describe('ReportModal', () => {
   })
 
   it('calls onClose when cancel is pressed', () => {
-    const { getByTestId } = render(<ReportModal {...defaultProps} />)
+    const { getByTestId } = renderWithProviders(
+      <ReportModal {...defaultProps} />,
+      { withStoreProvider: false }
+    )
     
     fireEvent.press(getByTestId('button-common:cancel'))
     
@@ -140,7 +152,10 @@ describe('ReportModal', () => {
   })
 
   it('does not submit without reason selected', () => {
-    const { getByTestId } = render(<ReportModal {...defaultProps} />)
+    const { getByTestId } = renderWithProviders(
+      <ReportModal {...defaultProps} />,
+      { withStoreProvider: false }
+    )
     
     // Try to submit without selecting reason
     fireEvent.press(getByTestId('button-report:submitReport'))

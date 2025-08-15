@@ -1,9 +1,23 @@
 import React from "react"
-import { render, screen, fireEvent } from "@testing-library/react-native"
-
-import { ThemeProvider } from "@/theme/context"
-
+import { screen, fireEvent } from "@testing-library/react-native"
+import { renderWithProviders, setupComponentTest } from "../../test/helpers/componentTestHelpers"
 import { TextField } from "./TextField"
+
+// Mock translate function
+jest.mock("@/i18n/translate", () => ({
+  translate: (key: string, options?: any) => {
+    const translations: Record<string, string> = {
+      "common:map": "Map",
+      "common:events": "Events",
+      "common:ok": "OK!",
+      "common:cancel": "Cancel",
+      "errors:invalidEmail": "Invalid email address.",
+      "errors:emailRequired": "Email is required",
+      "errors:passwordRequired": "Password is required",
+    }
+    return translations[key] || key
+  },
+}))
 
 // Mock SafeAreaProvider
 jest.mock("react-native-safe-area-context", () => ({
@@ -11,42 +25,26 @@ jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }))
 
-// Mock translate function
-jest.mock("@/i18n/translate", () => ({
-  translate: (key: string, options?: any) => {
-    const translations: Record<string, string> = {
-      "common:map": "Map", // Existing key
-      "common:events": "Events", // Existing key
-      "common:ok": "OK!", // Existing key
-      "common:cancel": "Cancel", // Existing key
-      "errors:invalidEmail": "Invalid email address.", // Existing key
-      "errors:emailRequired": "Email is required", // Existing key
-      "errors:passwordRequired": "Password is required", // Existing key
-    }
-    return translations[key] || key
-  },
-}))
-
 // Mock isRTL
 jest.mock("@/i18n", () => ({
   isRTL: false,
 }))
 
-// Helper function to render TextField with theme
+// Helper function to render TextField with shared utilities
 const renderTextField = (props: Partial<React.ComponentProps<typeof TextField>> = {}) => {
   const defaultProps = {
     placeholder: "Test placeholder",
   }
-  return render(
-    <ThemeProvider>
-      <TextField {...defaultProps} {...props} />
-    </ThemeProvider>,
+  return renderWithProviders(
+    <TextField {...defaultProps} {...props} />,
+    { withStoreProvider: false }
   )
 }
 
 describe("TextField", () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+  // Setup component test with shared utilities
+  setupComponentTest({
+    mockAlert: false,
   })
 
   describe("Basic Rendering", () => {
@@ -416,7 +414,8 @@ describe("TextField", () => {
     })
 
     it("requires theme provider", () => {
-      // TextField requires ThemeProvider - this documents the requirement
+      // TextField requires ThemeProvider - documented requirement
+      const { render } = require("@testing-library/react-native")
       expect(() => {
         render(<TextField placeholder="No theme test" />)
       }).toThrow("useAppTheme must be used within an ThemeProvider")
