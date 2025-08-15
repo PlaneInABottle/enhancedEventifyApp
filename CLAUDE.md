@@ -442,6 +442,26 @@ await waitFor(() => {
 - Component patterns and established conventions
 - Testing strategies and common mocks
 
+### Testing Memory Organization (Security-Hardened)
+
+**Core Testing Memories (READ THESE FIRST):**
+- `comprehensive-testing-guide` - Complete security-hardened testing guide with 760 tests patterns
+- `testing-guide-setup-configuration` - Test infrastructure setup with JWT security fixes
+- `testing-guide-common-patterns` - Shared test utilities and security patterns
+- `test-refactoring-analysis` - Completed refactoring work and lessons learned
+
+**When to Reference Testing Memories:**
+- **Before writing tests**: Read `testing-guide-common-patterns` for shared utilities
+- **Test infrastructure issues**: Check `testing-guide-setup-configuration` for secure patterns
+- **Complex testing scenarios**: Reference `comprehensive-testing-guide` for advanced patterns
+- **Security concerns**: All memories now include security-hardened patterns (JWT, mocks, types)
+
+**Testing Memory Guidelines:**
+- Always use `renderWithProviders` and `setupComponentTest` from shared utilities
+- Never expose JWT structure in test mocks (use opaque tokens)
+- Use centralized Supabase mocks from `test/helpers/supabaseMocks.ts`
+- Follow Jest mock variable naming with 'mock' prefix
+
 ### React Native Specific Patterns
 
 **Navigation Prop Issues:**
