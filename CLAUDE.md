@@ -2,6 +2,25 @@
 
 *Project-specific guidelines for React Native development*
 
+## 🚀 **BEFORE YOU START CODING**
+
+### **Essential Reading (REQUIRED):**
+1. **Read this entire CLAUDE.md file** - Contains all project patterns, commands, and guidelines
+2. **Check relevant Serena memories** - Use `mcp__serena__list_memories` and read applicable guides
+3. **Review recent commits** - Understand current development context with `git log --oneline -10`
+
+### **For Testing Work:**
+- **MUST READ**: `comprehensive-testing-guide` memory for security-hardened patterns
+- **Use shared utilities**: `renderWithProviders`, `setupComponentTest` from `test/helpers/`
+- **Never expose JWT structure** in test mocks (use opaque tokens)
+
+### **For Component/Feature Work:**
+- **Check existing patterns**: Look for similar components in the codebase first
+- **Follow conventions**: Use `useAppTheme()`, translation keys (`tx` prop), MobX Observer pattern
+- **TypeScript first**: Run `bun run compile` frequently during development
+
+**💡 Remember: This file and Serena memories contain years of accumulated knowledge - always reference them first!**
+
 ## Project Context
 
 **Tech Stack:**
