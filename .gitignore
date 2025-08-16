@@ -94,6 +94,9 @@ dist/
 
 /coverage
 
+# Playwright
+.playwright-mcp/
+
 # Yarn
 .yarn/*
 !.yarn/patches

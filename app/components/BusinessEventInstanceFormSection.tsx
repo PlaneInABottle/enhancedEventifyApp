@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useMemo } from "react"
 import { View, ViewStyle, TextStyle, Pressable } from "react-native"
 
+import { DateTimePickerField } from "@/components/DateTimePicker"
 import { Dropdown } from "@/components/Dropdown"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
@@ -81,12 +82,12 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
     onUpdate({ venue_id: value })
   }, [onUpdate])
 
-  const handleStartDateTimeChange = useCallback((text: string) => {
-    onUpdate({ start_datetime: text })
+  const handleStartDateTimeChange = useCallback((date: Date | null) => {
+    onUpdate({ start_datetime: date ? date.toISOString() : "" })
   }, [onUpdate])
 
-  const handleEndDateTimeChange = useCallback((text: string) => {
-    onUpdate({ end_datetime: text })
+  const handleEndDateTimeChange = useCallback((date: Date | null) => {
+    onUpdate({ end_datetime: date ? date.toISOString() : "" })
   }, [onUpdate])
 
   const handleMaxAttendeesChange = useCallback((text: string) => {
@@ -124,23 +125,25 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
       />
 
       <View style={themed($dateTimeRow)}>
-        <TextField
+        <DateTimePickerField
           labelTx="businessEvent:startDateTimeLabel"
           placeholderTx="businessEvent:startDateTimePlaceholder"
-          value={instance.start_datetime}
-          onChangeText={handleStartDateTimeChange}
+          value={instance.start_datetime ? new Date(instance.start_datetime) : null}
+          onChange={handleStartDateTimeChange}
+          mode="datetime"
           status={errors[`instance_${index}_start_datetime`] ? "error" : undefined}
-          helper={errors[`instance_${index}_start_datetime`] ? translate(errors[`instance_${index}_start_datetime`] as TxKeyPath) : undefined}
+          error={errors[`instance_${index}_start_datetime`] ? translate(errors[`instance_${index}_start_datetime`] as TxKeyPath) : undefined}
           containerStyle={[themed($fieldContainer), themed($halfWidth)]}
         />
 
-        <TextField
+        <DateTimePickerField
           labelTx="businessEvent:endDateTimeLabel"
           placeholderTx="businessEvent:endDateTimePlaceholder"
-          value={instance.end_datetime}
-          onChangeText={handleEndDateTimeChange}
+          value={instance.end_datetime ? new Date(instance.end_datetime) : null}
+          onChange={handleEndDateTimeChange}
+          mode="datetime"
           status={errors[`instance_${index}_end_datetime`] ? "error" : undefined}
-          helper={errors[`instance_${index}_end_datetime`] ? translate(errors[`instance_${index}_end_datetime`] as TxKeyPath) : undefined}
+          error={errors[`instance_${index}_end_datetime`] ? translate(errors[`instance_${index}_end_datetime`] as TxKeyPath) : undefined}
           containerStyle={[themed($fieldContainer), themed($halfWidth)]}
         />
       </View>
