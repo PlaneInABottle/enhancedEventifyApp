@@ -6,11 +6,17 @@
 
 ### **Essential Reading (REQUIRED):**
 1. **Read this CLAUDE.md file** - Core project commands and patterns
-2. **Check relevant Serena memories** - Use `mcp__serena__list_memories` for detailed guides:
-   - `react-native-testing-patterns` - Testing patterns and security
-   - `react-native-platform-patterns` - Platform patterns and troubleshooting
-   - `comprehensive-testing-guide` - Complete testing guide with 760 tests
+2. **🗂️ Start with Memory Index** - `mcp__serena__read_memory memory-navigation-index`
+   - **Replaces manual memory hunting** - Get organized access to all 17+ memories
+   - **Context-based navigation** - Find exactly which memories to read for your task
+   - **Quick access patterns** - Testing, Architecture, Security, Automation guides
 3. **Review recent commits** - `git log --oneline -10`
+
+### **📋 Quick Memory Navigation:**
+**For Testing Work:** `comprehensive-testing-guide` → `testing-guide-observer-lists` → `testing-guide-mobx-stores`  
+**For Architecture:** `architecture-business-event-system` → `react-native-platform-patterns`  
+**For Security/DB:** `rls-storage-security-implementation` → `complete-database-schema`  
+**For Troubleshooting:** `react-native-platform-patterns` → `testing-guide-observer-lists`
 
 ### **🤖 PROACTIVE SUB-AGENT USAGE (MANDATORY):**
 - **Architecture Advisor (Sonnet)** - Architecture decisions, Supabase design, MobX State Tree patterns
