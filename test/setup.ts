@@ -43,16 +43,26 @@ jest.mock("expo-localization", () => ({
   getLocales: () => [{ languageTag: "en-US", textDirection: "ltr" }],
 }))
 
+// Create a shared translation mock that can be overridden by tests
+const mockTranslateFunction = jest.fn((key: string, params?: Record<string, string>) => {
+  return params ? `${key} ${JSON.stringify(params)}` : key
+})
+
 jest.mock("../app/i18n/index.ts", () => ({
   i18n: {
     isInitialized: true,
     language: "en",
-    t: (key: string, params: Record<string, string>) => {
-      return `${key} ${JSON.stringify(params)}`
-    },
+    t: mockTranslateFunction,
     numberToCurrency: jest.fn(),
   },
 }))
+
+jest.mock("../app/i18n/translate.ts", () => ({
+  translate: mockTranslateFunction,
+}))
+
+// Export for use in setupComponentTest
+global.mockTranslateFunction = mockTranslateFunction
 
 declare const tron
 
@@ -183,6 +193,89 @@ jest.mock("mapbox-gl", () => ({
   AttributionControl: jest.fn(),
   accessToken: "",
 }))
+
+// Mock @react-native-community/datetimepicker for mobile testing
+// Create proper React component mocks and export to global scope for test access
+global.mockNativeDateTimePicker = jest.fn(({ onChange, value, mode, testID, ...props }) => {
+  const React = require('react')
+  const { View, Text, TouchableOpacity } = require('react-native')
+  
+  return React.createElement(
+    View,
+    {
+      testID: testID || 'ios-date-time-picker'
+    },
+    React.createElement(
+      TouchableOpacity,
+      {
+        testID: 'native-picker-button',
+        onPress: () => {
+          if (onChange) {
+            // Simulate native picker selection
+            onChange({ type: 'set' }, new Date('2024-12-25T15:30:00.000Z'))
+          }
+        }
+      },
+      React.createElement(Text, {}, `Native ${mode} picker`)
+    )
+  )
+})
+
+global.mockDateTimePickerAndroid = {
+  open: jest.fn((options) => {
+    // Simulate Android picker behavior
+    if (options.onChange) {
+      setTimeout(() => {
+        options.onChange({ type: 'set' }, new Date('2024-12-25T15:30:00.000Z'))
+      }, 0)
+    }
+  }),
+  dismiss: jest.fn()
+}
+
+jest.mock('@react-native-community/datetimepicker', () => ({
+  __esModule: true,
+  default: global.mockNativeDateTimePicker,
+  DateTimePickerAndroid: global.mockDateTimePickerAndroid
+}))
+
+// Mock react-datepicker for web tests
+global.mockReactDatePicker = jest.fn(({ onChange, selected, customInput, placeholderText, ...props }) => {
+  const React = require('react')
+  const { TouchableOpacity, Text } = require('react-native')
+  
+  // Clone the customInput and add onPress functionality
+  if (customInput) {
+    return React.cloneElement(customInput, {
+      onPress: () => {
+        if (onChange) {
+          onChange(new Date('2024-12-25T15:30:00.000Z')) // 24-hour format time
+        }
+      }
+    })
+  }
+  
+  return React.createElement(
+    TouchableOpacity,
+    {
+      testID: 'react-datepicker',
+      onPress: () => {
+        if (onChange) {
+          onChange(new Date('2024-12-25T15:30:00.000Z'))
+        }
+      }
+    },
+    React.createElement(Text, {}, selected ? selected.toString() : placeholderText || 'Select date')
+  )
+})
+
+jest.mock('react-datepicker', () => ({
+  __esModule: true,
+  default: global.mockReactDatePicker
+}))
+
+// Mock CSS import
+jest.mock('react-datepicker/dist/react-datepicker.css', () => ({}))
 
 // Mock @rnmapbox/maps globally
 jest.mock("@rnmapbox/maps", () => ({

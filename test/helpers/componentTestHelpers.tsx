@@ -291,10 +291,14 @@ export const setupComponentTest = (options: {
     }
 
     // Mock translations if provided
-    if (Object.keys(mockTranslations).length > 0) {
-      jest.doMock('@/i18n/translate', () => ({
-        translate: (key: string) => mockTranslations[key] || key,
-      }))
+    if (Object.keys(mockTranslations).length > 0 && global.mockTranslateFunction) {
+      global.mockTranslateFunction.mockImplementation((key: string, params?: Record<string, string>) => {
+        const translation = mockTranslations[key]
+        if (translation) {
+          return translation
+        }
+        return params ? `${key} ${JSON.stringify(params)}` : key
+      })
     }
 
     // Create navigation mock if requested
