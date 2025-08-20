@@ -40,7 +40,7 @@
 bun start               # Start dev server (expo start --dev-client)
 bun run ios             # Run on iOS simulator
 bun run android         # Run on Android emulator
-bun run web             # Run on web browser
+bun run web             # Run on web browser (with automatic hot reload on file changes)
 
 # Quality Checks (Run before committing)
 bun run compile         # TypeScript check (tsc --noEmit)
