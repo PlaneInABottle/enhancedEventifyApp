@@ -1,24 +1,27 @@
 # Enhanced Eventify App - Project Configuration
 
-*Project-specific guidelines for React Native development*
+_Project-specific guidelines for React Native development_
 
 ## 🚀 **BEFORE YOU START CODING**
 
 ### **Essential Reading (REQUIRED):**
+
 1. **Read this CLAUDE.md file** - Core project commands and patterns
-2. **🗂️ Start with Memory Index** - `mcp__serena__read_memory memory-navigation-index`
+2. - **Start with Memory Index** - `mcp__serena__read_memory memory-navigation-index`
    - **Replaces manual memory hunting** - Get organized access to all 17+ memories
    - **Context-based navigation** - Find exactly which memories to read for your task
    - **Quick access patterns** - Testing, Architecture, Security, Automation guides
 3. **Review recent commits** - `git log --oneline -10`
 
 ### **📋 Quick Memory Navigation:**
+
 **For Testing Work:** `comprehensive-testing-guide` → `testing-guide-observer-lists` → `testing-guide-mobx-stores`  
 **For Architecture:** `architecture-business-event-system` → `react-native-platform-patterns`  
 **For Security/DB:** `rls-storage-security-implementation` → `complete-database-schema`  
 **For Troubleshooting:** `react-native-platform-patterns` → `testing-guide-observer-lists`
 
 ### **🤖 PROACTIVE SUB-AGENT USAGE (MANDATORY):**
+
 - **Architecture Advisor (Sonnet)** - Architecture decisions, Supabase design, MobX State Tree patterns
 - **Code Reviewer (Auto-triggered)** - After ANY code changes for security, performance, maintainability
 - **Debugger (Haiku)** - Errors, unexpected behavior, test failures, build issues
@@ -35,6 +38,7 @@
 ## Development Commands
 
 **Essential Commands:**
+
 ```bash
 # Development
 bun start               # Start dev server (expo start --dev-client)
@@ -78,6 +82,7 @@ mcp__supabase__execute_sql    # Execute test files with automatic rollback
 ## Project Patterns
 
 ### Component Pattern
+
 ```typescript
 // Always use functional components with proper typing
 import React from 'react'
@@ -91,7 +96,7 @@ interface ComponentNameProps {
 
 export const ComponentName = observer(function ComponentName(props: ComponentNameProps) {
   const { themed } = useAppTheme()
-  
+
   return (
     <View style={themed($container)}>
       <Text tx="translationKey" />
@@ -105,12 +110,13 @@ const $container: ThemedStyle = (theme) => ({
 ```
 
 ### Store Pattern (MobX)
+
 ```typescript
 // Stores use MobX State Tree
-import { types } from 'mobx-state-tree'
+import { types } from "mobx-state-tree"
 
 export const StoreModel = types
-  .model('StoreName')
+  .model("StoreName")
   .props({
     // Properties
   })
@@ -123,6 +129,7 @@ export const StoreModel = types
 ```
 
 ### Critical MobX List Pattern
+
 ```typescript
 // CRITICAL: Wrap list items with Observer for MobX reactivity
 // See 'react-native-platform-patterns' memory for full details
@@ -141,6 +148,7 @@ const renderEventItem = useCallback(({ item: event }) => (
 ```
 
 ### Key Patterns
+
 ```typescript
 // Error Handling - NEVER hardcode, use translation keys
 return { success: false, error: "errors.venueNotFound" }
@@ -151,7 +159,7 @@ isLoading // Not: isCreating, isUpdating, isDeleting
 // RLS Security - Validate ownership through business level
 WHERE entity_id IN (
   SELECT t.id FROM table t
-  JOIN business_profiles bp ON t.business_id = bp.id  
+  JOIN business_profiles bp ON t.business_id = bp.id
   WHERE t.id = folder_id AND bp.owner_id = auth.uid()
 )
 ```
@@ -159,23 +167,26 @@ WHERE entity_id IN (
 ## Common Tasks
 
 ### Creating a New Screen
+
 1. Create screen file in `app/screens/`
 2. Use the Screen component wrapper
 3. Add to navigator in `app/navigators/`
 4. Add translation keys to `app/i18n/`
 
 ### Adding Supabase Functionality
+
 Use `mcp__supabase__*` tools for database operations instead of CLI commands
 
 ### Adding Translations
+
 1. Add keys to `app/i18n/en.ts` and `app/i18n/tr.ts`
 2. Use `tx` prop: `<Text tx="namespace:key" />`
 
 ### Writing Tests
+
 - Use `renderWithProviders` and `setupComponentTest` from `test/helpers/`
 - See `react-native-testing-patterns` memory for security patterns
 - Run: `bun run test:watch ComponentName`
-
 
 ## MCP Integration
 
@@ -185,7 +196,6 @@ Use `mcp__supabase__*` tools for database operations instead of CLI commands
 **Supabase:** `mcp__supabase__*` for database operations  
 **Playwright:** `mcp__playwright__*` for web testing
 **Maestro:** `mcp__maestro__*` for mobile app testing
-
 
 ## Development Workflow
 
@@ -197,10 +207,12 @@ Use `mcp__supabase__*` tools for database operations instead of CLI commands
 ## Key Serena Memories
 
 **Testing:**
+
 - `react-native-testing-patterns` - Security patterns, mocking, async handling
 - `comprehensive-testing-guide` - Complete guide with 760 tests
 
 **Platform Patterns:**
+
 - `react-native-platform-patterns` - Navigation, MobX, theming, troubleshooting
 
 ## Quick Troubleshooting
@@ -209,12 +221,14 @@ Use `mcp__supabase__*` tools for database operations instead of CLI commands
 **Metro issues:** `npx react-native start --reset-cache`  
 **Expo cache:** `expo start -c` + `rm -rf .expo`
 
-*See `react-native-platform-patterns` memory for detailed troubleshooting*
+_See `react-native-platform-patterns` memory for detailed troubleshooting_
 
 ## 🤖 Specialized Sub-Agents (Detailed Configuration)
 
 ### Architecture Advisor (Sonnet Model)
+
 **PROACTIVE TRIGGERS:**
+
 - React Native architecture decisions and component design
 - Supabase schema design, RLS policies, Edge Functions
 - MobX State Tree store architecture and relationships
@@ -222,21 +236,27 @@ Use `mcp__supabase__*` tools for database operations instead of CLI commands
 - Technology integration decisions (libraries, frameworks)
 
 ### Code Reviewer (Automatically Triggered)
+
 **MANDATORY for ANY code changes:**
+
 - Security analysis (RLS, authentication, data validation)
 - Performance review (MobX reactivity, list rendering, bundle size)
 - Maintainability assessment (overengineering detection, pattern consistency)
 - Type safety and React Native best practices
 
 ### Debugger (Haiku Model - Fast Analysis)
+
 **AUTOMATIC TRIGGERS:**
+
 - Runtime errors, logic bugs, unexpected behavior
 - Test failures, build errors, TypeScript compilation issues
 - Performance problems (slow rendering, memory leaks)
 - Integration issues (Supabase, navigation, platform-specific)
 
 ### Testing Strategist (Haiku Model - Fast Planning)
+
 **PROACTIVE USAGE (Before Implementation):**
+
 - Comprehensive test planning for new features
 - Coverage gap analysis and test strategy recommendations
 - React Native testing patterns with security considerations
@@ -245,4 +265,5 @@ Use `mcp__supabase__*` tools for database operations instead of CLI commands
 **💡 Sub-agents activate automatically based on task context - structured expertise for complex analysis!**
 
 ---
-*See global configuration in ~/.claude/CLAUDE.md for general guidelines*
+
+_See global configuration in ~/.claude/CLAUDE.md for general guidelines_
