@@ -31,17 +31,21 @@ jest.mock('@/i18n/translate', () => ({
 }))
 
 
-// Mock stores
-const mockBusinessEventStore = {
+// Mock stores - using factory functions to ensure proper isolation
+const createMockBusinessEventStore = () => ({
   getEventById: jest.fn(),
   createEvent: jest.fn(),
-}
+})
 
-const mockBusinessProfileStore = {
+const createMockBusinessProfileStore = () => ({
   profile: {
     id: 'business-1',
   } as any,
-}
+})
+
+// Create fresh mocks for each test
+let mockBusinessEventStore: ReturnType<typeof createMockBusinessEventStore>
+let mockBusinessProfileStore: ReturnType<typeof createMockBusinessProfileStore>
 
 jest.mock('@/models', () => ({
   useStores: () => ({
@@ -176,10 +180,11 @@ function createMockEvent(overrides?: any): IBusinessEvent {
 
 describe('BusinessEventFormScreen', () => {
   beforeEach(() => {
+    // Create fresh mock instances for each test to prevent state pollution
+    mockBusinessEventStore = createMockBusinessEventStore()
+    mockBusinessProfileStore = createMockBusinessProfileStore()
     jest.clearAllMocks()
     formErrorMessage = null
-    // Reset business profile
-    mockBusinessProfileStore.profile = { id: 'business-1' }
   })
 
   describe('Route Name Discrimination', () => {
