@@ -1,5 +1,5 @@
 ---
-name: debugger
+name: react-native-debugger
 description: Use PROACTIVELY for any errors or unexpected behavior in the React Native app. This agent specializes in rapid root cause analysis and precise fix recommendations for runtime errors, logic bugs, performance issues, test failures, build errors, or unexpected application behavior.
 
 Examples:

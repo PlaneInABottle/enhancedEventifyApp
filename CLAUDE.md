@@ -20,14 +20,14 @@ _Project-specific guidelines for React Native development_
 **For Security/DB:** `rls-storage-security-implementation` → `complete-database-schema`  
 **For Troubleshooting:** `react-native-platform-patterns` → `testing-guide-observer-lists`
 
-### **🤖 PROACTIVE SUB-AGENT USAGE (MANDATORY):**
+### **🤖 SUB-AGENT DELEGATION COMMANDS (MANDATORY):**
 
-- **Architecture Advisor (Sonnet)** - Architecture decisions, Supabase design, MobX State Tree patterns
-- **Code Reviewer (Auto-triggered)** - After ANY code changes for security, performance, maintainability
-- **Debugger (Haiku)** - Errors, unexpected behavior, test failures, build issues
-- **Testing Strategist (Haiku)** - Before implementing features for comprehensive test planning
+- **DELEGATE to Architecture Advisor (Sonnet)** - Architecture decisions, Supabase design, MobX State Tree patterns
+- **MUST USE Code Reviewer (Sonnet)** - After ANY code changes for security, performance, maintainability
+- **DELEGATE to React Native Debugger (Haiku)** - Errors, unexpected behavior, test failures, build issues
+- **DELEGATE to Testing Strategist (Haiku)** - Before implementing features for comprehensive test planning
 
-**💡 Sub-agents activate automatically - leverage their specialized expertise for complex analysis!**
+**💡 Actively delegate to specialized sub-agents - leverage their expertise for complex analysis!**
 
 ## Project Context
 
@@ -227,7 +227,7 @@ _See `react-native-platform-patterns` memory for detailed troubleshooting_
 
 ### Architecture Advisor (Sonnet Model)
 
-**PROACTIVE TRIGGERS:**
+**DELEGATE FOR:**
 
 - React Native architecture decisions and component design
 - Supabase schema design, RLS policies, Edge Functions
@@ -235,7 +235,7 @@ _See `react-native-platform-patterns` memory for detailed troubleshooting_
 - Navigation structure and cross-platform patterns
 - Technology integration decisions (libraries, frameworks)
 
-### Code Reviewer (Automatically Triggered)
+### Code Reviewer (MUST USE AFTER CODE CHANGES)
 
 **MANDATORY for ANY code changes:**
 
@@ -244,9 +244,9 @@ _See `react-native-platform-patterns` memory for detailed troubleshooting_
 - Maintainability assessment (overengineering detection, pattern consistency)
 - Type safety and React Native best practices
 
-### Debugger (Haiku Model - Fast Analysis)
+### React Native Debugger (Haiku Model - Fast Analysis)
 
-**AUTOMATIC TRIGGERS:**
+**USE FOR:**
 
 - Runtime errors, logic bugs, unexpected behavior
 - Test failures, build errors, TypeScript compilation issues
@@ -255,7 +255,7 @@ _See `react-native-platform-patterns` memory for detailed troubleshooting_
 
 ### Testing Strategist (Haiku Model - Fast Planning)
 
-**PROACTIVE USAGE (Before Implementation):**
+**DELEGATE BEFORE IMPLEMENTING FEATURES:**
 
 - Comprehensive test planning for new features
 - Coverage gap analysis and test strategy recommendations
