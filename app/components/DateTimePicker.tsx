@@ -210,6 +210,7 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
   }, [value, mode, placeholderTx, placeholder])
 
   // Web-specific react-datepicker implementation
+  // NOTE: open state no longer needed after portal implementation; removed to simplify component
   const renderWebPicker = () => {
     if (Platform.OS !== "web") return null
 
@@ -247,6 +248,40 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
         minDate={minimumDate}
         maxDate={maximumDate}
         placeholderText={placeholderTx ? translate(placeholderTx) : placeholder}
+        popperPlacement="bottom-start"
+        // Portal-based popper container to avoid stacking context & z-index hacks on web
+        popperContainer={({ children }: { children: React.ReactNode }) => {
+          // Only execute in real browser environments
+          if (typeof document === "undefined") return <div>{children}</div>
+
+          // Reuse or create a dedicated overlay root for date pickers and future overlays
+          const overlayRootId = "app-overlays"
+          let root = document.getElementById(overlayRootId)
+          if (!root) {
+            root = document.createElement("div")
+            root.id = overlayRootId
+            // Keep layering predictable without arbitrary huge z-index values
+            root.style.position = "relative"
+            document.body.appendChild(root)
+          }
+
+          // Lazy import ReactDOM only when needed to avoid adding to RN native bundles
+          let ReactDOMRef: any = null
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            ReactDOMRef = require("react-dom")
+          } catch {
+            return <div>{children}</div>
+          }
+
+          // Use a wrapper to ensure positioning context remains intact for popper (fixed strategy below)
+          return ReactDOMRef.createPortal(
+            <div className="datepicker-portal-wrapper">{children}</div>,
+            root,
+          )
+        }}
+        // Use fixed strategy so popper is not constrained by transformed parents
+        popperProps={{ strategy: "fixed" }}
         customInput={
           <CustomDateInput
             displayText={displayText}
@@ -281,7 +316,7 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
     if (!DateTimePickerAndroid || !DateTimePickerAndroid.open) return
 
     // Simple helper to open time picker after date selection
-    const openTimePicker = (baseDate: Date, originalValue: Date | null) => {
+    const openTimePicker = (baseDate: Date) => {
       DateTimePickerAndroid.open({
         value: baseDate,
         onChange: (_evt: any, selected?: Date) => {
@@ -313,7 +348,7 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
           if (value) {
             base.setHours(value.getHours(), value.getMinutes(), 0, 0)
           }
-          openTimePicker(base, value || null)
+          openTimePicker(base)
         },
         mode: "date",
         is24Hour: true,
@@ -405,7 +440,7 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
     return renderAndroidPicker()
   }
 
-  const $containerStyles = [themed($container), containerStyle]
+  const $containerStyles: StyleProp<ViewStyle> = [themed($container), containerStyle]
   const $labelStyles = [themed($labelStyle)]
   const $inputWrapperStyles: ThemedStyleArray<ViewStyle> = [
     themed($inputWrapperStyle),
@@ -452,7 +487,8 @@ const $inputWrapperStyle: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   borderRadius: 4,
   backgroundColor: colors.palette.neutral200,
   borderColor: colors.palette.neutral400,
-  overflow: "hidden",
+  // Removed overflow: hidden on web to avoid clipping/stacking issues with datepicker popper
+  ...(Platform.OS === "web" ? {} : { overflow: "hidden" }),
   paddingVertical: spacing.xs,
   paddingHorizontal: spacing.sm,
   minHeight: 40,

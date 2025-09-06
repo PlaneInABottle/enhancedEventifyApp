@@ -107,6 +107,7 @@ dist/
 
 .mcp*
 .gemini*
+opencode.json
 
 # Serena directory (completely ignored)
 .serena/
