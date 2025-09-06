@@ -25,11 +25,11 @@ export function formatDisplayDate(
       })
     }
     if (mode === "time") {
+      // Display in local time (24h). Avoid specifying timeZone to prevent unintended shifts.
       return value.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
-        timeZone: "UTC",
       })
     }
     // datetime
@@ -42,7 +42,6 @@ export function formatDisplayDate(
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
-      timeZone: "UTC",
     })
     return `${dateStr} ${timeStr}`
   } catch {

@@ -31,7 +31,8 @@ describe("DateTimePickerField", () => {
 
   const mockOnChangeLocal = jest.fn()
   // Use timezone-consistent test date with 24-hour time
-  const testDate = new Date("2024-12-25T15:30:00.000Z") // 3:30 PM in 24-hour format
+  // Use a fixed UTC time; display should now reflect local hours without forced UTC conversion.
+  const testDate = new Date("2024-12-25T15:30:00.000Z") // Expect local 24h display (may differ if environment timezone not UTC)
 
   // SECURITY-HARDENED: Standard cleanup pattern from testing guide
   beforeEach(() => {
@@ -69,7 +70,13 @@ describe("DateTimePickerField", () => {
       })
 
       const displayText = screen.getByTestId("date-display-text")
-      expect(displayText.props.children).toBe("15:30") // 24-hour format
+      // Extract hours and minutes; environment timezone may shift displayed hour if not UTC.
+      const displayed = displayText.props.children as string
+      expect(displayed).toMatch(/^\d{2}:\d{2}$/)
+      const [hh, mm] = displayed.split(":").map(Number)
+      expect(mm).toBe(30)
+      // Hour should match underlying Date object's local hour
+      expect(hh).toBe(testDate.getHours()) // 24-hour format local
       expect(displayText.props.children).not.toMatch(/AM|PM/i) // No AM/PM
     })
 
@@ -81,8 +88,11 @@ describe("DateTimePickerField", () => {
       })
 
       const displayText = screen.getByTestId("date-display-text")
-      const text = displayText.props.children
-      expect(text).toMatch(/12\/25\/2024.*15:30/) // Date with 24-hour time
+      const text = displayText.props.children as string
+      expect(text).toMatch(/12\/25\/2024/) // Date part present
+      // Time portion should reflect local hours (HH:30)
+      const expectedHour = String(testDate.getHours()).padStart(2, "0")
+      expect(text).toMatch(new RegExp(`${expectedHour}:30`))
       expect(text).not.toMatch(/AM|PM/i) // No AM/PM
     })
 
@@ -95,7 +105,8 @@ describe("DateTimePickerField", () => {
 
       const displayText = screen.getByTestId("date-display-text")
       expect(displayText.props.children).toMatch(/12\/25\/2024/)
-      expect(displayText.props.children).not.toMatch(/15:30|AM|PM/i)
+      // Should not show the specific time substring or AM/PM in date-only mode
+      expect(displayText.props.children).not.toMatch(/:\d{2}|AM|PM/i)
     })
   })
 
@@ -250,7 +261,7 @@ describe("DateTimePickerField", () => {
       // Simulate selecting time
       const finalDate = new Date("2024-12-25T15:30:00.000Z")
       secondCall.onChange({ type: "set" }, finalDate)
-      // onChange prop should be called with final datetime
+      // onChange prop should be called with final datetime (unchanged object reference acceptable)
       expect(testOnChange).toHaveBeenCalledWith(finalDate)
     })
 
