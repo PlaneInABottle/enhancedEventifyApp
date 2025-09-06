@@ -7,7 +7,6 @@ import { types, flow, Instance, destroy } from "mobx-state-tree"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 import {
   createEvent,
-  getEvent,
   getEventsForBusiness,
   updateEvent,
   deleteEvent,
@@ -237,23 +236,6 @@ export const BusinessEventStore = types
     },
   }))
   .actions((self) => ({
-    setSelectedEvent(eventId: string | null) {
-      self.setProp("selectedEvent", eventId || undefined)
-    },
-
-    clearError() {
-      self.setProp("lastError", null)
-    },
-
-    reset() {
-      // Use empty array snapshot to avoid detached node errors
-      self.setProp("events", [])
-      self.setProp("selectedEvent", undefined)
-      self.setProp("isLoading", false)
-      self.setProp("isCreating", false)
-      self.setProp("lastError", null)
-    },
-
     // ========================================================================
     // ASYNC ACTIONS
     // ========================================================================
@@ -320,45 +302,6 @@ export const BusinessEventStore = types
       }
     }),
 
-    fetchEventById: flow(function* (eventId: string) {
-      self.setProp("isLoading", true)
-      self.setProp("lastError", null)
-
-      try {
-        const result = yield getEvent(eventId)
-
-        if (result.success && result.event) {
-          const existingEvent = self.getEventById(eventId)
-          if (existingEvent) {
-            // Update existing event properties individually
-            const event = result.event as EventWithDetails
-            if (event.title) existingEvent.setProp("title", event.title)
-            if (event.description !== undefined)
-              existingEvent.setProp("description", event.description)
-            if (event.updated_at) existingEvent.setProp("updated_at", event.updated_at)
-            existingEvent.setProp("imageUrl", event.imageUrl ?? undefined)
-          } else {
-            // Add new event to store
-            const eventModel = BusinessEventModel.create({
-              ...(result.event as EventWithDetails),
-              imageUrl: (result.event as EventWithDetails).imageUrl || undefined,
-            })
-            self.events.push(eventModel)
-          }
-
-          return { success: true, event: result.event }
-        } else {
-          self.setProp("lastError", result.error || "errors.fetchEventFailed")
-          return { success: false, error: result.error }
-        }
-      } catch (error) {
-        console.error("EventStore.fetchEventById error:", error)
-        self.setProp("lastError", "errors.unknownError")
-        return { success: false, error: "errors.unknownError" }
-      } finally {
-        self.setProp("isLoading", false)
-      }
-    }),
   }))
 
 // ============================================================================
