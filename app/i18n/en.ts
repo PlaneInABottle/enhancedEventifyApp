@@ -34,7 +34,7 @@ const en = {
     titlePlaceholder: "Enter event title",
     descriptionLabel: "Description",
     descriptionPlaceholder: "Enter event description (optional)",
-    
+
     // Instance form
     eventInstances: "Event Instances",
     addInstance: "Add Instance",
@@ -47,25 +47,7 @@ const en = {
     endDateTimePlaceholder: "YYYY-MM-DD HH:MM",
     maxAttendeesLabel: "Max Attendees",
     maxAttendeesPlaceholder: "Optional",
-    statusLabel: "Status",
-    statusPlaceholder: "Select status",
-    
-    // Status options
-    statusDraft: "Draft",
-    statusPublished: "Published",
-    statusScheduled: "Scheduled",
-    statusCancelled: "Cancelled", 
-    statusPostponed: "Postponed",
-    statusCompleted: "Completed",
-    
-    // Status counts for badges
-    statusPublishedCount: "{{count}} Published",
-    statusScheduledCount: "{{count}} Scheduled",
-    statusDraftCount: "{{count}} Draft",
-    statusCancelledCount: "{{count}} Cancelled",
-    statusPostponedCount: "{{count}} Postponed", 
-    statusCompletedCount: "{{count}} Completed",
-    
+
     // Actions
     createEvent: "Create Event",
     updateEvent: "Update Event",
@@ -74,11 +56,11 @@ const en = {
     createFirstEvent: "Create Your First Event",
     eventCreatedSuccessfully: "Event created successfully!",
     eventUpdatedSuccessfully: "Event updated successfully!",
-    
+
     // Validation
     validationErrorTitle: "Validation Error",
     validationErrorMessage: "Please fix all errors before submitting.",
-    
+
     // List view
     instanceCount: "{{count}} instance(s)",
     nextInstance: "Next Instance",
@@ -86,15 +68,16 @@ const en = {
     noEventsTitle: "No Events Yet",
     noEventsMessage: "Start by creating your first event for your business.",
     upcomingEvents: "Upcoming Events",
-    activeEvents: "Active Events", 
+    activeEvents: "Active Events",
     pastEvents: "Past Events",
     noUpcomingEvents: "No upcoming events",
     noActiveEvents: "No active events",
     noPastEvents: "No past events",
-    
+
     // Delete confirmation
     deleteEventTitle: "Delete Event",
-    deleteEventMessage: "Are you sure you want to delete '{{title}}'? This action cannot be undone.",
+    deleteEventMessage:
+      "Are you sure you want to delete '{{title}}'? This action cannot be undone.",
   },
   report: {
     title: "Report Content",

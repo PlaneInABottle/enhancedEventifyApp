@@ -25,7 +25,7 @@ describe("MapService", () => {
           venue_id: "789",
           start_datetime: "2025-01-27T10:00:00Z",
           end_datetime: "2025-01-27T12:00:00Z",
-          event_instance_status: "scheduled",
+
           max_attendees: 100,
           event_title: "Test Event",
           event_description: "Test Description",

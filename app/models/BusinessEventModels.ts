@@ -5,7 +5,7 @@
 
 import { types, flow, Instance, destroy } from "mobx-state-tree"
 import { withSetPropAction } from "./helpers/withSetPropAction"
-import { 
+import {
   createEvent,
   getEvent,
   getEventsForBusiness,
@@ -18,7 +18,6 @@ import {
 import type {
   Event,
   EventInstance,
-  EventInstanceStatus,
   CreateEventRequest,
   CreateEventInstanceRequest,
   UpdateEventRequest,
@@ -37,27 +36,21 @@ export const BusinessEventInstanceModel = types
     venue_id: types.string,
     start_datetime: types.string,
     end_datetime: types.string,
-    event_instance_status: types.enumeration("EventInstanceStatus", [
-      "draft",
-      "published",
-      "scheduled",
-      "cancelled",
-      "postponed",
-      "completed",
-    ]),
     max_attendees: types.maybeNull(types.number),
     created_at: types.string,
     updated_at: types.string,
     // Venue data (populated when fetched with joins)
-    venue: types.maybe(types.model("VenueInfo", {
-      id: types.string,
-      name: types.string,
-      address: types.string,
-      city: types.string,
-      country: types.string,
-      latitude: types.maybeNull(types.number),
-      longitude: types.maybeNull(types.number),
-    })),
+    venue: types.maybe(
+      types.model("VenueInfo", {
+        id: types.string,
+        name: types.string,
+        address: types.string,
+        city: types.string,
+        country: types.string,
+        latitude: types.maybeNull(types.number),
+        longitude: types.maybeNull(types.number),
+      }),
+    ),
   })
   .actions(withSetPropAction)
   .views((self) => ({
@@ -79,7 +72,7 @@ export const BusinessEventInstanceModel = types
     },
     get duration() {
       const diffMs = this.endDate.getTime() - this.startDate.getTime()
-      return Math.round(diffMs / (1000 * 60 * 60) * 10) / 10 // Hours with 1 decimal
+      return Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10 // Hours with 1 decimal
     },
   }))
   .actions((self) => ({
@@ -89,10 +82,11 @@ export const BusinessEventInstanceModel = types
         // Update properties from server response
         const instance = result.eventInstance
         if (instance.venue_id !== undefined) self.setProp("venue_id", instance.venue_id)
-        if (instance.start_datetime !== undefined) self.setProp("start_datetime", instance.start_datetime)
+        if (instance.start_datetime !== undefined)
+          self.setProp("start_datetime", instance.start_datetime)
         if (instance.end_datetime !== undefined) self.setProp("end_datetime", instance.end_datetime)
-        if (instance.event_instance_status !== undefined) self.setProp("event_instance_status", instance.event_instance_status)
-        if (instance.max_attendees !== undefined) self.setProp("max_attendees", instance.max_attendees)
+        if (instance.max_attendees !== undefined)
+          self.setProp("max_attendees", instance.max_attendees)
         if (instance.updated_at) self.setProp("updated_at", instance.updated_at)
         return { success: true }
       }
@@ -137,18 +131,18 @@ export const BusinessEventModel = types
     get upcomingInstances() {
       const now = new Date()
       return self.instances
-        .filter(instance => new Date(instance.start_datetime) > now)
+        .filter((instance) => new Date(instance.start_datetime) > now)
         .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
     },
     get pastInstances() {
       const now = new Date()
       return self.instances
-        .filter(instance => new Date(instance.end_datetime) < now)
+        .filter((instance) => new Date(instance.end_datetime) < now)
         .sort((a, b) => new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime())
     },
     get activeInstances() {
       const now = new Date()
-      return self.instances.filter(instance => {
+      return self.instances.filter((instance) => {
         const start = new Date(instance.start_datetime)
         const end = new Date(instance.end_datetime)
         return start <= now && now <= end
@@ -163,34 +157,16 @@ export const BusinessEventModel = types
     get earliestStartDate() {
       if (this.instanceCount === 0) return null
       return self.instances.reduce((earliest, instance) => {
-        return new Date(instance.start_datetime) < new Date(earliest.start_datetime) 
-          ? instance 
+        return new Date(instance.start_datetime) < new Date(earliest.start_datetime)
+          ? instance
           : earliest
       }).start_datetime
     },
     get latestEndDate() {
       if (this.instanceCount === 0) return null
       return self.instances.reduce((latest, instance) => {
-        return new Date(instance.end_datetime) > new Date(latest.end_datetime) 
-          ? instance 
-          : latest
+        return new Date(instance.end_datetime) > new Date(latest.end_datetime) ? instance : latest
       }).end_datetime
-    },
-    get statusCounts() {
-      const counts: Record<EventInstanceStatus, number> = {
-        draft: 0,
-        published: 0,
-        scheduled: 0,
-        cancelled: 0,
-        postponed: 0,
-        completed: 0,
-      }
-      
-      self.instances.forEach(instance => {
-        counts[instance.event_instance_status as EventInstanceStatus]++
-      })
-      
-      return counts
     },
   }))
   .actions((self) => ({
@@ -245,16 +221,18 @@ export const BusinessEventStore = types
       return self.events.length
     },
     getEventById(id: string) {
-      return self.events.find(event => event.id === id)
+      return self.events.find((event) => event.id === id)
     },
     get upcomingEvents() {
-      return self.events.filter(event => event.hasUpcomingInstances)
+      return self.events.filter((event) => event.hasUpcomingInstances)
     },
     get eventsByStatus() {
       return {
-        upcoming: self.events.filter(event => event.hasUpcomingInstances),
-        active: self.events.filter(event => event.activeInstances.length > 0),
-        past: self.events.filter(event => !event.hasUpcomingInstances && event.activeInstances.length === 0),
+        upcoming: self.events.filter((event) => event.hasUpcomingInstances),
+        active: self.events.filter((event) => event.activeInstances.length > 0),
+        past: self.events.filter(
+          (event) => !event.hasUpcomingInstances && event.activeInstances.length === 0,
+        ),
       }
     },
   }))
@@ -355,7 +333,8 @@ export const BusinessEventStore = types
             // Update existing event properties individually
             const event = result.event as EventWithDetails
             if (event.title) existingEvent.setProp("title", event.title)
-            if (event.description !== undefined) existingEvent.setProp("description", event.description)
+            if (event.description !== undefined)
+              existingEvent.setProp("description", event.description)
             if (event.updated_at) existingEvent.setProp("updated_at", event.updated_at)
             existingEvent.setProp("imageUrl", event.imageUrl ?? undefined)
           } else {
@@ -366,7 +345,7 @@ export const BusinessEventStore = types
             })
             self.events.push(eventModel)
           }
-          
+
           return { success: true, event: result.event }
         } else {
           self.setProp("lastError", result.error || "errors.fetchEventFailed")

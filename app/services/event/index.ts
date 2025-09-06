@@ -7,7 +7,6 @@
 export type {
   Event,
   EventInstance,
-  EventInstanceStatus,
   CreateEventRequest,
   CreateEventInstanceRequest,
   UpdateEventRequest,
@@ -25,9 +24,9 @@ export type {
   EventValidationResult,
   EventInstanceValidationResult,
   EventErrorCode,
-} from './businessEventTypes'
+} from "./businessEventTypes"
 
-export { EVENT_CONSTANTS, EVENT_INSTANCE_STATUS_LABELS } from './businessEventTypes'
+export { EVENT_CONSTANTS } from "./businessEventTypes"
 
 // Event service functions
 export {
@@ -40,7 +39,7 @@ export {
   getEventInstances,
   updateEventInstance,
   deleteEventInstance,
-} from './businessEventService'
+} from "./businessEventService"
 
 // Helper functions
 export {
@@ -56,4 +55,4 @@ export {
   isEventInstanceActive,
   sortEventInstancesByStartDate,
   groupEventInstancesByDate,
-} from './businessEventHelpers'
+} from "./businessEventHelpers"

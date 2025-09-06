@@ -89,11 +89,11 @@ SELECT ok(
     'Should exclude past events by default'
 );
 
--- Test 13: Function only returns scheduled events
+-- Test 13: Function returns only future events (redundancy check)
 SELECT ok(
-    (SELECT COUNT(*) FROM get_events_in_bounds(60, -60, 60, -60) 
-     WHERE event_instance_status != 'scheduled') = 0,
-    'Should only return scheduled events'
+    (SELECT COUNT(*) FROM get_events_in_bounds(60, -60, 60, -60)
+     WHERE start_datetime < NOW()) = 0,
+    'Should not include past events (reinforces future filter)'
 );
 
 -- Test 14: Function only returns events from active venues

@@ -8,7 +8,7 @@ import { TextField } from "@/components/TextField"
 import type { TxKeyPath } from "@/i18n"
 import { translate } from "@/i18n/translate"
 import type { IVenue } from "@/models/VenueModels"
-import type { EventInstanceStatus } from "@/services/event"
+
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
@@ -18,7 +18,6 @@ export interface BusinessEventInstanceFormData {
   start_datetime: string
   end_datetime: string
   max_attendees: number | null
-  event_instance_status: EventInstanceStatus
 }
 
 interface BusinessEventInstanceFormSectionProps {
@@ -65,44 +64,46 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
 
   // Venue options for dropdown
   const venueOptions = useMemo(() => {
-    return venues.map(venue => ({
+    return venues.map((venue) => ({
       label: venue.name,
       value: venue.id,
     }))
   }, [venues])
 
-  // Status options for dropdown
-  const statusOptions = useMemo(() => [
-    { label: translate("businessEvent:statusDraft"), value: "draft" },
-    { label: translate("businessEvent:statusPublished"), value: "published" },
-  ], [])
-
   // Handle field updates
-  const handleVenueChange = useCallback((value: string) => {
-    onUpdate({ venue_id: value })
-  }, [onUpdate])
+  const handleVenueChange = useCallback(
+    (value: string) => {
+      onUpdate({ venue_id: value })
+    },
+    [onUpdate],
+  )
 
-  const handleStartDateTimeChange = useCallback((date: Date | null) => {
-    onUpdate({ start_datetime: date ? date.toISOString() : "" })
-  }, [onUpdate])
+  const handleStartDateTimeChange = useCallback(
+    (date: Date | null) => {
+      onUpdate({ start_datetime: date ? date.toISOString() : "" })
+    },
+    [onUpdate],
+  )
 
-  const handleEndDateTimeChange = useCallback((date: Date | null) => {
-    onUpdate({ end_datetime: date ? date.toISOString() : "" })
-  }, [onUpdate])
+  const handleEndDateTimeChange = useCallback(
+    (date: Date | null) => {
+      onUpdate({ end_datetime: date ? date.toISOString() : "" })
+    },
+    [onUpdate],
+  )
 
-  const handleMaxAttendeesChange = useCallback((text: string) => {
-    onUpdate({ max_attendees: text ? parseInt(text, 10) : null })
-  }, [onUpdate])
-
-  const handleStatusChange = useCallback((value: string) => {
-    onUpdate({ event_instance_status: value as EventInstanceStatus })
-  }, [onUpdate])
+  const handleMaxAttendeesChange = useCallback(
+    (text: string) => {
+      onUpdate({ max_attendees: text ? parseInt(text, 10) : null })
+    },
+    [onUpdate],
+  )
 
   return (
     <View style={themed($instanceContainer)}>
       <View style={themed($instanceHeader)}>
-        <Text 
-          preset="formLabel" 
+        <Text
+          preset="formLabel"
           tx="businessEvent:instanceNumber"
           txOptions={{ number: index + 1 }}
           style={themed($instanceTitle)}
@@ -120,7 +121,11 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
         options={venueOptions}
         value={instance.venue_id}
         onValueChange={handleVenueChange}
-        helper={errors[`instance_${index}_venue_id`] ? translate(errors[`instance_${index}_venue_id`] as TxKeyPath) : undefined}
+        helper={
+          errors[`instance_${index}_venue_id`]
+            ? translate(errors[`instance_${index}_venue_id`] as TxKeyPath)
+            : undefined
+        }
         containerStyle={themed($fieldContainer)}
       />
 
@@ -132,8 +137,12 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
           onChange={handleStartDateTimeChange}
           mode="datetime"
           status={errors[`instance_${index}_start_datetime`] ? "error" : undefined}
-          error={errors[`instance_${index}_start_datetime`] ? translate(errors[`instance_${index}_start_datetime`] as TxKeyPath) : undefined}
-          containerStyle={[themed($fieldContainer), themed($halfWidth)]}
+          error={
+            errors[`instance_${index}_start_datetime`]
+              ? translate(errors[`instance_${index}_start_datetime`] as TxKeyPath)
+              : undefined
+          }
+          containerStyle={themed($fieldContainer)}
         />
 
         <DateTimePickerField
@@ -143,32 +152,29 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
           onChange={handleEndDateTimeChange}
           mode="datetime"
           status={errors[`instance_${index}_end_datetime`] ? "error" : undefined}
-          error={errors[`instance_${index}_end_datetime`] ? translate(errors[`instance_${index}_end_datetime`] as TxKeyPath) : undefined}
-          containerStyle={[themed($fieldContainer), themed($halfWidth)]}
+          error={
+            errors[`instance_${index}_end_datetime`]
+              ? translate(errors[`instance_${index}_end_datetime`] as TxKeyPath)
+              : undefined
+          }
+          containerStyle={themed($fieldContainer)}
         />
       </View>
 
-      <View style={themed($bottomRow)}>
-        <TextField
-          labelTx="businessEvent:maxAttendeesLabel"
-          placeholderTx="businessEvent:maxAttendeesPlaceholder"
-          value={instance.max_attendees?.toString() || ""}
-          onChangeText={handleMaxAttendeesChange}
-          keyboardType="numeric"
-          status={errors[`instance_${index}_max_attendees`] ? "error" : undefined}
-          helper={errors[`instance_${index}_max_attendees`] ? translate(errors[`instance_${index}_max_attendees`] as TxKeyPath) : undefined}
-          containerStyle={[themed($fieldContainer), themed($halfWidth)]}
-        />
-
-        <Dropdown
-          labelTx="businessEvent:statusLabel"
-          placeholderTx="businessEvent:statusPlaceholder"
-          options={statusOptions}
-          value={instance.event_instance_status}
-          onValueChange={handleStatusChange}
-          containerStyle={[themed($fieldContainer), themed($halfWidth)]}
-        />
-      </View>
+      <TextField
+        labelTx="businessEvent:maxAttendeesLabel"
+        placeholderTx="businessEvent:maxAttendeesPlaceholder"
+        value={instance.max_attendees?.toString() || ""}
+        onChangeText={handleMaxAttendeesChange}
+        keyboardType="numeric"
+        status={errors[`instance_${index}_max_attendees`] ? "error" : undefined}
+        helper={
+          errors[`instance_${index}_max_attendees`]
+            ? translate(errors[`instance_${index}_max_attendees`] as TxKeyPath)
+            : undefined
+        }
+        containerStyle={themed($fieldContainer)}
+      />
     </View>
   )
 }
@@ -213,14 +219,4 @@ const $fieldContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 const $dateTimeRow: ThemedStyle<ViewStyle> = () => ({
   flexDirection: "row",
   justifyContent: "space-between",
-})
-
-const $bottomRow: ThemedStyle<ViewStyle> = () => ({
-  flexDirection: "row",
-  justifyContent: "space-between",
-})
-
-const $halfWidth: ThemedStyle<ViewStyle> = () => ({
-  flex: 1,
-  marginHorizontal: 4,
 })

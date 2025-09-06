@@ -3,9 +3,9 @@
  * Handles business event management operations using Supabase
  */
 
-import { supabase } from '@/clients/supabase/SupabaseClient'
-import { uploadMedia, deleteMedia, getMediaForEntity } from '@/services/media/mediaService'
-import type { MediaItem } from '@/services/media/mediaTypes'
+import { supabase } from "@/clients/supabase/SupabaseClient"
+import { uploadMedia, deleteMedia, getMediaForEntity } from "@/services/media/mediaService"
+import type { MediaItem } from "@/services/media/mediaTypes"
 
 import {
   validateEventRequest,
@@ -16,7 +16,7 @@ import {
   mapEventError,
   generateEventImageFilename,
   sortEventInstancesByStartDate,
-} from './businessEventHelpers'
+} from "./businessEventHelpers"
 
 import type {
   Event,
@@ -33,8 +33,7 @@ import type {
   EventWithDetails,
   EventInstanceWithVenue,
   EventWithInstancesAndMedia,
-  EventInstanceStatus,
-} from './businessEventTypes'
+} from "./businessEventTypes"
 
 // ============================================================================
 // EVENT CRUD OPERATIONS
@@ -45,7 +44,7 @@ import type {
  */
 export async function createEvent(
   businessId: string,
-  request: CreateEventRequest
+  request: CreateEventRequest,
 ): Promise<CreateEventResult> {
   try {
     // Validate request
@@ -54,7 +53,7 @@ export async function createEvent(
       const firstError = Object.values(validation.errors)[0]
       return {
         success: false,
-        error: firstError || 'errors.validationFailed',
+        error: firstError || "errors.validationFailed",
       }
     }
 
@@ -69,7 +68,7 @@ export async function createEvent(
 
     // Create event
     const { data: event, error: eventError } = await supabase
-      .from('events')
+      .from("events")
       .insert(eventData)
       .select()
       .single()
@@ -94,10 +93,10 @@ export async function createEvent(
     const failedInstances: string[] = []
 
     instanceResults.forEach((result, index) => {
-      if (result.status === 'fulfilled' && result.value.success) {
+      if (result.status === "fulfilled" && result.value.success) {
         successfulInstances.push(result.value.eventInstance!)
       } else {
-        const error = result.status === 'rejected' ? result.reason : result.value.error
+        const error = result.status === "rejected" ? result.reason : result.value.error
         failedInstances.push(`Instance ${index + 1}: ${error}`)
       }
     })
@@ -107,7 +106,7 @@ export async function createEvent(
       await deleteEvent(createdEvent.id)
       return {
         success: false,
-        error: failedInstances.join(', ') || 'errors.noInstancesCreated',
+        error: failedInstances.join(", ") || "errors.noInstancesCreated",
       }
     }
 
@@ -115,20 +114,16 @@ export async function createEvent(
     if (request.imageFiles && request.imageFiles.length > 0) {
       const imageUploadPromises = request.imageFiles.map(async (file, index) => {
         const arrayBuffer = await file.arrayBuffer()
-        return uploadMedia(
-          'event',
-          createdEvent.id,
-          arrayBuffer,
-          file.type,
-          { alt_text: `Event image ${index + 1}` }
-        )
+        return uploadMedia("event", createdEvent.id, arrayBuffer, file.type, {
+          alt_text: `Event image ${index + 1}`,
+        })
       })
 
       const imageResults = await Promise.allSettled(imageUploadPromises)
       // Log image upload failures but don't fail the entire operation
       imageResults.forEach((result, index) => {
-        if (result.status === 'rejected' || !result.value.success) {
-          const error = result.status === 'rejected' ? result.reason : result.value.error
+        if (result.status === "rejected" || !result.value.success) {
+          const error = result.status === "rejected" ? result.reason : result.value.error
           console.warn(`Failed to upload image ${index + 1} for event ${createdEvent.id}:`, error)
         }
       })
@@ -140,10 +135,10 @@ export async function createEvent(
       eventInstances: successfulInstances,
     }
   } catch (error) {
-    console.error('Unexpected error creating event:', error)
+    console.error("Unexpected error creating event:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -154,8 +149,9 @@ export async function createEvent(
 export async function getEvent(eventId: string): Promise<EventResult> {
   try {
     const { data, error } = await supabase
-      .from('events')
-      .select(`
+      .from("events")
+      .select(
+        `
         *,
         event_instances (
           *,
@@ -170,8 +166,9 @@ export async function getEvent(eventId: string): Promise<EventResult> {
             )
           )
         )
-      `)
-      .eq('id', eventId)
+      `,
+      )
+      .eq("id", eventId)
       .single()
 
     if (error || !data) {
@@ -183,13 +180,13 @@ export async function getEvent(eventId: string): Promise<EventResult> {
     }
 
     // Get media for this event
-    const mediaResult = await getMediaForEntity('event', eventId)
+    const mediaResult = await getMediaForEntity("event", eventId)
     const media = mediaResult.success ? mediaResult.media || [] : []
 
     const eventWithDetails: EventWithInstancesAndMedia = {
       ...data,
       instances: sortEventInstancesByStartDate(data.event_instances || []),
-      media: media.map(m => ({
+      media: media.map((m) => ({
         id: m.id,
         file_url: m.file_url,
         file_type: m.file_type,
@@ -202,10 +199,10 @@ export async function getEvent(eventId: string): Promise<EventResult> {
       event: eventWithDetails as Event,
     }
   } catch (error) {
-    console.error('Unexpected error fetching event:', error)
+    console.error("Unexpected error fetching event:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -216,8 +213,9 @@ export async function getEvent(eventId: string): Promise<EventResult> {
 export async function getEventsForBusiness(businessId: string): Promise<EventListResult> {
   try {
     const { data, error } = await supabase
-      .from('events')
-      .select(`
+      .from("events")
+      .select(
+        `
         *,
         event_instances (
           *,
@@ -232,9 +230,10 @@ export async function getEventsForBusiness(businessId: string): Promise<EventLis
             )
           )
         )
-      `)
-      .eq('business_id', businessId)
-      .order('created_at', { ascending: false })
+      `,
+      )
+      .eq("business_id", businessId)
+      .order("created_at", { ascending: false })
 
     if (error) {
       const mappedError = mapEventError(error)
@@ -248,19 +247,20 @@ export async function getEventsForBusiness(businessId: string): Promise<EventLis
     const eventsWithDetails: EventWithDetails[] = await Promise.all(
       (data || []).map(async (event) => {
         const instances = sortEventInstancesByStartDate(event.event_instances || [])
-        
+
         // Get first image for this event
-        const mediaResult = await getMediaForEntity('event', event.id)
-        const firstImage = mediaResult.success && mediaResult.media && mediaResult.media.length > 0 
-          ? mediaResult.media[0].file_url 
-          : null
+        const mediaResult = await getMediaForEntity("event", event.id)
+        const firstImage =
+          mediaResult.success && mediaResult.media && mediaResult.media.length > 0
+            ? mediaResult.media[0].file_url
+            : null
 
         return {
           ...event,
           instances,
           imageUrl: firstImage,
         }
-      })
+      }),
     )
 
     return {
@@ -268,10 +268,10 @@ export async function getEventsForBusiness(businessId: string): Promise<EventLis
       events: eventsWithDetails,
     }
   } catch (error) {
-    console.error('Unexpected error fetching events:', error)
+    console.error("Unexpected error fetching events:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -281,7 +281,7 @@ export async function getEventsForBusiness(businessId: string): Promise<EventLis
  */
 export async function updateEvent(
   eventId: string,
-  updates: UpdateEventRequest
+  updates: UpdateEventRequest,
 ): Promise<EventResult> {
   try {
     // Format updates
@@ -298,9 +298,9 @@ export async function updateEvent(
     }
 
     const { data, error } = await supabase
-      .from('events')
+      .from("events")
       .update(updateData)
-      .eq('id', eventId)
+      .eq("id", eventId)
       .select()
       .single()
 
@@ -317,10 +317,10 @@ export async function updateEvent(
       event: data as Event,
     }
   } catch (error) {
-    console.error('Unexpected error updating event:', error)
+    console.error("Unexpected error updating event:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -331,18 +331,18 @@ export async function updateEvent(
 export async function deleteEvent(eventId: string): Promise<EventResult> {
   try {
     // First delete all media associated with the event
-    const mediaResult = await getMediaForEntity('event', eventId)
+    const mediaResult = await getMediaForEntity("event", eventId)
     if (mediaResult.success && mediaResult.media) {
-      const deletePromises = mediaResult.media.map(media => deleteMedia(media.id))
+      const deletePromises = mediaResult.media.map((media) => deleteMedia(media.id))
       await Promise.allSettled(deletePromises) // Don't fail if media deletion fails
     }
 
     // Delete event instances (cascades automatically)
     // Delete the event (this will cascade to event_instances due to foreign key constraint)
     const { data, error } = await supabase
-      .from('events')
+      .from("events")
       .delete()
-      .eq('id', eventId)
+      .eq("id", eventId)
       .select()
       .single()
 
@@ -359,10 +359,10 @@ export async function deleteEvent(eventId: string): Promise<EventResult> {
       event: data as Event,
     }
   } catch (error) {
-    console.error('Unexpected error deleting event:', error)
+    console.error("Unexpected error deleting event:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -376,14 +376,14 @@ export async function deleteEvent(eventId: string): Promise<EventResult> {
  */
 async function createEventInstanceInternal(
   eventId: string,
-  request: CreateEventInstanceRequest
+  request: CreateEventInstanceRequest,
 ): Promise<EventInstanceResult> {
   const validation = validateEventInstanceRequest(request)
   if (!validation.isValid) {
     const firstError = Object.values(validation.errors)[0]
     return {
       success: false,
-      error: firstError || 'errors.validationFailed',
+      error: firstError || "errors.validationFailed",
     }
   }
 
@@ -392,14 +392,13 @@ async function createEventInstanceInternal(
     venue_id: request.venue_id,
     start_datetime: formatDateTime(request.start_datetime),
     end_datetime: formatDateTime(request.end_datetime),
-    event_instance_status: request.event_instance_status || 'draft' as EventInstanceStatus,
     max_attendees: request.max_attendees || null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
 
   const { data, error } = await supabase
-    .from('event_instances')
+    .from("event_instances")
     .insert(instanceData)
     .select()
     .single()
@@ -423,15 +422,15 @@ async function createEventInstanceInternal(
  */
 export async function createEventInstance(
   eventId: string,
-  request: CreateEventInstanceRequest
+  request: CreateEventInstanceRequest,
 ): Promise<EventInstanceResult> {
   try {
     return await createEventInstanceInternal(eventId, request)
   } catch (error) {
-    console.error('Unexpected error creating event instance:', error)
+    console.error("Unexpected error creating event instance:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -442,8 +441,9 @@ export async function createEventInstance(
 export async function getEventInstances(eventId: string): Promise<EventInstanceListResult> {
   try {
     const { data, error } = await supabase
-      .from('event_instances')
-      .select(`
+      .from("event_instances")
+      .select(
+        `
         *,
         venues (
           id,
@@ -454,9 +454,10 @@ export async function getEventInstances(eventId: string): Promise<EventInstanceL
           latitude,
           longitude
         )
-      `)
-      .eq('event_id', eventId)
-      .order('start_datetime', { ascending: true })
+      `,
+      )
+      .eq("event_id", eventId)
+      .order("start_datetime", { ascending: true })
 
     if (error) {
       const mappedError = mapEventError(error)
@@ -471,10 +472,10 @@ export async function getEventInstances(eventId: string): Promise<EventInstanceL
       eventInstances: (data || []) as EventInstanceWithVenue[],
     }
   } catch (error) {
-    console.error('Unexpected error fetching event instances:', error)
+    console.error("Unexpected error fetching event instances:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -484,7 +485,7 @@ export async function getEventInstances(eventId: string): Promise<EventInstanceL
  */
 export async function updateEventInstance(
   instanceId: string,
-  updates: UpdateEventInstanceRequest
+  updates: UpdateEventInstanceRequest,
 ): Promise<EventInstanceResult> {
   try {
     const updateData: any = {
@@ -492,15 +493,16 @@ export async function updateEventInstance(
     }
 
     if (updates.venue_id !== undefined) updateData.venue_id = updates.venue_id
-    if (updates.start_datetime !== undefined) updateData.start_datetime = formatDateTime(updates.start_datetime)
-    if (updates.end_datetime !== undefined) updateData.end_datetime = formatDateTime(updates.end_datetime)
+    if (updates.start_datetime !== undefined)
+      updateData.start_datetime = formatDateTime(updates.start_datetime)
+    if (updates.end_datetime !== undefined)
+      updateData.end_datetime = formatDateTime(updates.end_datetime)
     if (updates.max_attendees !== undefined) updateData.max_attendees = updates.max_attendees
-    if (updates.event_instance_status !== undefined) updateData.event_instance_status = updates.event_instance_status
 
     const { data, error } = await supabase
-      .from('event_instances')
+      .from("event_instances")
       .update(updateData)
-      .eq('id', instanceId)
+      .eq("id", instanceId)
       .select()
       .single()
 
@@ -517,10 +519,10 @@ export async function updateEventInstance(
       eventInstance: data as EventInstance,
     }
   } catch (error) {
-    console.error('Unexpected error updating event instance:', error)
+    console.error("Unexpected error updating event instance:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }
@@ -531,9 +533,9 @@ export async function updateEventInstance(
 export async function deleteEventInstance(instanceId: string): Promise<EventInstanceResult> {
   try {
     const { data, error } = await supabase
-      .from('event_instances')
+      .from("event_instances")
       .delete()
-      .eq('id', instanceId)
+      .eq("id", instanceId)
       .select()
       .single()
 
@@ -550,10 +552,10 @@ export async function deleteEventInstance(instanceId: string): Promise<EventInst
       eventInstance: data as EventInstance,
     }
   } catch (error) {
-    console.error('Unexpected error deleting event instance:', error)
+    console.error("Unexpected error deleting event instance:", error)
     return {
       success: false,
-      error: 'errors.unknownError',
+      error: "errors.unknownError",
     }
   }
 }

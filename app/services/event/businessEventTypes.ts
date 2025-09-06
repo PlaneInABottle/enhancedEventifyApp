@@ -22,19 +22,12 @@ export interface EventInstance {
   venue_id: string
   start_datetime: string
   end_datetime: string
-  event_instance_status: EventInstanceStatus
   max_attendees: number | null
   created_at: string
   updated_at: string
 }
 
-export type EventInstanceStatus = 
-  | 'draft'
-  | 'published'
-  | 'scheduled'
-  | 'cancelled'
-  | 'postponed'
-  | 'completed'
+// (Phase 1 Removal) EventInstanceStatus removed
 
 // ============================================================================
 // SERVICE REQUEST/RESPONSE TYPES
@@ -50,9 +43,8 @@ export interface CreateEventRequest {
 export interface CreateEventInstanceRequest {
   venue_id: string
   start_datetime: string // ISO string
-  end_datetime: string   // ISO string
+  end_datetime: string // ISO string
   max_attendees?: number
-  event_instance_status?: EventInstanceStatus
 }
 
 export interface UpdateEventRequest {
@@ -65,7 +57,6 @@ export interface UpdateEventInstanceRequest {
   start_datetime?: string
   end_datetime?: string
   max_attendees?: number
-  event_instance_status?: EventInstanceStatus
 }
 
 // ============================================================================
@@ -150,7 +141,6 @@ export interface EventInstanceFormData {
   start_datetime: Date
   end_datetime: Date
   max_attendees: string // Form input as string, converted to number
-  event_instance_status: EventInstanceStatus
 }
 
 // ============================================================================
@@ -204,37 +194,30 @@ export const EVENT_CONSTANTS = {
   },
 } as const
 
-export const EVENT_INSTANCE_STATUS_LABELS: Record<EventInstanceStatus, string> = {
-  draft: 'eventListing:status.draft',
-  published: 'eventListing:status.published',
-  scheduled: 'eventListing:status.scheduled',
-  cancelled: 'eventListing:status.cancelled',
-  postponed: 'eventListing:status.postponed',
-  completed: 'eventListing:status.completed',
-} as const
+// (Phase 1 Removal) EVENT_INSTANCE_STATUS_LABELS removed
 
 // ============================================================================
 // ERROR TYPES
 // ============================================================================
 
-export type EventErrorCode = 
-  | 'errors.eventNotFound'
-  | 'errors.eventInstanceNotFound'
-  | 'errors.titleRequired'
-  | 'errors.titleTooShort'
-  | 'errors.titleTooLong'
-  | 'errors.descriptionTooLong'
-  | 'errors.noInstances'
-  | 'errors.tooManyInstances'
-  | 'errors.venueRequired'
-  | 'errors.venueNotFound'
-  | 'errors.startDateRequired'
-  | 'errors.endDateRequired'
-  | 'errors.invalidDateRange'
-  | 'errors.maxAttendeesTooSmall'
-  | 'errors.maxAttendeesTooLarge'
-  | 'errors.businessNotFound'
-  | 'errors.businessNotVerified'
-  | 'errors.unauthorizedAccess'
-  | 'errors.databaseError'
-  | 'errors.unknownError'
+export type EventErrorCode =
+  | "errors.eventNotFound"
+  | "errors.eventInstanceNotFound"
+  | "errors.titleRequired"
+  | "errors.titleTooShort"
+  | "errors.titleTooLong"
+  | "errors.descriptionTooLong"
+  | "errors.noInstances"
+  | "errors.tooManyInstances"
+  | "errors.venueRequired"
+  | "errors.venueNotFound"
+  | "errors.startDateRequired"
+  | "errors.endDateRequired"
+  | "errors.invalidDateRange"
+  | "errors.maxAttendeesTooSmall"
+  | "errors.maxAttendeesTooLarge"
+  | "errors.businessNotFound"
+  | "errors.businessNotVerified"
+  | "errors.unauthorizedAccess"
+  | "errors.databaseError"
+  | "errors.unknownError"

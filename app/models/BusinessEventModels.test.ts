@@ -1,12 +1,16 @@
 /**
  * BusinessEvent Models Test Suite
- * 
+ *
  * Tests MobX State Tree models for business events and instances
  */
 
 import { applySnapshot, getSnapshot } from "mobx-state-tree"
-import { BusinessEventModel, BusinessEventInstanceModel, BusinessEventStore } from "./BusinessEventModels"
-import type { EventInstanceStatus } from "@/services/event/businessEventTypes"
+import {
+  BusinessEventModel,
+  BusinessEventInstanceModel,
+  BusinessEventStore,
+} from "./BusinessEventModels"
+// EventInstanceStatus removed - status now derived purely from timing
 
 // Mock the service functions at the service file level
 jest.mock("@/services/event/businessEventService", () => ({
@@ -40,7 +44,7 @@ describe("BusinessEventInstanceModel", () => {
     venue_id: "venue-1",
     start_datetime: "2024-01-20T10:00:00.000Z",
     end_datetime: "2024-01-20T12:00:00.000Z",
-    event_instance_status: "published" as EventInstanceStatus,
+    // status removed
     max_attendees: 50,
     created_at: "2024-01-10T08:00:00.000Z",
     updated_at: "2024-01-10T08:00:00.000Z",
@@ -173,7 +177,7 @@ describe("BusinessEventModel", () => {
         venue_id: "venue-1",
         start_datetime: "2030-01-20T10:00:00.000Z", // Future
         end_datetime: "2030-01-20T12:00:00.000Z",
-        event_instance_status: "published" as EventInstanceStatus,
+        // status removed
         max_attendees: 50,
         created_at: "2024-01-10T08:00:00.000Z",
         updated_at: "2024-01-10T08:00:00.000Z",
@@ -184,7 +188,7 @@ describe("BusinessEventModel", () => {
         venue_id: "venue-2",
         start_datetime: "2020-01-20T10:00:00.000Z", // Past
         end_datetime: "2020-01-20T12:00:00.000Z",
-        event_instance_status: "completed" as EventInstanceStatus,
+        // status removed
         max_attendees: 30,
         created_at: "2024-01-10T08:00:00.000Z",
         updated_at: "2024-01-10T08:00:00.000Z",
@@ -242,16 +246,7 @@ describe("BusinessEventModel", () => {
       expect(event.latestEndDate).toBe("2030-01-20T12:00:00.000Z")
     })
 
-    test("statusCounts returns correct counts", () => {
-      expect(event.statusCounts).toEqual({
-        draft: 0,
-        published: 1,
-        scheduled: 0,
-        cancelled: 0,
-        postponed: 0,
-        completed: 1,
-      })
-    })
+    // statusCounts view removed - test deleted
   })
 
   describe("Actions", () => {
@@ -300,7 +295,7 @@ describe("BusinessEventModel", () => {
         start_datetime: "2024-02-20T10:00:00.000Z",
         end_datetime: "2024-02-20T12:00:00.000Z",
         max_attendees: 75,
-        event_instance_status: "draft" as EventInstanceStatus,
+        // status removed
       }
 
       const createdInstance = {
@@ -352,7 +347,7 @@ describe("BusinessEventStore", () => {
       // Add event using MST action to comply with strict mode
       const event = BusinessEventModel.create(eventData)
       store.setProp("events", [event])
-      
+
       expect(store.getEventById("event-1")?.id).toBe("event-1")
       expect(store.getEventById("nonexistent")).toBeUndefined()
     })
@@ -424,16 +419,18 @@ describe("BusinessEventStore", () => {
     })
 
     test("fetchEvents calls service and populates store on success", async () => {
-      const eventsData = [{
-        id: "event-1",
-        business_id: "business-1",
-        title: "Event 1",
-        description: null,
-        instances: [],
-        created_at: "2024-01-10T08:00:00.000Z",
-        updated_at: "2024-01-10T08:00:00.000Z",
-        imageUrl: null,
-      }]
+      const eventsData = [
+        {
+          id: "event-1",
+          business_id: "business-1",
+          title: "Event 1",
+          description: null,
+          instances: [],
+          created_at: "2024-01-10T08:00:00.000Z",
+          updated_at: "2024-01-10T08:00:00.000Z",
+          imageUrl: null,
+        },
+      ]
 
       mockServices.getEventsForBusiness.mockResolvedValue({
         success: true,

@@ -1,12 +1,5 @@
 import React, { FC, useState, useCallback, useEffect, useMemo } from "react"
-import { 
-  View, 
-  ViewStyle, 
-  TextStyle, 
-  ScrollView, 
-  Alert,
-  Platform 
-} from "react-native"
+import { View, ViewStyle, TextStyle, ScrollView, Alert, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
 
 import { Button } from "@/components/Button"
@@ -17,7 +10,7 @@ import { TextField } from "@/components/TextField"
 import type { TxKeyPath } from "@/i18n"
 import { translate } from "@/i18n/translate"
 import { useStores } from "@/models"
-import type { CreateEventRequest, CreateEventInstanceRequest, EventInstanceStatus } from "@/services/event"
+
 import { validateEventRequest, validateEventInstanceRequest } from "@/services/event"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
@@ -27,7 +20,6 @@ export interface BusinessEventFormData {
   description: string
   instances: BusinessEventInstanceFormData[]
 }
-
 
 interface BusinessEventFormProps {
   /**
@@ -66,7 +58,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   const [title, setTitle] = useState(initialData?.title || "")
   const [description, setDescription] = useState(initialData?.description || "")
   const [instances, setInstances] = useState<BusinessEventInstanceFormData[]>(
-    initialData?.instances || [createEmptyInstance()]
+    initialData?.instances || [createEmptyInstance()],
   )
 
   // Validation errors
@@ -97,31 +89,36 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       start_datetime: "",
       end_datetime: "",
       max_attendees: null,
-      event_instance_status: "draft" as EventInstanceStatus,
     }
   }
 
-
   // Add new event instance
   const addInstance = useCallback(() => {
-    if (instances.length < 10) { // Limit based on EVENT_CONSTANTS.INSTANCES.MAX_COUNT
-      setInstances(prev => [...prev, createEmptyInstance()])
+    if (instances.length < 10) {
+      // Limit based on EVENT_CONSTANTS.INSTANCES.MAX_COUNT
+      setInstances((prev) => [...prev, createEmptyInstance()])
     }
   }, [instances.length])
 
   // Remove event instance
-  const removeInstance = useCallback((index: number) => {
-    if (instances.length > 1) {
-      setInstances(prev => prev.filter((_, i) => i !== index))
-    }
-  }, [instances.length])
+  const removeInstance = useCallback(
+    (index: number) => {
+      if (instances.length > 1) {
+        setInstances((prev) => prev.filter((_, i) => i !== index))
+      }
+    },
+    [instances.length],
+  )
 
   // Update specific instance
-  const updateInstance = useCallback((index: number, updates: Partial<BusinessEventInstanceFormData>) => {
-    setInstances(prev => prev.map((instance, i) => 
-      i === index ? { ...instance, ...updates } : instance
-    ))
-  }, [])
+  const updateInstance = useCallback(
+    (index: number, updates: Partial<BusinessEventInstanceFormData>) => {
+      setInstances((prev) =>
+        prev.map((instance, i) => (i === index ? { ...instance, ...updates } : instance)),
+      )
+    },
+    [],
+  )
 
   // Validate form
   const validateForm = useCallback((): boolean => {
@@ -131,12 +128,11 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
     const eventValidation = validateEventRequest({
       title,
       description: description || undefined,
-      instances: instances.map(instance => ({
+      instances: instances.map((instance) => ({
         venue_id: instance.venue_id,
         start_datetime: instance.start_datetime,
         end_datetime: instance.end_datetime,
         max_attendees: instance.max_attendees || undefined,
-        event_instance_status: instance.event_instance_status,
       })),
     })
 
@@ -166,7 +162,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
     if (!validateForm()) {
       Alert.alert(
         translate("businessEvent:validationErrorTitle"),
-        translate("businessEvent:validationErrorMessage")
+        translate("businessEvent:validationErrorMessage"),
       )
       return
     }
@@ -183,7 +179,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       {/* Event Details Section */}
       <View style={themed($section)}>
         <Text preset="subheading" tx="businessEvent:eventDetails" style={themed($sectionTitle)} />
-        
+
         <TextField
           labelTx="businessEvent:titleLabel"
           placeholderTx="businessEvent:titlePlaceholder"
@@ -210,7 +206,11 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       {/* Event Instances Section */}
       <View style={themed($section)}>
         <View style={themed($sectionHeader)}>
-          <Text preset="subheading" tx="businessEvent:eventInstances" style={themed($sectionTitle)} />
+          <Text
+            preset="subheading"
+            tx="businessEvent:eventInstances"
+            style={themed($sectionTitle)}
+          />
           <Button
             tx="businessEvent:addInstance"
             preset="default"
@@ -237,11 +237,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       {/* Error Message */}
       {errorMessage && (
         <View style={themed($errorContainer)}>
-          <Text 
-            preset="formHelper" 
-            tx={errorMessage as TxKeyPath} 
-            style={themed($errorText)} 
-          />
+          <Text preset="formHelper" tx={errorMessage as TxKeyPath} style={themed($errorText)} />
         </View>
       )}
 
@@ -289,7 +285,6 @@ const $addButton: ThemedStyle<ViewStyle> = () => ({
   paddingVertical: 6,
   minHeight: 32,
 })
-
 
 const $errorContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
   backgroundColor: colors.palette.angry100,

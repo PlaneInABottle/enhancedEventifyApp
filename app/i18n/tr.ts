@@ -34,7 +34,7 @@ const tr = {
     titlePlaceholder: "Etkinlik başlığını girin",
     descriptionLabel: "Açıklama",
     descriptionPlaceholder: "Etkinlik açıklamasını girin (isteğe bağlı)",
-    
+
     // Instance form
     eventInstances: "Etkinlik Oturumları",
     addInstance: "Oturum Ekle",
@@ -47,25 +47,7 @@ const tr = {
     endDateTimePlaceholder: "YYYY-AA-GG SS:DD",
     maxAttendeesLabel: "Maksimum Katılımcı",
     maxAttendeesPlaceholder: "İsteğe bağlı",
-    statusLabel: "Durum",
-    statusPlaceholder: "Durum seçin",
-    
-    // Status options
-    statusDraft: "Taslak",
-    statusPublished: "Yayınlandı",
-    statusScheduled: "Planlandı",
-    statusCancelled: "İptal Edildi",
-    statusPostponed: "Ertelendi", 
-    statusCompleted: "Tamamlandı",
-    
-    // Status counts for badges
-    statusPublishedCount: "{{count}} Yayınlandı",
-    statusScheduledCount: "{{count}} Planlandı",
-    statusDraftCount: "{{count}} Taslak",
-    statusCancelledCount: "{{count}} İptal Edildi",
-    statusPostponedCount: "{{count}} Ertelendi",
-    statusCompletedCount: "{{count}} Tamamlandı",
-    
+
     // Actions
     createEvent: "Etkinlik Oluştur",
     updateEvent: "Etkinlik Güncelle",
@@ -74,11 +56,11 @@ const tr = {
     createFirstEvent: "İlk Etkinliğinizi Oluşturun",
     eventCreatedSuccessfully: "Etkinlik başarıyla oluşturuldu!",
     eventUpdatedSuccessfully: "Etkinlik başarıyla güncellendi!",
-    
+
     // Validation
     validationErrorTitle: "Doğrulama Hatası",
     validationErrorMessage: "Lütfen göndermeden önce tüm hataları düzeltin.",
-    
+
     // List view
     instanceCount: "{{count}} oturum",
     nextInstance: "Sonraki Oturum",
@@ -91,10 +73,11 @@ const tr = {
     noUpcomingEvents: "Yaklaşan etkinlik yok",
     noActiveEvents: "Aktif etkinlik yok",
     noPastEvents: "Geçmiş etkinlik yok",
-    
+
     // Delete confirmation
     deleteEventTitle: "Etkinliği Sil",
-    deleteEventMessage: "'{{title}}' etkinliğini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    deleteEventMessage:
+      "'{{title}}' etkinliğini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
   },
   report: {
     title: "İçerik Şikayeti",

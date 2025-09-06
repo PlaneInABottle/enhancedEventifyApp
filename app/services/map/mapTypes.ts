@@ -11,7 +11,7 @@ export interface RawMapEventInstance {
   venue_id: string
   start_datetime: string
   end_datetime: string
-  event_instance_status: string
+
   max_attendees: number | null
   event_title: string
   event_description: string | null

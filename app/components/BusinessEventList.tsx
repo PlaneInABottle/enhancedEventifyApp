@@ -1,12 +1,12 @@
 import React, { FC, useCallback, useMemo } from "react"
-import { 
-  View, 
-  ViewStyle, 
-  TextStyle, 
-  SectionList, 
-  Pressable, 
+import {
+  View,
+  ViewStyle,
+  TextStyle,
+  SectionList,
+  Pressable,
   RefreshControl,
-  Alert 
+  Alert,
 } from "react-native"
 import { observer, Observer } from "mobx-react-lite"
 
@@ -74,36 +74,36 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
   // Group events by status into sections for SectionList
   const eventSections = useMemo(() => {
     if (!events || events.length === 0) return []
-    
-    const upcoming = events.filter(event => event.hasUpcomingInstances)
-    const active = events.filter(event => event.activeInstances.length > 0)
-    const past = events.filter(event => 
-      !event.hasUpcomingInstances && event.activeInstances.length === 0
+
+    const upcoming = events.filter((event) => event.hasUpcomingInstances)
+    const active = events.filter((event) => event.activeInstances.length > 0)
+    const past = events.filter(
+      (event) => !event.hasUpcomingInstances && event.activeInstances.length === 0,
     )
 
     const sections = []
-    
+
     if (upcoming.length > 0) {
       sections.push({
         title: "businessEvent:upcomingEvents" as TxKeyPath,
         data: upcoming,
-        emptyMessage: "businessEvent:noUpcomingEvents" as TxKeyPath
+        emptyMessage: "businessEvent:noUpcomingEvents" as TxKeyPath,
       })
     }
-    
+
     if (active.length > 0) {
       sections.push({
         title: "businessEvent:activeEvents" as TxKeyPath,
         data: active,
-        emptyMessage: "businessEvent:noActiveEvents" as TxKeyPath
+        emptyMessage: "businessEvent:noActiveEvents" as TxKeyPath,
       })
     }
-    
+
     if (past.length > 0) {
       sections.push({
         title: "businessEvent:pastEvents" as TxKeyPath,
         data: past,
-        emptyMessage: "businessEvent:noPastEvents" as TxKeyPath
+        emptyMessage: "businessEvent:noPastEvents" as TxKeyPath,
       })
     }
 
@@ -111,167 +111,109 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
   }, [events])
 
   // Handle delete event with confirmation
-  const handleDeleteEvent = useCallback((event: IBusinessEvent) => {
-    Alert.alert(
-      translate("businessEvent:deleteEventTitle"),
-      translate("businessEvent:deleteEventMessage", { title: event.title }),
-      [
-        {
-          text: translate("common:cancel"),
-          style: "cancel",
-        },
-        {
-          text: translate("common:delete"),
-          style: "destructive",
-          onPress: () => onDeleteEvent?.(event),
-        },
-      ]
-    )
-  }, [onDeleteEvent])
+  const handleDeleteEvent = useCallback(
+    (event: IBusinessEvent) => {
+      Alert.alert(
+        translate("businessEvent:deleteEventTitle"),
+        translate("businessEvent:deleteEventMessage", { title: event.title }),
+        [
+          {
+            text: translate("common:cancel"),
+            style: "cancel",
+          },
+          {
+            text: translate("common:delete"),
+            style: "destructive",
+            onPress: () => onDeleteEvent?.(event),
+          },
+        ],
+      )
+    },
+    [onDeleteEvent],
+  )
 
   // Render event item
-  const renderEventItem = useCallback(({ item: event }: { item: IBusinessEvent }) => (
-    <Observer>
-      {() => {
-        const nextInstance = event.nextInstance
+  const renderEventItem = useCallback(
+    ({ item: event }: { item: IBusinessEvent }) => (
+      <Observer>
+        {() => {
+          const nextInstance = event.nextInstance
 
-        return (
-          <Pressable 
-        style={[themed($eventCard), themed($cardStyle)]}
-        onPress={() => onEventPress?.(event)}
-        testID="event-card"
-      >
-        <View style={themed($eventHeader)}>
-          <View style={themed($eventTitleContainer)}>
-            <Text preset="subheading" text={event.title} style={themed($eventTitle)} />
-            <Text 
-              preset="formHelper" 
-              tx="businessEvent:instanceCount"
-              txOptions={{ count: event.instanceCount }}
-              style={themed($instanceCount)}
-            />
-          </View>
-          
-          {showActions && (
-            <View style={themed($eventActions)}>
-              <Pressable 
-                onPress={() => onEditEvent?.(event)}
-                style={themed($actionButton)}
-              >
-                <Text tx="common:edit" style={themed($actionButtonText)} />
-              </Pressable>
-              
-              <Pressable 
-                onPress={() => handleDeleteEvent(event)}
-                style={[themed($actionButton), themed($deleteButton)]}
-              >
-                <Text tx="common:delete" style={themed($deleteButtonText)} />
-              </Pressable>
-            </View>
-          )}
-        </View>
+          return (
+            <Pressable
+              style={[themed($eventCard), themed($cardStyle)]}
+              onPress={() => onEventPress?.(event)}
+              testID="event-card"
+            >
+              <View style={themed($eventHeader)}>
+                <View style={themed($eventTitleContainer)}>
+                  <Text preset="subheading" text={event.title} style={themed($eventTitle)} />
+                  <Text
+                    preset="formHelper"
+                    tx="businessEvent:instanceCount"
+                    txOptions={{ count: event.instanceCount }}
+                    style={themed($instanceCount)}
+                  />
+                </View>
 
-        {event.description && (
-          <Text 
-            preset="default" 
-            text={event.description}
-            numberOfLines={2}
-            style={themed($eventDescription)} 
-          />
-        )}
+                {showActions && (
+                  <View style={themed($eventActions)}>
+                    <Pressable onPress={() => onEditEvent?.(event)} style={themed($actionButton)}>
+                      <Text tx="common:edit" style={themed($actionButtonText)} />
+                    </Pressable>
 
-        <View style={themed($eventDetails)}>
-          {nextInstance && (
-            <View style={themed($nextInstanceContainer)}>
-              <Text 
-                preset="formLabel" 
-                tx="businessEvent:nextInstance"
-                style={themed($detailLabel)}
-              />
-              <Text 
-                preset="default"
-                text={new Date(nextInstance.start_datetime).toLocaleDateString()}
-                style={themed($detailValue)}
-              />
-            </View>
-          )}
+                    <Pressable
+                      onPress={() => handleDeleteEvent(event)}
+                      style={[themed($actionButton), themed($deleteButton)]}
+                    >
+                      <Text tx="common:delete" style={themed($deleteButtonText)} />
+                    </Pressable>
+                  </View>
+                )}
+              </View>
 
-          <View style={themed($statusContainer)}>
-            <Text 
-              preset="formLabel" 
-              tx="businessEvent:status"
-              style={themed($detailLabel)}
-            />
-            <View style={themed($statusBadges)}>
-              {event.statusCounts.published > 0 && (
-                <View style={[themed($statusBadge), themed($publishedBadge)]}>
-                  <Text 
-                    tx="businessEvent:statusPublishedCount"
-                    txOptions={{ count: event.statusCounts.published }}
-                    style={themed($badgeText)}
-                  />
-                </View>
+              {event.description && (
+                <Text
+                  preset="default"
+                  text={event.description}
+                  numberOfLines={2}
+                  style={themed($eventDescription)}
+                />
               )}
-              {event.statusCounts.scheduled > 0 && (
-                <View style={[themed($statusBadge), themed($scheduledBadge)]}>
-                  <Text 
-                    tx="businessEvent:statusScheduledCount"
-                    txOptions={{ count: event.statusCounts.scheduled }}
-                    style={themed($badgeText)}
-                  />
-                </View>
-              )}
-              {event.statusCounts.draft > 0 && (
-                <View style={[themed($statusBadge), themed($draftBadge)]}>
-                  <Text 
-                    tx="businessEvent:statusDraftCount"
-                    txOptions={{ count: event.statusCounts.draft }}
-                    style={themed($badgeText)}
-                  />
-                </View>
-              )}
-              {event.statusCounts.cancelled > 0 && (
-                <View style={[themed($statusBadge), themed($cancelledBadge)]}>
-                  <Text 
-                    tx="businessEvent:statusCancelledCount"
-                    txOptions={{ count: event.statusCounts.cancelled }}
-                    style={themed($badgeText)}
-                  />
-                </View>
-              )}
-              {event.statusCounts.postponed > 0 && (
-                <View style={[themed($statusBadge), themed($postponedBadge)]}>
-                  <Text 
-                    tx="businessEvent:statusPostponedCount"
-                    txOptions={{ count: event.statusCounts.postponed }}
-                    style={themed($badgeText)}
-                  />
-                </View>
-              )}
-              {event.statusCounts.completed > 0 && (
-                <View style={[themed($statusBadge), themed($completedBadge)]}>
-                  <Text 
-                    tx="businessEvent:statusCompletedCount"
-                    txOptions={{ count: event.statusCounts.completed }}
-                    style={themed($badgeText)}
-                  />
-                </View>
-              )}
-            </View>
-          </View>
-        </View>
-          </Pressable>
-        )
-      }}
-    </Observer>
-  ), [onEventPress, onEditEvent, handleDeleteEvent, showActions])
+
+              <View style={themed($eventDetails)}>
+                {nextInstance && (
+                  <View style={themed($nextInstanceContainer)}>
+                    <Text
+                      preset="formLabel"
+                      tx="businessEvent:nextInstance"
+                      style={themed($detailLabel)}
+                    />
+                    <Text
+                      preset="default"
+                      text={new Date(nextInstance.start_datetime).toLocaleDateString()}
+                      style={themed($detailValue)}
+                    />
+                  </View>
+                )}
+              </View>
+            </Pressable>
+          )
+        }}
+      </Observer>
+    ),
+    [onEventPress, onEditEvent, handleDeleteEvent, showActions],
+  )
 
   // Render section header
-  const renderSectionHeader = useCallback(({ section }: { section: { title: TxKeyPath } }) => (
-    <View style={themed($section)}>
-      <Text preset="subheading" tx={section.title} style={themed($sectionTitle)} />
-    </View>
-  ), [themed])
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { title: TxKeyPath } }) => (
+      <View style={themed($section)}>
+        <Text preset="subheading" tx={section.title} style={themed($sectionTitle)} />
+      </View>
+    ),
+    [themed],
+  )
 
   // Show empty state if no events
   if (events.length === 0 && !isLoading) {
@@ -309,9 +251,7 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
         ) : null
       }
       refreshControl={
-        onRefresh ? (
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        ) : undefined
+        onRefresh ? <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} /> : undefined
       }
       showsVerticalScrollIndicator={false}
     />
@@ -435,51 +375,4 @@ const $detailLabel: ThemedStyle<TextStyle> = ({ colors }) => ({
 const $detailValue: ThemedStyle<TextStyle> = () => ({
   fontSize: 14,
   fontWeight: "500",
-})
-
-const $statusContainer: ThemedStyle<ViewStyle> = () => ({
-  alignItems: "flex-end",
-})
-
-const $statusBadges: ThemedStyle<ViewStyle> = () => ({
-  flexDirection: "row",
-  gap: 4,
-})
-
-const $statusBadge: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingHorizontal: spacing.xs,
-  paddingVertical: 2,
-  borderRadius: 12,
-  minWidth: 24,
-  alignItems: "center",
-})
-
-const $publishedBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.palette.secondary200,
-})
-
-const $scheduledBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.palette.primary200,
-})
-
-const $draftBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.palette.neutral300,
-})
-
-const $cancelledBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.palette.angry100,
-})
-
-const $postponedBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.palette.accent200,
-})
-
-const $completedBadge: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  backgroundColor: colors.palette.secondary300,
-})
-
-const $badgeText: ThemedStyle<TextStyle> = ({ colors }) => ({
-  fontSize: 12,
-  fontWeight: "600",
-  color: colors.text,
 })
