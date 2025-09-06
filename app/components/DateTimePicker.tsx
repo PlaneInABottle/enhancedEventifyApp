@@ -1,12 +1,5 @@
 import React, { FC, useCallback, useMemo, useState, forwardRef } from "react"
-import {
-  Platform,
-  StyleProp,
-  TextStyle,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from "react-native"
+import { Platform, StyleProp, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 
 import { translate } from "@/i18n/translate"
 import { useAppTheme } from "@/theme/context"
@@ -30,10 +23,10 @@ if (Platform.OS !== "web") {
 }
 
 // Test environment detection and mock integration
-if (typeof jest !== 'undefined' || process.env.NODE_ENV === 'test') {
+if (typeof jest !== "undefined" || process.env.NODE_ENV === "test") {
   // In test environment, always use mocked implementations
   try {
-    const mockModule = require('@react-native-community/datetimepicker')
+    const mockModule = require("@react-native-community/datetimepicker")
     // Always assign, even if undefined - the test mocks should provide these
     DateTimePickerNative = mockModule.default
     DateTimePickerAndroid = mockModule.DateTimePickerAndroid
@@ -58,10 +51,8 @@ interface CustomDateInputProps {
   value?: string
 }
 
-const CustomDateInput = forwardRef<
-  React.ElementRef<typeof TouchableOpacity>,
-  CustomDateInputProps
->(({ displayText, isDisabled, inputWrapperStyles, textStyles, onClick, ...props }, ref) => {
+const CustomDateInput = forwardRef<React.ElementRef<typeof TouchableOpacity>, CustomDateInputProps>(
+  ({ displayText, isDisabled, inputWrapperStyles, textStyles, onClick, ...props }, ref) => {
     return (
       <TouchableOpacity
         ref={ref}
@@ -76,7 +67,7 @@ const CustomDateInput = forwardRef<
         </Text>
       </TouchableOpacity>
     )
-  }
+  },
 )
 
 export interface DateTimePickerProps {
@@ -210,45 +201,12 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
   const hasError = status === "error" || !!error || !!errorTx
 
   // Format date for display (24-hour format)
+  // Use shared date formatting utility (extracted for testability & consistency)
+  // Lazy import within component to avoid potential circular deps if utils later use RN APIs
+  const { formatDisplayDate } = require("@/utils/dateUtils")
   const displayText = useMemo(() => {
-    if (!value || isNaN(value.getTime())) {
-      return placeholderTx ? translate(placeholderTx) : placeholder || ""
-    }
-
-    try {
-      if (mode === "date") {
-        return value.toLocaleDateString(undefined, {
-          month: "2-digit",
-          day: "2-digit", 
-          year: "numeric"
-        })
-      } else if (mode === "time") {
-        // Use 24-hour format for time display with consistent timezone
-        return value.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-          timeZone: "UTC"
-        })
-      } else {
-        // datetime mode - 24-hour format with consistent timezone
-        const dateStr = value.toLocaleDateString("en-US", {
-          month: "2-digit",
-          day: "2-digit", 
-          year: "numeric"
-        })
-        const timeStr = value.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-          timeZone: "UTC"
-        })
-        return `${dateStr} ${timeStr}`
-      }
-    } catch (dateError) {
-      console.warn("DateTimePicker: Invalid date provided", dateError)
-      return placeholderTx ? translate(placeholderTx) : placeholder || ""
-    }
+    const fallback = placeholderTx ? translate(placeholderTx) : placeholder || ""
+    return formatDisplayDate(value, mode, fallback)
   }, [value, mode, placeholderTx, placeholder])
 
   // Web-specific react-datepicker implementation
@@ -260,9 +218,9 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
       try {
         // Dynamic import at runtime - module name constructed to avoid TS resolution
         const moduleBase = "react"
-        const moduleExt = "datepicker" 
+        const moduleExt = "datepicker"
         const fullModuleName = `${moduleBase}-${moduleExt}`
-        
+
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         ReactDatePicker = require(fullModuleName).default
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -305,29 +263,80 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
   const [showIOSPicker, setShowIOSPicker] = useState(false)
 
   // Handle iOS picker change
-  const handleIOSChange = useCallback((event: any, selectedDate?: Date) => {
-    // Always hide the picker first
-    setShowIOSPicker(false)
-    
-    // Handle the selected date
-    if (selectedDate !== undefined) {
-      onChange(selectedDate)
-    }
-  }, [onChange])
+  const handleIOSChange = useCallback(
+    (event: any, selectedDate?: Date) => {
+      // Always hide the picker first
+      setShowIOSPicker(false)
 
-  // Handle Android picker using imperative API (Context7 pattern)
+      // Handle the selected date
+      if (selectedDate !== undefined) {
+        onChange(selectedDate)
+      }
+    },
+    [onChange],
+  )
+
+  // Handle Android picker with sequential date -> time flow when mode="datetime"
   const showAndroidPicker = useCallback(() => {
-    if (DateTimePickerAndroid && DateTimePickerAndroid.open) {
+    if (!DateTimePickerAndroid || !DateTimePickerAndroid.open) return
+
+    // Simple helper to open time picker after date selection
+    const openTimePicker = (baseDate: Date, originalValue: Date | null) => {
       DateTimePickerAndroid.open({
-        value: value || new Date(),
-        onChange: handleIOSChange, // Reuse the same handler for consistency
-        mode: mode === "datetime" ? "date" : mode, // Android doesn't support datetime mode directly
+        value: baseDate,
+        onChange: (_evt: any, selected?: Date) => {
+          // If user cancels time selection, keep original value (revert)
+          if (selected === undefined) {
+            return
+          }
+          // Merge selected time with previously chosen date (selected already has full date/time)
+          onChange(selected)
+        },
+        mode: "time",
+        is24Hour: true,
+      })
+    }
+
+    // If mode is datetime, run two-step flow
+    if (mode === "datetime") {
+      const current = value || new Date()
+      DateTimePickerAndroid.open({
+        value: current,
+        onChange: (_evt: any, selectedDate?: Date) => {
+          if (selectedDate === undefined) {
+            // Date picker cancelled -> do nothing
+            return
+          }
+          // If existing value had a time and user cancels next step, we keep old value (handled in openTimePicker)
+          // Proceed to time picker using selected date (time will default to existing hours/minutes if value existed)
+          const base = new Date(selectedDate)
+          if (value) {
+            base.setHours(value.getHours(), value.getMinutes(), 0, 0)
+          }
+          openTimePicker(base, value || null)
+        },
+        mode: "date",
         is24Hour: true,
         minimumDate,
         maximumDate,
       })
+      return
     }
-  }, [value, mode, minimumDate, maximumDate, handleIOSChange])
+
+    // Fallback for pure date or time modes
+    DateTimePickerAndroid.open({
+      value: value || new Date(),
+      onChange: (_evt: any, selected?: Date) => {
+        if (selected !== undefined) {
+          onChange(selected)
+        }
+      },
+      mode: mode,
+      is24Hour: true,
+      minimumDate,
+      maximumDate,
+    })
+  }, [value, mode, minimumDate, maximumDate, onChange])
 
   // iOS native picker implementation
   const renderIOSPicker = () => {
@@ -344,9 +353,9 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
             {displayText}
           </Text>
         </TouchableOpacity>
-        
-        {showIOSPicker && (
-          DateTimePickerNative ? (
+
+        {showIOSPicker &&
+          (DateTimePickerNative ? (
             <DateTimePickerNative
               testID="ios-date-time-picker"
               value={value || new Date()}
@@ -362,8 +371,7 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
             <View testID="ios-date-time-picker">
               <Text>iOS DateTimePicker (Mock)</Text>
             </View>
-          )
-        )}
+          ))}
       </>
     )
   }
@@ -410,10 +418,7 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
     isDisabled && { color: colors.textDim },
     textStyle,
   ]
-  const $helperStyles = [
-    themed($helperStyle),
-    hasError && { color: colors.error },
-  ]
+  const $helperStyles = [themed($helperStyle), hasError && { color: colors.error }]
 
   const errorText = errorTx ? translate(errorTx) : error
   const helperText = helperTx ? translate(helperTx) : helper
@@ -421,24 +426,14 @@ export const DateTimePickerField: FC<DateTimePickerProps> = ({
 
   return (
     <View style={$containerStyles} testID="date-time-picker-container">
-      {!!labelText && (
-        <Text
-          preset="formLabel"
-          text={labelText}
-          style={$labelStyles}
-        />
-      )}
+      {!!labelText && <Text preset="formLabel" text={labelText} style={$labelStyles} />}
 
       <View testID="date-time-input-wrapper">
         {Platform.OS === "web" ? renderWebPicker() : renderMobilePicker()}
       </View>
 
       {!!(errorText || helperText) && (
-        <Text
-          preset="formHelper"
-          text={errorText || helperText}
-          style={themed($helperStyles)}
-        />
+        <Text preset="formHelper" text={errorText || helperText} style={themed($helperStyles)} />
       )}
     </View>
   )
