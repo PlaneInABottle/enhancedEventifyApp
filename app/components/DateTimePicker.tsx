@@ -457,6 +457,9 @@ const $inputWrapperStyle: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   paddingHorizontal: spacing.sm,
   minHeight: 40,
   justifyContent: "center",
+  width: "100%",
+  flexShrink: 1,
+  minWidth: 0,
 })
 
 const $textStyle: ThemedStyle<TextStyle> = ({ colors, typography }) => ({

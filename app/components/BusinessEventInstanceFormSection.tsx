@@ -142,7 +142,7 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
               ? translate(errors[`instance_${index}_start_datetime`] as TxKeyPath)
               : undefined
           }
-          containerStyle={themed($fieldContainer)}
+          containerStyle={themed($dateTimeFieldLeft)}
         />
 
         <DateTimePickerField
@@ -157,7 +157,7 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
               ? translate(errors[`instance_${index}_end_datetime`] as TxKeyPath)
               : undefined
           }
-          containerStyle={themed($fieldContainer)}
+          containerStyle={themed($dateTimeFieldRight)}
         />
       </View>
 
@@ -218,5 +218,18 @@ const $fieldContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 
 const $dateTimeRow: ThemedStyle<ViewStyle> = () => ({
   flexDirection: "row",
-  justifyContent: "space-between",
+  alignItems: "flex-start",
+})
+
+const $dateTimeFieldLeft: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flex: 1,
+  minWidth: 0,
+  marginRight: spacing.md,
+  marginBottom: spacing.md,
+})
+
+const $dateTimeFieldRight: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flex: 1,
+  minWidth: 0,
+  marginBottom: spacing.md,
 })
