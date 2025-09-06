@@ -133,12 +133,6 @@ export const BusinessEventModel = types
         .filter((instance) => new Date(instance.start_datetime) > now)
         .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
     },
-    get pastInstances() {
-      const now = new Date()
-      return self.instances
-        .filter((instance) => new Date(instance.end_datetime) < now)
-        .sort((a, b) => new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime())
-    },
     get activeInstances() {
       const now = new Date()
       return self.instances.filter((instance) => {
@@ -152,20 +146,6 @@ export const BusinessEventModel = types
     },
     get hasUpcomingInstances() {
       return this.upcomingInstances.length > 0
-    },
-    get earliestStartDate() {
-      if (this.instanceCount === 0) return null
-      return self.instances.reduce((earliest, instance) => {
-        return new Date(instance.start_datetime) < new Date(earliest.start_datetime)
-          ? instance
-          : earliest
-      }).start_datetime
-    },
-    get latestEndDate() {
-      if (this.instanceCount === 0) return null
-      return self.instances.reduce((latest, instance) => {
-        return new Date(instance.end_datetime) > new Date(latest.end_datetime) ? instance : latest
-      }).end_datetime
     },
   }))
   .actions((self) => ({
