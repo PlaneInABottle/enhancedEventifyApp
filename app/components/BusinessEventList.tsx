@@ -71,8 +71,12 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
 }) {
   const { themed } = useAppTheme()
 
-  // Group events by status into sections for SectionList
-  const eventSections = useMemo(() => {
+  // Group events by status into sections for SectionList.
+  // IMPORTANT: We intentionally avoid useMemo with [events] as dependency.
+  // MobX-State-Tree mutates the same array reference when pushing new items, so
+  // useMemo([events]) would not recompute sections after creating an event.
+  // O(n) grouping is inexpensive here; recompute every render for correctness.
+  const eventSections = (() => {
     if (!events || events.length === 0) return []
 
     const upcoming = events.filter((event) => event.hasUpcomingInstances)
@@ -108,7 +112,7 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
     }
 
     return sections
-  }, [events])
+  })()
 
   // Handle delete event with confirmation
   const handleDeleteEvent = useCallback(
@@ -133,76 +137,73 @@ export const BusinessEventList: FC<BusinessEventListProps> = observer(function B
   )
 
   // Render event item
-  const renderEventItem = useCallback(
-    ({ item: event }: { item: IBusinessEvent }) => (
-      <Observer>
-        {() => {
-          const nextInstance = event.nextInstance
+  const renderEventItem = ({ item: event }: { item: IBusinessEvent }) => (
+    <Observer>
+      {() => {
+        const nextInstance = event.nextInstance
 
-          return (
-            <Pressable
-              style={[themed($eventCard), themed($cardStyle)]}
-              onPress={() => onEventPress?.(event)}
-              testID="event-card"
-            >
-              <View style={themed($eventHeader)}>
-                <View style={themed($eventTitleContainer)}>
-                  <Text preset="subheading" text={event.title} style={themed($eventTitle)} />
+        return (
+          <Pressable
+            style={[themed($eventCard), themed($cardStyle)]}
+            onPress={() => onEventPress?.(event)}
+            testID="event-card"
+          >
+            <View style={themed($eventHeader)}>
+              <View style={themed($eventTitleContainer)}>
+                <Text preset="subheading" text={event.title} style={themed($eventTitle)} />
+                <Text
+                  preset="formHelper"
+                  tx="businessEvent:instanceCount"
+                  txOptions={{ count: event.instanceCount }}
+                  style={themed($instanceCount)}
+                />
+              </View>
+
+              {showActions && (
+                <View style={themed($eventActions)}>
+                  <Pressable onPress={() => onEditEvent?.(event)} style={themed($actionButton)}>
+                    <Text tx="common:edit" style={themed($actionButtonText)} />
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => handleDeleteEvent(event)}
+                    style={[themed($actionButton), themed($deleteButton)]}
+                  >
+                    <Text tx="common:delete" style={themed($deleteButtonText)} />
+                  </Pressable>
+                </View>
+              )}
+            </View>
+
+            {event.description && (
+              <Text
+                preset="default"
+                text={event.description}
+                numberOfLines={2}
+                style={themed($eventDescription)}
+              />
+            )}
+
+            <View style={themed($eventDetails)}>
+              {nextInstance && (
+                <View style={themed($nextInstanceContainer)}>
                   <Text
-                    preset="formHelper"
-                    tx="businessEvent:instanceCount"
-                    txOptions={{ count: event.instanceCount }}
-                    style={themed($instanceCount)}
+                    preset="formLabel"
+                    tx="businessEvent:nextInstance"
+                    style={themed($detailLabel)}
+                  />
+                  <Text
+                    preset="default"
+                    text={new Date(nextInstance.start_datetime).toLocaleDateString()}
+                    style={themed($detailValue)}
                   />
                 </View>
-
-                {showActions && (
-                  <View style={themed($eventActions)}>
-                    <Pressable onPress={() => onEditEvent?.(event)} style={themed($actionButton)}>
-                      <Text tx="common:edit" style={themed($actionButtonText)} />
-                    </Pressable>
-
-                    <Pressable
-                      onPress={() => handleDeleteEvent(event)}
-                      style={[themed($actionButton), themed($deleteButton)]}
-                    >
-                      <Text tx="common:delete" style={themed($deleteButtonText)} />
-                    </Pressable>
-                  </View>
-                )}
-              </View>
-
-              {event.description && (
-                <Text
-                  preset="default"
-                  text={event.description}
-                  numberOfLines={2}
-                  style={themed($eventDescription)}
-                />
               )}
-
-              <View style={themed($eventDetails)}>
-                {nextInstance && (
-                  <View style={themed($nextInstanceContainer)}>
-                    <Text
-                      preset="formLabel"
-                      tx="businessEvent:nextInstance"
-                      style={themed($detailLabel)}
-                    />
-                    <Text
-                      preset="default"
-                      text={new Date(nextInstance.start_datetime).toLocaleDateString()}
-                      style={themed($detailValue)}
-                    />
-                  </View>
-                )}
-              </View>
-            </Pressable>
-          )
-        }}
-      </Observer>
-    ),
-    [onEventPress, onEditEvent, handleDeleteEvent, showActions],
+            </View>
+          </Pressable>
+        )
+      }}
+    </Observer>
   )
 
   // Render section header

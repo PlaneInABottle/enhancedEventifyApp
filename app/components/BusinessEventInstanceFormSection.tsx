@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from "react"
+import React, { FC, useCallback } from "react"
 import { View, ViewStyle, TextStyle, Pressable } from "react-native"
 
 import { DateTimePickerField } from "@/components/DateTimePicker"
@@ -62,13 +62,13 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
 }) => {
   const { themed } = useAppTheme()
 
-  // Venue options for dropdown
-  const venueOptions = useMemo(() => {
-    return venues.map((venue) => ({
-      label: venue.name,
-      value: venue.id,
-    }))
-  }, [venues])
+  // Derive venue options each render for MST reactivity.
+  // Avoid useMemo here so in-place mutations (push/splice) on an MST array
+  // still reflect immediately; cost is trivial vs correctness.
+  const venueOptions = venues.map((venue) => ({
+    label: venue.name,
+    value: venue.id,
+  }))
 
   // Handle field updates
   const handleVenueChange = useCallback(
