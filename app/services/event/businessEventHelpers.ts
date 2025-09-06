@@ -195,28 +195,7 @@ export function mapEventError(error: any): { code: EventErrorCode; message: Even
 // UTILITY FUNCTIONS
 // ============================================================================
 
-/**
- * Generates a unique filename for event images
- */
-export function generateEventImageFilename(
-  eventId: string,
-  index: number,
-  mimeType: string,
-): string {
-  const extension = mimeType.split("/")[1] || "jpg"
-  const timestamp = Date.now()
-  return `${eventId}/image-${index}-${timestamp}.${extension}`
-}
 
-/**
- * Calculates event duration in hours
- */
-export function calculateEventDuration(startDateTime: string, endDateTime: string): number {
-  const start = new Date(startDateTime)
-  const end = new Date(endDateTime)
-  const diffMs = end.getTime() - start.getTime()
-  return Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10 // Round to 1 decimal place
-}
 
 /**
  * Checks if event instance is in the past
@@ -247,21 +226,3 @@ export function sortEventInstancesByStartDate<
   )
 }
 
-/**
- * Groups event instances by date (for display purposes)
- */
-export function groupEventInstancesByDate<T extends { start_datetime: string }>(
-  instances: T[],
-): Record<string, T[]> {
-  const grouped: Record<string, T[]> = {}
-
-  instances.forEach((instance) => {
-    const date = new Date(instance.start_datetime).toISOString().split("T")[0]
-    if (!grouped[date]) {
-      grouped[date] = []
-    }
-    grouped[date].push(instance)
-  })
-
-  return grouped
-}

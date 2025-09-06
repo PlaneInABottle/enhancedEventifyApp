@@ -31,12 +31,10 @@ export { EVENT_CONSTANTS } from "./businessEventTypes"
 // Event service functions
 export {
   createEvent,
-  getEvent,
   getEventsForBusiness,
   updateEvent,
   deleteEvent,
   createEventInstance,
-  getEventInstances,
   updateEventInstance,
   deleteEventInstance,
 } from "./businessEventService"
@@ -49,10 +47,7 @@ export {
   formatEventDescription,
   formatDateTime,
   mapEventError,
-  generateEventImageFilename,
-  calculateEventDuration,
   isEventInstancePast,
   isEventInstanceActive,
   sortEventInstancesByStartDate,
-  groupEventInstancesByDate,
 } from "./businessEventHelpers"

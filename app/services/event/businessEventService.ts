@@ -14,7 +14,6 @@ import {
   formatEventDescription,
   formatDateTime,
   mapEventError,
-  generateEventImageFilename,
   sortEventInstancesByStartDate,
 } from "./businessEventHelpers"
 
@@ -143,69 +142,6 @@ export async function createEvent(
   }
 }
 
-/**
- * Gets event by ID with instances and media
- */
-export async function getEvent(eventId: string): Promise<EventResult> {
-  try {
-    const { data, error } = await supabase
-      .from("events")
-      .select(
-        `
-        *,
-        event_instances (
-          *,
-          venues (
-            id,
-            name,
-            address:addresses (
-              full_address,
-              city,
-              country,
-              coordinates
-            )
-          )
-        )
-      `,
-      )
-      .eq("id", eventId)
-      .single()
-
-    if (error || !data) {
-      const mappedError = mapEventError(error)
-      return {
-        success: false,
-        error: mappedError.message,
-      }
-    }
-
-    // Get media for this event
-    const mediaResult = await getMediaForEntity("event", eventId)
-    const media = mediaResult.success ? mediaResult.media || [] : []
-
-    const eventWithDetails: EventWithInstancesAndMedia = {
-      ...data,
-      instances: sortEventInstancesByStartDate(data.event_instances || []),
-      media: media.map((m) => ({
-        id: m.id,
-        file_url: m.file_url,
-        file_type: m.file_type,
-        alt_text: m.alt_text || null,
-      })),
-    }
-
-    return {
-      success: true,
-      event: eventWithDetails as Event,
-    }
-  } catch (error) {
-    console.error("Unexpected error fetching event:", error)
-    return {
-      success: false,
-      error: "errors.unknownError",
-    }
-  }
-}
 
 /**
  * Gets all events for a business
@@ -435,50 +371,6 @@ export async function createEventInstance(
   }
 }
 
-/**
- * Gets all event instances for an event
- */
-export async function getEventInstances(eventId: string): Promise<EventInstanceListResult> {
-  try {
-    const { data, error } = await supabase
-      .from("event_instances")
-      .select(
-        `
-        *,
-        venues (
-          id,
-          name,
-          address,
-          city,
-          country,
-          latitude,
-          longitude
-        )
-      `,
-      )
-      .eq("event_id", eventId)
-      .order("start_datetime", { ascending: true })
-
-    if (error) {
-      const mappedError = mapEventError(error)
-      return {
-        success: false,
-        error: mappedError.message,
-      }
-    }
-
-    return {
-      success: true,
-      eventInstances: (data || []) as EventInstanceWithVenue[],
-    }
-  } catch (error) {
-    console.error("Unexpected error fetching event instances:", error)
-    return {
-      success: false,
-      error: "errors.unknownError",
-    }
-  }
-}
 
 /**
  * Updates an event instance
