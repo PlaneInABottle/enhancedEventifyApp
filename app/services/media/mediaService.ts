@@ -150,20 +150,6 @@ export async function getMediaForEntity(
 }
 
 /**
- * Get first media URL for an entity (helper for primary image)
- */
-export async function getFirstMediaUrl(
-  entityType: EntityType,
-  entityId: string
-): Promise<string | null> {
-  const result = await getMediaForEntity(entityType, entityId)
-  if (result.success && result.media && result.media.length > 0) {
-    return result.media[0].file_url
-  }
-  return null
-}
-
-/**
  * Delete media by ID
  */
 export async function deleteMedia(mediaId: string): Promise<MediaDeleteResult> {

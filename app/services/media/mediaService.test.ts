@@ -3,7 +3,7 @@
  * Tests for polymorphic media system functionality
  */
 
-import { uploadMedia, getMediaForEntity, getFirstMediaUrl, deleteMedia } from './mediaService'
+import { uploadMedia, getMediaForEntity, deleteMedia } from './mediaService'
 import type { MediaItem } from './mediaTypes'
 
 // Mock Supabase client
@@ -267,94 +267,6 @@ describe('Media Service', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBe('errors:fetchFailed')
       expect(result.media).toBeUndefined()
-    })
-  })
-
-  describe('getFirstMediaUrl', () => {
-    const entityType = 'event'
-    const entityId = 'test-event-id'
-
-    it('should return first media URL when media exists', async () => {
-      const mockMediaItems: MediaItem[] = [
-        {
-          id: 'media-1',
-          entity_id: entityId,
-          entity_type: entityType,
-          file_url: 'https://storage.supabase.co/first.jpg',
-          file_type: 'image',
-          mime_type: 'image/jpeg',
-          file_size: 1024,
-          uploaded_by: 'user-123',
-          is_active: true,
-          entity_exists: true,
-          created_at: '2024-01-01T00:00:00.000Z',
-          updated_at: '2024-01-01T00:00:00.000Z',
-        }
-      ] as MediaItem[]
-
-      const mockDbOps = {
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({
-                  data: mockMediaItems,
-                  error: null
-                })
-              })
-            })
-          })
-        })
-      }
-      mockFrom.mockReturnValue(mockDbOps)
-
-      const result = await getFirstMediaUrl(entityType, entityId)
-
-      expect(result).toBe('https://storage.supabase.co/first.jpg')
-    })
-
-    it('should return null when no media exists', async () => {
-      const mockDbOps = {
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({
-                  data: [],
-                  error: null
-                })
-              })
-            })
-          })
-        })
-      }
-      mockFrom.mockReturnValue(mockDbOps)
-
-      const result = await getFirstMediaUrl(entityType, entityId)
-
-      expect(result).toBeNull()
-    })
-
-    it('should return null when fetch fails', async () => {
-      const mockDbOps = {
-        select: jest.fn().mockReturnValue({
-          eq: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              eq: jest.fn().mockReturnValue({
-                order: jest.fn().mockResolvedValue({
-                  data: null,
-                  error: { message: 'Database error' }
-                })
-              })
-            })
-          })
-        })
-      }
-      mockFrom.mockReturnValue(mockDbOps)
-
-      const result = await getFirstMediaUrl(entityType, entityId)
-
-      expect(result).toBeNull()
     })
   })
 
