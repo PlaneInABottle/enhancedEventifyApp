@@ -63,16 +63,6 @@ export function formatDisplayName(name: string): string {
   return name.trim().replace(/\s+/g, " ")
 }
 
-/**
- * Gets avatar URL with fallback
- */
-export function getAvatarUrl(profile: UserProfile | null): string {
-  if (profile?.avatar_url) {
-    return profile.avatar_url
-  }
-  // Return default avatar URL
-  return "/images/default-avatar.png"
-}
 
 /**
  * Gets initials from display name

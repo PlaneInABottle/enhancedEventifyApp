@@ -2,7 +2,6 @@ import {
   validateDisplayName,
   validateBio,
   formatDisplayName,
-  getAvatarUrl,
   getInitials,
   mapProfileError,
 } from "./profileHelpers"
@@ -125,26 +124,6 @@ describe("profileHelpers", () => {
     })
   })
 
-  describe("getAvatarUrl", () => {
-    it("should return avatar URL when profile has one", () => {
-      const profile = createMockProfile({
-        avatar_url: "https://example.com/avatar.jpg",
-      })
-      const result = getAvatarUrl(profile)
-      expect(result).toBe("https://example.com/avatar.jpg")
-    })
-
-    it("should return default avatar URL when profile has no avatar", () => {
-      const profile = createMockProfile({ avatar_url: null })
-      const result = getAvatarUrl(profile)
-      expect(result).toBe("/images/default-avatar.png")
-    })
-
-    it("should return default avatar URL when profile is null", () => {
-      const result = getAvatarUrl(null)
-      expect(result).toBe("/images/default-avatar.png")
-    })
-  })
 
   describe("getInitials", () => {
     it("should return initials for full name", () => {
