@@ -1,10 +1,12 @@
 import React, { FC, useState, useCallback, useEffect, useMemo } from "react"
 import { View, ViewStyle, TextStyle, ScrollView, Alert, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
+import type { ImagePickerAsset } from "expo-image-picker"
 
 import { Button } from "@/components/Button"
 import { BusinessEventInstanceFormSection } from "@/components/BusinessEventInstanceFormSection"
 import type { BusinessEventInstanceFormData } from "@/components/BusinessEventInstanceFormSection"
+import { EventImagePicker } from "@/components/EventImagePicker"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
 import type { TxKeyPath } from "@/i18n"
@@ -19,6 +21,7 @@ export interface BusinessEventFormData {
   title: string
   description: string
   instances: BusinessEventInstanceFormData[]
+  imageAsset: ImagePickerAsset | null
 }
 
 interface BusinessEventFormProps {
@@ -60,6 +63,9 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   const [instances, setInstances] = useState<BusinessEventInstanceFormData[]>(
     initialData?.instances || [createEmptyInstance()],
   )
+  const [selectedImage, setSelectedImage] = useState<ImagePickerAsset | null>(
+    initialData?.imageAsset || null,
+  )
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -78,6 +84,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       setTitle(initialData.title || "")
       setDescription(initialData.description || "")
       setInstances(initialData.instances || [createEmptyInstance()])
+      setSelectedImage(initialData.imageAsset || null)
     }
   }, [initialData])
 
@@ -171,8 +178,9 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       title,
       description,
       instances,
+      imageAsset: selectedImage,
     })
-  }, [title, description, instances, onSubmit, validateForm])
+  }, [title, description, instances, selectedImage, onSubmit, validateForm])
 
   return (
     <ScrollView style={themed($container)}>
@@ -200,6 +208,12 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
           status={errors.description ? "error" : undefined}
           helper={errors.description ? translate(errors.description as TxKeyPath) : undefined}
           containerStyle={themed($fieldContainer)}
+        />
+
+        <EventImagePicker
+          imageUri={selectedImage?.uri}
+          onImageSelected={setSelectedImage}
+          disabled={isSubmitting}
         />
       </View>
 

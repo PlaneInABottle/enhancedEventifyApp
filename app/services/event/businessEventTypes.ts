@@ -3,6 +3,8 @@
  * TypeScript interfaces and types for business event management
  */
 
+import type { ImagePickerAsset } from "expo-image-picker"
+
 // ============================================================================
 // DATABASE TYPES (matching database schema)
 // ============================================================================
@@ -37,7 +39,7 @@ export interface CreateEventRequest {
   title: string
   description?: string
   instances: CreateEventInstanceRequest[]
-  imageFiles?: File[] // For React Native: will be converted to ArrayBuffer
+  imageAsset?: ImagePickerAsset | null // Single image for React Native
 }
 
 export interface CreateEventInstanceRequest {
@@ -50,6 +52,8 @@ export interface CreateEventInstanceRequest {
 export interface UpdateEventRequest {
   title?: string
   description?: string
+  imageAsset?: ImagePickerAsset | null // New image to upload
+  removeImage?: boolean // Set to true to remove existing image without replacement
 }
 
 export interface UpdateEventInstanceRequest {
@@ -133,7 +137,7 @@ export interface EventFormData {
   title: string
   description: string
   instances: EventInstanceFormData[]
-  images: File[]
+  imageAsset: ImagePickerAsset | null
 }
 
 export interface EventInstanceFormData {

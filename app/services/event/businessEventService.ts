@@ -109,23 +109,22 @@ export async function createEvent(
       }
     }
 
-    // Upload images if provided
-    if (request.imageFiles && request.imageFiles.length > 0) {
-      const imageUploadPromises = request.imageFiles.map(async (file, index) => {
-        const arrayBuffer = await file.arrayBuffer()
-        return uploadMedia("event", createdEvent.id, arrayBuffer, file.type, {
-          alt_text: `Event image ${index + 1}`,
-        })
-      })
-
-      const imageResults = await Promise.allSettled(imageUploadPromises)
-      // Log image upload failures but don't fail the entire operation
-      imageResults.forEach((result, index) => {
-        if (result.status === "rejected" || !result.value.success) {
-          const error = result.status === "rejected" ? result.reason : result.value.error
-          console.warn(`Failed to upload image ${index + 1} for event ${createdEvent.id}:`, error)
+    // Upload single image if provided
+    if (request.imageAsset) {
+      try {
+        const response = await fetch(request.imageAsset.uri)
+        const arrayBuffer = await response.arrayBuffer()
+        const result = await uploadMedia("event", createdEvent.id, arrayBuffer, 
+          request.imageAsset.mimeType || "image/jpeg", {
+            alt_text: "Event image",
+          })
+        
+        if (!result.success) {
+          console.warn(`Failed to upload image for event ${createdEvent.id}:`, result.error)
         }
-      })
+      } catch (error) {
+        console.warn(`Failed to upload image for event ${createdEvent.id}:`, error)
+      }
     }
 
     return {
@@ -231,6 +230,36 @@ export async function updateEvent(
 
     if (updates.description !== undefined) {
       updateData.description = formatEventDescription(updates.description)
+    }
+
+    // Handle image updates
+    if (updates.removeImage || updates.imageAsset) {
+      // Get existing media for this event
+      const mediaResult = await getMediaForEntity("event", eventId)
+      
+      if (mediaResult.success && mediaResult.media) {
+        // Delete all existing images
+        const deletePromises = mediaResult.media.map((media) => deleteMedia(media.id))
+        await Promise.allSettled(deletePromises) // Don't fail if deletion fails
+      }
+
+      // Upload new image if provided
+      if (updates.imageAsset && !updates.removeImage) {
+        try {
+          const response = await fetch(updates.imageAsset.uri)
+          const arrayBuffer = await response.arrayBuffer()
+          const result = await uploadMedia("event", eventId, arrayBuffer, 
+            updates.imageAsset.mimeType || "image/jpeg", {
+              alt_text: "Event image",
+            })
+          
+          if (!result.success) {
+            console.warn(`Failed to upload new image for event ${eventId}:`, result.error)
+          }
+        } catch (error) {
+          console.warn(`Failed to upload new image for event ${eventId}:`, error)
+        }
+      }
     }
 
     const { data, error } = await supabase

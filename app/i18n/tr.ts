@@ -48,6 +48,16 @@ const tr = {
     maxAttendeesLabel: "Maksimum Katılımcı",
     maxAttendeesPlaceholder: "İsteğe bağlı",
 
+    // Image upload
+    eventImage: "Etkinlik Görseli",
+    addEventImage: "Etkinlik Görseli Ekle",
+    tapToAddImage: "Görsel seçmek için dokunun",
+    changeImage: "Değiştir",
+    removeImage: "Kaldır",
+    imageSelectionFailed: "Görsel seçilemedi. Lütfen tekrar deneyin.",
+    permissionRequired: "İzin Gerekli",
+    photoLibraryPermissionMessage: "Etkinliklerinize görsel eklemek için fotoğraf galerinize erişim izni gerekiyor.",
+
     // Actions
     createEvent: "Etkinlik Oluştur",
     updateEvent: "Etkinlik Güncelle",

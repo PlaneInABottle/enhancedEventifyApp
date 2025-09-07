@@ -48,6 +48,16 @@ const en = {
     maxAttendeesLabel: "Max Attendees",
     maxAttendeesPlaceholder: "Optional",
 
+    // Image upload
+    eventImage: "Event Image",
+    addEventImage: "Add Event Image",
+    tapToAddImage: "Tap to select an image",
+    changeImage: "Change",
+    removeImage: "Remove",
+    imageSelectionFailed: "Failed to select image. Please try again.",
+    permissionRequired: "Permission Required",
+    photoLibraryPermissionMessage: "We need access to your photo library to add images to your events.",
+
     // Actions
     createEvent: "Create Event",
     updateEvent: "Update Event",

@@ -150,6 +150,7 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
               result = await event.update({
                 title: formData.title,
                 description: formData.description,
+                imageAsset: formData.imageAsset,
               })
 
               if (result.success) {
@@ -173,6 +174,7 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
                 end_datetime: instance.end_datetime,
                 max_attendees: instance.max_attendees || undefined,
               })),
+              imageAsset: formData.imageAsset,
             })
           }
 
