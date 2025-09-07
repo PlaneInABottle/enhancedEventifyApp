@@ -106,7 +106,7 @@ describe('Media Service', () => {
       const result = await uploadMedia(entityType, entityId, emptyBuffer, validImageMime)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.invalidFile')
+      expect(result.error).toBe('errors:invalidFile')
       expect(result.media).toBeUndefined()
     })
 
@@ -116,7 +116,7 @@ describe('Media Service', () => {
       const result = await uploadMedia(entityType, entityId, validImageBuffer, invalidMime)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.invalidFileType')
+      expect(result.error).toBe('errors:invalidFileType')
       expect(result.media).toBeUndefined()
     })
 
@@ -127,7 +127,7 @@ describe('Media Service', () => {
       const result = await uploadMedia(entityType, entityId, largeBuffer, validImageMime)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.fileTooLarge')
+      expect(result.error).toBe('errors:fileTooLarge')
       expect(result.media).toBeUndefined()
     })
 
@@ -142,7 +142,7 @@ describe('Media Service', () => {
       const result = await uploadMedia(entityType, entityId, validImageBuffer, validImageMime)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.uploadFailed')
+      expect(result.error).toBe('errors:uploadFailed')
       expect(result.media).toBeUndefined()
     })
 
@@ -179,7 +179,7 @@ describe('Media Service', () => {
       const result = await uploadMedia(entityType, entityId, validImageBuffer, validImageMime)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.databaseError')
+      expect(result.error).toBe('errors:databaseError')
       expect(result.media).toBeUndefined()
       // Verify cleanup was called
       expect(mockStorageOps.remove).toHaveBeenCalled()
@@ -265,7 +265,7 @@ describe('Media Service', () => {
       const result = await getMediaForEntity(entityType, entityId)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.fetchFailed')
+      expect(result.error).toBe('errors:fetchFailed')
       expect(result.media).toBeUndefined()
     })
   })
@@ -426,7 +426,7 @@ describe('Media Service', () => {
       const result = await deleteMedia(mediaId)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.mediaNotFound')
+      expect(result.error).toBe('errors:mediaNotFound')
     })
 
     it('should continue with soft delete even if storage deletion fails', async () => {
@@ -498,7 +498,7 @@ describe('Media Service', () => {
       const result = await deleteMedia(mediaId)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('errors.databaseError')
+      expect(result.error).toBe('errors:databaseError')
     })
   })
 })

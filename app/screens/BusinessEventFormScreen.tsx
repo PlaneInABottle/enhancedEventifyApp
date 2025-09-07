@@ -102,7 +102,7 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
           return { success: true }
         } catch (error) {
           console.error("Instance update failed:", error)
-          return { success: false, error: "errors.unknownError" }
+          return { success: false, error: "errors:unknownError" }
         }
       },
       [],
@@ -160,7 +160,7 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
                 }
               }
             } else {
-              result = { success: false, error: "errors.eventNotFound" }
+              result = { success: false, error: "errors:eventNotFound" }
             }
           } else {
             // Create new event

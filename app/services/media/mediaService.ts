@@ -29,24 +29,24 @@ export async function uploadMedia(
   try {
     // Validate inputs
     if (!arrayBuffer || arrayBuffer.byteLength === 0) {
-      return { success: false, error: "errors.invalidFile" }
+      return { success: false, error: "errors:invalidFile" }
     }
 
     // Determine file type
     const fileType = getFileTypeFromMimeType(mimeType)
     if (!fileType) {
-      return { success: false, error: "errors.invalidFileType" }
+      return { success: false, error: "errors:invalidFileType" }
     }
 
     // Validate file size
     const maxSize = MEDIA_CONSTANTS.MAX_FILE_SIZE[fileType.toUpperCase() as keyof typeof MEDIA_CONSTANTS.MAX_FILE_SIZE]
     if (arrayBuffer.byteLength > maxSize) {
-      return { success: false, error: "errors.fileTooLarge" }
+      return { success: false, error: "errors:fileTooLarge" }
     }
 
     // Validate mime type
     if (!isValidMimeType(mimeType, fileType)) {
-      return { success: false, error: "errors.invalidFileType" }
+      return { success: false, error: "errors:invalidFileType" }
     }
 
     // Generate file path
@@ -66,7 +66,7 @@ export async function uploadMedia(
 
     if (uploadError) {
       console.error('Storage upload error:', uploadError)
-      return { success: false, error: "errors.uploadFailed" }
+      return { success: false, error: "errors:uploadFailed" }
     }
 
     // Get public URL
@@ -104,7 +104,7 @@ export async function uploadMedia(
       console.error('Database insert error:', insertError)
       // Clean up uploaded file
       await supabase.storage.from(bucket).remove([filePath])
-      return { success: false, error: "errors.databaseError" }
+      return { success: false, error: "errors:databaseError" }
     }
 
     return {
@@ -114,7 +114,7 @@ export async function uploadMedia(
 
   } catch (error) {
     console.error('Unexpected error uploading media:', error)
-    return { success: false, error: "errors.unknownError" }
+    return { success: false, error: "errors:unknownError" }
   }
 }
 
@@ -136,7 +136,7 @@ export async function getMediaForEntity(
 
     if (error) {
       console.error('Error fetching media:', error)
-      return { success: false, error: "errors.fetchFailed" }
+      return { success: false, error: "errors:fetchFailed" }
     }
 
     return {
@@ -145,7 +145,7 @@ export async function getMediaForEntity(
     }
   } catch (error) {
     console.error('Unexpected error fetching media:', error)
-    return { success: false, error: "errors.unknownError" }
+    return { success: false, error: "errors:unknownError" }
   }
 }
 
@@ -176,7 +176,7 @@ export async function deleteMedia(mediaId: string): Promise<MediaDeleteResult> {
       .single()
 
     if (fetchError || !mediaItem) {
-      return { success: false, error: "errors.mediaNotFound" }
+      return { success: false, error: "errors:mediaNotFound" }
     }
 
     // Extract file path from URL
@@ -200,14 +200,14 @@ export async function deleteMedia(mediaId: string): Promise<MediaDeleteResult> {
 
     if (updateError) {
       console.error('Database update error:', updateError)
-      return { success: false, error: "errors.databaseError" }
+      return { success: false, error: "errors:databaseError" }
     }
 
     return { success: true }
 
   } catch (error) {
     console.error('Unexpected error deleting media:', error)
-    return { success: false, error: "errors.unknownError" }
+    return { success: false, error: "errors:unknownError" }
   }
 }
 

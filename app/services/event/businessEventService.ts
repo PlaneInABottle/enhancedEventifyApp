@@ -52,7 +52,7 @@ export async function createEvent(
       const firstError = Object.values(validation.errors)[0]
       return {
         success: false,
-        error: firstError || "errors.validationFailed",
+        error: firstError || "errors:validationFailed",
       }
     }
 
@@ -105,7 +105,7 @@ export async function createEvent(
       await deleteEvent(createdEvent.id)
       return {
         success: false,
-        error: failedInstances.join(", ") || "errors.noInstancesCreated",
+        error: failedInstances.join(", ") || "errors:noInstancesCreated",
       }
     }
 
@@ -137,7 +137,7 @@ export async function createEvent(
     console.error("Unexpected error creating event:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }
@@ -207,7 +207,7 @@ export async function getEventsForBusiness(businessId: string): Promise<EventLis
     console.error("Unexpected error fetching events:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }
@@ -256,7 +256,7 @@ export async function updateEvent(
     console.error("Unexpected error updating event:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }
@@ -298,7 +298,7 @@ export async function deleteEvent(eventId: string): Promise<EventResult> {
     console.error("Unexpected error deleting event:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }
@@ -319,7 +319,7 @@ async function createEventInstanceInternal(
     const firstError = Object.values(validation.errors)[0]
     return {
       success: false,
-      error: firstError || "errors.validationFailed",
+      error: firstError || "errors:validationFailed",
     }
   }
 
@@ -366,7 +366,7 @@ export async function createEventInstance(
     console.error("Unexpected error creating event instance:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }
@@ -414,7 +414,7 @@ export async function updateEventInstance(
     console.error("Unexpected error updating event instance:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }
@@ -447,7 +447,7 @@ export async function deleteEventInstance(instanceId: string): Promise<EventInst
     console.error("Unexpected error deleting event instance:", error)
     return {
       success: false,
-      error: "errors.unknownError",
+      error: "errors:unknownError",
     }
   }
 }

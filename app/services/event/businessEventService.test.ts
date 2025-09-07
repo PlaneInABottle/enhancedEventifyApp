@@ -133,7 +133,7 @@ describe("createEvent", () => {
     const result = await createEvent("business-1", eventData)
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.databaseError")
+    expect(result.error).toBe("errors:databaseError")
   })
 
   test("handles missing business ID", async () => {
@@ -144,7 +144,7 @@ describe("createEvent", () => {
     })
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.noInstances")
+    expect(result.error).toBe("errors:noInstances")
   })
 
   test("handles missing instances", async () => {
@@ -155,7 +155,7 @@ describe("createEvent", () => {
     })
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.noInstances")
+    expect(result.error).toBe("errors:noInstances")
   })
 })
 
@@ -232,7 +232,7 @@ describe("getEvent", () => {
     const result = await getEvent("nonexistent-event")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.eventNotFound")
+    expect(result.error).toBe("errors:eventNotFound")
   })
 
   test("handles database error", async () => {
@@ -241,7 +241,7 @@ describe("getEvent", () => {
     const result = await getEvent("event-1")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.databaseError")
+    expect(result.error).toBe("errors:databaseError")
   })
 })
 
@@ -296,7 +296,7 @@ describe("updateEvent", () => {
     const result = await updateEvent("event-1", { title: "Updated Event" })
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.databaseError")
+    expect(result.error).toBe("errors:databaseError")
   })
 })
 
@@ -347,7 +347,7 @@ describe("deleteEvent", () => {
     const result = await deleteEvent("event-1")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.databaseError")
+    expect(result.error).toBe("errors:databaseError")
   })
 })
 
@@ -604,6 +604,6 @@ describe("getEventsForBusiness", () => {
     const result = await getEventsForBusiness("business-1")
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe("errors.databaseError")
+    expect(result.error).toBe("errors:databaseError")
   })
 })

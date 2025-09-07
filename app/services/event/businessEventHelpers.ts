@@ -24,23 +24,23 @@ export function validateEventRequest(request: CreateEventRequest): EventValidati
 
   // Validate title
   if (!request.title?.trim()) {
-    errors.title = "errors.titleRequired"
+    errors.title = "errors:titleRequired"
   } else if (request.title.trim().length < EVENT_CONSTANTS.TITLE.MIN_LENGTH) {
-    errors.title = "errors.titleTooShort"
+    errors.title = "errors:titleTooShort"
   } else if (request.title.length > EVENT_CONSTANTS.TITLE.MAX_LENGTH) {
-    errors.title = "errors.titleTooLong"
+    errors.title = "errors:titleTooLong"
   }
 
   // Validate description
   if (request.description && request.description.length > EVENT_CONSTANTS.DESCRIPTION.MAX_LENGTH) {
-    errors.description = "errors.descriptionTooLong"
+    errors.description = "errors:descriptionTooLong"
   }
 
   // Validate instances
   if (!request.instances || request.instances.length === 0) {
-    errors.instances = "errors.noInstances"
+    errors.instances = "errors:noInstances"
   } else if (request.instances.length > EVENT_CONSTANTS.INSTANCES.MAX_COUNT) {
-    errors.instances = "errors.tooManyInstances"
+    errors.instances = "errors:tooManyInstances"
   } else {
     // Validate each instance
     const hasInstanceError = request.instances.some((instance) => {
@@ -49,7 +49,7 @@ export function validateEventRequest(request: CreateEventRequest): EventValidati
     })
 
     if (hasInstanceError) {
-      errors.instances = "errors.invalidInstances"
+      errors.instances = "errors:invalidInstances"
     }
   }
 
@@ -69,17 +69,17 @@ export function validateEventInstanceRequest(
 
   // Validate venue_id
   if (!request.venue_id?.trim()) {
-    errors.venue_id = "errors.venueRequired"
+    errors.venue_id = "errors:venueRequired"
   }
 
   // Validate start_datetime
   if (!request.start_datetime) {
-    errors.start_datetime = "errors.startDateRequired"
+    errors.start_datetime = "errors:startDateRequired"
   }
 
   // Validate end_datetime
   if (!request.end_datetime) {
-    errors.end_datetime = "errors.endDateRequired"
+    errors.end_datetime = "errors:endDateRequired"
   }
 
   // Validate date range
@@ -88,20 +88,20 @@ export function validateEventInstanceRequest(
     const endDate = new Date(request.end_datetime)
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      errors.dateRange = "errors.invalidDateFormat"
+      errors.dateRange = "errors:invalidDateFormat"
     } else if (endDate <= startDate) {
-      errors.dateRange = "errors.invalidDateRange"
+      errors.dateRange = "errors:invalidDateRange"
     } else if (startDate <= new Date()) {
-      errors.dateRange = "errors.pastStartDate"
+      errors.dateRange = "errors:pastStartDate"
     }
   }
 
   // Validate max_attendees
   if (request.max_attendees !== undefined && request.max_attendees !== null) {
     if (request.max_attendees < EVENT_CONSTANTS.MAX_ATTENDEES.MIN) {
-      errors.max_attendees = "errors.maxAttendeesTooSmall"
+      errors.max_attendees = "errors:maxAttendeesTooSmall"
     } else if (request.max_attendees > EVENT_CONSTANTS.MAX_ATTENDEES.MAX) {
-      errors.max_attendees = "errors.maxAttendeesTooLarge"
+      errors.max_attendees = "errors:maxAttendeesTooLarge"
     }
   }
 
@@ -159,36 +159,36 @@ export function formatDateTime(dateTime: string | Date): string {
 export function mapEventError(error: any): { code: EventErrorCode; message: EventErrorCode } {
   // Handle null/undefined errors
   if (!error) {
-    return { code: "errors.databaseError", message: "errors.databaseError" }
+    return { code: "errors:databaseError", message: "errors:databaseError" }
   }
 
   // Handle common Supabase error codes
   if (error.code === "PGRST116" || error.status === 404) {
-    return { code: "errors.eventNotFound", message: "errors.eventNotFound" }
+    return { code: "errors:eventNotFound", message: "errors:eventNotFound" }
   }
 
   if (error.code === "23505") {
     // Unique constraint violation
-    return { code: "errors.databaseError", message: "errors.databaseError" }
+    return { code: "errors:databaseError", message: "errors:databaseError" }
   }
 
   if (error.code === "23503") {
     // Foreign key constraint violation
     if (error.message?.includes("business_id")) {
-      return { code: "errors.businessNotFound", message: "errors.businessNotFound" }
+      return { code: "errors:businessNotFound", message: "errors:businessNotFound" }
     }
     if (error.message?.includes("venue_id")) {
-      return { code: "errors.venueNotFound", message: "errors.venueNotFound" }
+      return { code: "errors:venueNotFound", message: "errors:venueNotFound" }
     }
   }
 
   if (error.code === "RLS_VIOLATION" || error.message?.includes("RLS")) {
-    return { code: "errors.unauthorizedAccess", message: "errors.unauthorizedAccess" }
+    return { code: "errors:unauthorizedAccess", message: "errors:unauthorizedAccess" }
   }
 
   // Default to database error for any other case
   console.error("Unmapped event error:", error)
-  return { code: "errors.databaseError", message: "errors.databaseError" }
+  return { code: "errors:databaseError", message: "errors:databaseError" }
 }
 
 // ============================================================================

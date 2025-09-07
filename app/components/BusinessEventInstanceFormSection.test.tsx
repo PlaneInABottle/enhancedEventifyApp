@@ -24,11 +24,11 @@ jest.mock("@/i18n/translate", () => ({
       "businessEvent:maxAttendeesLabel": "Max Attendees",
       "businessEvent:maxAttendeesPlaceholder": "Enter max attendees",
       "common:remove": "Remove",
-      "errors.venueRequired": "Venue is required",
-      "errors.startDateRequired": "Start date is required",
-      "errors.endDateRequired": "End date is required",
-      "errors.invalidDateRange": "End date must be after start date",
-      "errors.maxAttendeesTooSmall": "Must be at least 1",
+      "errors:venueRequired": "Venue is required",
+      "errors:startDateRequired": "Start date is required",
+      "errors:endDateRequired": "End date is required",
+      "errors:invalidDateRange": "End date must be after start date",
+      "errors:maxAttendeesTooSmall": "Must be at least 1",
     }
     if (options && key === "businessEvent:instanceNumber") {
       return `Instance ${options.number}`
@@ -285,26 +285,26 @@ describe("BusinessEventInstanceFormSection", () => {
 
   describe("Error Display", () => {
     it("shows venue error", () => {
-      const errors = { instance_0_venue_id: "errors.venueRequired" }
+      const errors = { instance_0_venue_id: "errors:venueRequired" }
       renderBusinessEventInstanceFormSection({ errors })
       expect(screen.getByTestId("error-businessEvent:venueLabel")).toBeOnTheScreen()
       expect(screen.getByText("Venue is required")).toBeOnTheScreen()
     })
 
     it("shows start datetime error", () => {
-      const errors = { instance_0_start_datetime: "errors.startDateRequired" }
+      const errors = { instance_0_start_datetime: "errors:startDateRequired" }
       renderBusinessEventInstanceFormSection({ errors })
       expect(screen.getByText("Start date is required")).toBeOnTheScreen()
     })
 
     it("shows end datetime error", () => {
-      const errors = { instance_0_end_datetime: "errors.endDateRequired" }
+      const errors = { instance_0_end_datetime: "errors:endDateRequired" }
       renderBusinessEventInstanceFormSection({ errors })
       expect(screen.getByText("End date is required")).toBeOnTheScreen()
     })
 
     it("shows max attendees error", () => {
-      const errors = { instance_0_max_attendees: "errors.maxAttendeesTooSmall" }
+      const errors = { instance_0_max_attendees: "errors:maxAttendeesTooSmall" }
       renderBusinessEventInstanceFormSection({ errors })
       expect(screen.getByText("Must be at least 1")).toBeOnTheScreen()
     })
@@ -317,8 +317,8 @@ describe("BusinessEventInstanceFormSection", () => {
 
     it("shows error styling on fields with errors", () => {
       const errors = {
-        instance_0_start_datetime: "errors.startDateRequired",
-        instance_0_max_attendees: "errors.maxAttendeesTooSmall",
+        instance_0_start_datetime: "errors:startDateRequired",
+        instance_0_max_attendees: "errors:maxAttendeesTooSmall",
       }
       renderBusinessEventInstanceFormSection({ errors })
       expect(screen.getByText("Start date is required")).toBeOnTheScreen()
@@ -366,7 +366,7 @@ describe("BusinessEventInstanceFormSection", () => {
 
   describe("Index Handling", () => {
     it("uses correct error keys based on index", () => {
-      const errors = { instance_5_venue_id: "errors.venueRequired" }
+      const errors = { instance_5_venue_id: "errors:venueRequired" }
       renderBusinessEventInstanceFormSection({ index: 5, errors })
       expect(screen.getByText("Venue is required")).toBeOnTheScreen()
     })

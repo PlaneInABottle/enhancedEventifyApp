@@ -130,12 +130,12 @@ describe("BusinessEventInstanceModel", () => {
     test("update returns error on service failure", async () => {
       mockServices.updateEventInstance.mockResolvedValue({
         success: false,
-        error: "errors.venueNotFound",
+        error: "errors:venueNotFound",
       })
 
       const result = await instance.update({ venue_id: "invalid" })
 
-      expect(result).toEqual({ success: false, error: "errors.venueNotFound" })
+      expect(result).toEqual({ success: false, error: "errors:venueNotFound" })
       expect(instance.venue_id).toBe("venue-1") // Should remain unchanged
     })
 
@@ -151,12 +151,12 @@ describe("BusinessEventInstanceModel", () => {
     test("delete returns error on service failure", async () => {
       mockServices.deleteEventInstance.mockResolvedValue({
         success: false,
-        error: "errors.instanceNotFound",
+        error: "errors:instanceNotFound",
       })
 
       const result = await instance.delete()
 
-      expect(result).toEqual({ success: false, error: "errors.instanceNotFound" })
+      expect(result).toEqual({ success: false, error: "errors:instanceNotFound" })
       expect(mockServices.deleteEventInstance).toHaveBeenCalledWith("instance-1")
     })
   })
@@ -271,12 +271,12 @@ describe("BusinessEventModel", () => {
     test("update returns error on service failure", async () => {
       mockServices.updateEvent.mockResolvedValue({
         success: false,
-        error: "errors.eventNotFound",
+        error: "errors:eventNotFound",
       })
 
       const result = await event.update({ title: "Failed Update" })
 
-      expect(result).toEqual({ success: false, error: "errors.eventNotFound" })
+      expect(result).toEqual({ success: false, error: "errors:eventNotFound" })
       expect(event.title).toBe("Test Event") // Should remain unchanged
     })
 

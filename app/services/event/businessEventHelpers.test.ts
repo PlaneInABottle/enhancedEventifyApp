@@ -55,7 +55,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.title).toBe("errors.titleRequired")
+    expect(result.errors.title).toBe("errors:titleRequired")
   })
 
   test("validates title too short", () => {
@@ -68,7 +68,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.title).toBe("errors.titleTooShort")
+    expect(result.errors.title).toBe("errors:titleTooShort")
   })
 
   test("validates title too long", () => {
@@ -81,7 +81,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.title).toBe("errors.titleTooLong")
+    expect(result.errors.title).toBe("errors:titleTooLong")
   })
 
   test("validates description too long", () => {
@@ -106,7 +106,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.description).toBe("errors.descriptionTooLong")
+    expect(result.errors.description).toBe("errors:descriptionTooLong")
   })
 
   test("validates missing instances", () => {
@@ -119,7 +119,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.instances).toBe("errors.noInstances")
+    expect(result.errors.instances).toBe("errors:noInstances")
   })
 
   test("validates too many instances", () => {
@@ -142,7 +142,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.instances).toBe("errors.tooManyInstances")
+    expect(result.errors.instances).toBe("errors:tooManyInstances")
   })
 
   test("validates invalid instances", () => {
@@ -161,7 +161,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.instances).toBe("errors.invalidInstances")
+    expect(result.errors.instances).toBe("errors:invalidInstances")
   })
 })
 
@@ -195,7 +195,7 @@ describe("validateEventInstanceRequest", () => {
     const result = validateEventInstanceRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.venue_id).toBe("errors.venueRequired")
+    expect(result.errors.venue_id).toBe("errors:venueRequired")
   })
 
   test("validates missing start date", () => {
@@ -208,7 +208,7 @@ describe("validateEventInstanceRequest", () => {
     const result = validateEventInstanceRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.start_datetime).toBe("errors.startDateRequired")
+    expect(result.errors.start_datetime).toBe("errors:startDateRequired")
   })
 
   test("validates missing end date", () => {
@@ -221,7 +221,7 @@ describe("validateEventInstanceRequest", () => {
     const result = validateEventInstanceRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.end_datetime).toBe("errors.endDateRequired")
+    expect(result.errors.end_datetime).toBe("errors:endDateRequired")
   })
 
   test("validates end before start", () => {
@@ -234,7 +234,7 @@ describe("validateEventInstanceRequest", () => {
     const result = validateEventInstanceRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.dateRange).toBe("errors.invalidDateRange")
+    expect(result.errors.dateRange).toBe("errors:invalidDateRange")
   })
 
   test("validates negative max attendees", () => {
@@ -253,7 +253,7 @@ describe("validateEventInstanceRequest", () => {
     const result = validateEventInstanceRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.max_attendees).toBe("errors.maxAttendeesTooSmall")
+    expect(result.errors.max_attendees).toBe("errors:maxAttendeesTooSmall")
   })
 })
 
@@ -314,8 +314,8 @@ describe("mapEventError", () => {
 
     const result = mapEventError(error)
 
-    expect(result.code).toBe("errors.databaseError")
-    expect(result.message).toBe("errors.databaseError")
+    expect(result.code).toBe("errors:databaseError")
+    expect(result.message).toBe("errors:databaseError")
   })
 
   test("maps foreign key error", () => {
@@ -327,15 +327,15 @@ describe("mapEventError", () => {
 
     const result = mapEventError(error)
 
-    expect(result.code).toBe("errors.businessNotFound")
-    expect(result.message).toBe("errors.businessNotFound")
+    expect(result.code).toBe("errors:businessNotFound")
+    expect(result.message).toBe("errors:businessNotFound")
   })
 
   test("maps null error", () => {
     const result = mapEventError(null)
 
-    expect(result.code).toBe("errors.databaseError")
-    expect(result.message).toBe("errors.databaseError")
+    expect(result.code).toBe("errors:databaseError")
+    expect(result.message).toBe("errors:databaseError")
   })
 
   test("maps unknown error", () => {
@@ -345,8 +345,8 @@ describe("mapEventError", () => {
 
     const result = mapEventError(error)
 
-    expect(result.code).toBe("errors.databaseError")
-    expect(result.message).toBe("errors.databaseError")
+    expect(result.code).toBe("errors:databaseError")
+    expect(result.message).toBe("errors:databaseError")
   })
 })
 

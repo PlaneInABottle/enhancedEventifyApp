@@ -22,7 +22,7 @@ jest.mock("@/i18n/translate", () => ({
       "businessEvent:eventUpdatedSuccessfully": "Event updated successfully",
       "common:success": "Success",
       "errors:businessIdNotAvailable": "Business ID not available",
-      "errors.eventNotFound": "Event not found",
+      "errors:eventNotFound": "Event not found",
       "errors:unknownError": "Unknown error occurred",
     }
 

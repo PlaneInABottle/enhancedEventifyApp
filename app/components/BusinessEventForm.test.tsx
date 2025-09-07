@@ -38,9 +38,9 @@ jest.mock("@/i18n/translate", () => ({
       "businessEvent:createEvent": "Create Event",
       "businessEvent:validationErrorTitle": "Validation Error",
       "businessEvent:validationErrorMessage": "Please fix the errors and try again",
-      "errors.titleRequired": "Title is required",
-      "errors.titleTooShort": "Title is too short",
-      "errors.instancesRequired": "At least one instance is required",
+      "errors:titleRequired": "Title is required",
+      "errors:titleTooShort": "Title is too short",
+      "errors:instancesRequired": "At least one instance is required",
     }
     return translations[key] || key
   },
@@ -149,9 +149,9 @@ describe("BusinessEventForm", () => {
     })
 
     it("shows error message when provided", () => {
-      renderWithProviders(<BusinessEventForm {...defaultProps} errorMessage="errors.someError" />)
+      renderWithProviders(<BusinessEventForm {...defaultProps} errorMessage="errors:someError" />)
 
-      expect(screen.getByText("errors.someError")).toBeOnTheScreen()
+      expect(screen.getByText("errors:someError")).toBeOnTheScreen()
     })
 
     it("disables submit button when submitting", () => {

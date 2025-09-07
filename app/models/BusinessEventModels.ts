@@ -241,13 +241,13 @@ export const BusinessEventStore = types
           self.events.push(eventModel)
           return { success: true, event: eventModel }
         } else {
-          self.setProp("lastError", result.error || "errors.createEventFailed")
+          self.setProp("lastError", result.error || "errors:createEventFailed")
           return { success: false, error: result.error }
         }
       } catch (error) {
         console.error("EventStore.createEvent error:", error)
-        self.setProp("lastError", "errors.unknownError")
-        return { success: false, error: "errors.unknownError" }
+        self.setProp("lastError", "errors:unknownError")
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.setProp("isCreating", false)
       }
@@ -270,13 +270,13 @@ export const BusinessEventStore = types
           self.setProp("events", eventsSnapshot as any)
           return { success: true }
         } else {
-          self.setProp("lastError", result.error || "errors.fetchEventsFailed")
+          self.setProp("lastError", result.error || "errors:fetchEventsFailed")
           return { success: false, error: result.error }
         }
       } catch (error) {
         console.error("EventStore.fetchEvents error:", error)
-        self.setProp("lastError", "errors.unknownError")
-        return { success: false, error: "errors.unknownError" }
+        self.setProp("lastError", "errors:unknownError")
+        return { success: false, error: "errors:unknownError" }
       } finally {
         self.setProp("isLoading", false)
       }
