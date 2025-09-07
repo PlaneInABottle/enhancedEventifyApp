@@ -197,23 +197,6 @@ export function mapEventError(error: any): { code: EventErrorCode; message: Even
 
 
 
-/**
- * Checks if event instance is in the past
- */
-export function isEventInstancePast(endDateTime: string): boolean {
-  const end = new Date(endDateTime)
-  return end < new Date()
-}
-
-/**
- * Checks if event instance is happening now
- */
-export function isEventInstanceActive(startDateTime: string, endDateTime: string): boolean {
-  const now = new Date()
-  const start = new Date(startDateTime)
-  const end = new Date(endDateTime)
-  return now >= start && now <= end
-}
 
 /**
  * Sorts event instances by start datetime

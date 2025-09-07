@@ -11,12 +11,7 @@ import {
   formatEventDescription,
   formatDateTime,
   mapEventError,
-  generateEventImageFilename,
-  calculateEventDuration,
-  isEventInstancePast,
-  isEventInstanceActive,
   sortEventInstancesByStartDate,
-  groupEventInstancesByDate,
 } from "./businessEventHelpers"
 
 describe("validateEventRequest", () => {
@@ -402,105 +397,6 @@ describe("calculateEventDuration", () => {
   })
 })
 
-describe("isEventInstancePast", () => {
-  const now = new Date("2024-02-01T12:00:00.000Z")
-
-  beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(now)
-  })
-
-  afterEach(() => {
-    jest.useRealTimers()
-  })
-
-  test("returns true for past instance", () => {
-    const instance = {
-      id: "instance-1",
-      event_id: "event-1",
-      venue_id: "venue-1",
-      start_datetime: "2024-01-01T10:00:00.000Z",
-      end_datetime: "2024-01-01T12:00:00.000Z",
-      // status removed (derived from timing),
-    }
-
-    expect(isEventInstancePast(instance.end_datetime)).toBe(true)
-  })
-
-  test("returns false for future instance", () => {
-    const instance = {
-      id: "instance-1",
-      event_id: "event-1",
-      venue_id: "venue-1",
-      start_datetime: "2024-03-01T10:00:00.000Z",
-      end_datetime: "2024-03-01T12:00:00.000Z",
-    }
-
-    expect(isEventInstancePast(instance.end_datetime)).toBe(false)
-  })
-
-  test("returns false for active instance", () => {
-    const instance = {
-      id: "instance-1",
-      event_id: "event-1",
-      venue_id: "venue-1",
-      start_datetime: "2024-02-01T11:00:00.000Z",
-      end_datetime: "2024-02-01T13:00:00.000Z",
-    }
-
-    expect(isEventInstancePast(instance.end_datetime)).toBe(false)
-  })
-})
-
-describe("isEventInstanceActive", () => {
-  const now = new Date("2024-02-01T12:00:00.000Z")
-
-  beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(now)
-  })
-
-  afterEach(() => {
-    jest.useRealTimers()
-  })
-
-  test("returns true for active instance", () => {
-    const instance = {
-      id: "instance-1",
-      event_id: "event-1",
-      venue_id: "venue-1",
-      start_datetime: "2024-02-01T11:00:00.000Z",
-      end_datetime: "2024-02-01T13:00:00.000Z",
-    }
-
-    expect(isEventInstanceActive(instance.start_datetime, instance.end_datetime)).toBe(true)
-  })
-
-  test("returns false for past instance", () => {
-    const instance = {
-      id: "instance-1",
-      event_id: "event-1",
-      venue_id: "venue-1",
-      start_datetime: "2024-01-01T10:00:00.000Z",
-      end_datetime: "2024-01-01T12:00:00.000Z",
-      // status removed (derived from timing),
-    }
-
-    expect(isEventInstanceActive(instance.start_datetime, instance.end_datetime)).toBe(false)
-  })
-
-  test("returns false for future instance", () => {
-    const instance = {
-      id: "instance-1",
-      event_id: "event-1",
-      venue_id: "venue-1",
-      start_datetime: "2024-03-01T10:00:00.000Z",
-      end_datetime: "2024-03-01T12:00:00.000Z",
-    }
-
-    expect(isEventInstanceActive(instance.start_datetime, instance.end_datetime)).toBe(false)
-  })
-})
 
 describe("sortEventInstancesByStartDate", () => {
   test("sorts instances by start date ascending", () => {

@@ -47,7 +47,5 @@ export {
   formatEventDescription,
   formatDateTime,
   mapEventError,
-  isEventInstancePast,
-  isEventInstanceActive,
   sortEventInstancesByStartDate,
 } from "./businessEventHelpers"
