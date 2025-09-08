@@ -210,7 +210,7 @@ export type EventErrorCode =
   | "errors:titleRequired"
   | "errors:titleTooShort"
   | "errors:titleTooLong"
-  | "errors:descriptionTooLong"
+  | "errors:eventDescriptionTooLong"
   | "errors:noInstances"
   | "errors:tooManyInstances"
   | "errors:venueRequired"

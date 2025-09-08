@@ -33,7 +33,7 @@ export function validateEventRequest(request: CreateEventRequest): EventValidati
 
   // Validate description
   if (request.description && request.description.length > EVENT_CONSTANTS.DESCRIPTION.MAX_LENGTH) {
-    errors.description = "errors:descriptionTooLong"
+    errors.description = "errors:eventDescriptionTooLong"
   }
 
   // Validate instances
@@ -195,9 +195,6 @@ export function mapEventError(error: any): { code: EventErrorCode; message: Even
 // UTILITY FUNCTIONS
 // ============================================================================
 
-
-
-
 /**
  * Sorts event instances by start datetime
  */
@@ -208,4 +205,3 @@ export function sortEventInstancesByStartDate<
     (a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime(),
   )
 }
-

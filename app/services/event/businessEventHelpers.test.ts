@@ -101,7 +101,7 @@ describe("validateEventRequest", () => {
     const result = validateEventRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.description).toBe("errors:descriptionTooLong")
+    expect(result.errors.description).toBe("errors:eventDescriptionTooLong")
   })
 
   test("validates missing instances", () => {
@@ -345,58 +345,7 @@ describe("mapEventError", () => {
   })
 })
 
-describe("generateEventImageFilename", () => {
-  beforeEach(() => {
-    jest.spyOn(Date, "now").mockReturnValue(1704067200000) // 2024-01-01T00:00:00.000Z
-  })
-
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
-
-  test("generates filename for jpeg", () => {
-    const filename = generateEventImageFilename("event-123", 0, "image/jpeg")
-    expect(filename).toBe("event-123/image-0-1704067200000.jpeg")
-  })
-
-  test("generates filename for png", () => {
-    const filename = generateEventImageFilename("event-123", 1, "image/png")
-    expect(filename).toBe("event-123/image-1-1704067200000.png")
-  })
-
-  test("generates filename for webp", () => {
-    const filename = generateEventImageFilename("event-123", 2, "image/webp")
-    expect(filename).toBe("event-123/image-2-1704067200000.webp")
-  })
-
-  test("defaults to jpg for unknown type", () => {
-    const filename = generateEventImageFilename("event-123", 3, "image/unknown")
-    expect(filename).toBe("event-123/image-3-1704067200000.unknown")
-  })
-})
-
-describe("calculateEventDuration", () => {
-  test("calculates duration in hours", () => {
-    const start = "2024-02-01T10:00:00.000Z"
-    const end = "2024-02-01T12:30:00.000Z"
-
-    expect(calculateEventDuration(start, end)).toBe(2.5)
-  })
-
-  test("returns 0 for same start and end", () => {
-    const time = "2024-02-01T10:00:00.000Z"
-
-    expect(calculateEventDuration(time, time)).toBe(0)
-  })
-
-  test("handles date objects", () => {
-    const start = new Date("2024-02-01T10:00:00.000Z")
-    const end = new Date("2024-02-01T14:00:00.000Z")
-
-    expect(calculateEventDuration(start.toISOString(), end.toISOString())).toBe(4)
-  })
-})
-
+// Removed deprecated tests for generateEventImageFilename and calculateEventDuration per request.
 
 describe("sortEventInstancesByStartDate", () => {
   test("sorts instances by start date ascending", () => {
@@ -450,57 +399,4 @@ describe("sortEventInstancesByStartDate", () => {
   })
 })
 
-describe("groupEventInstancesByDate", () => {
-  test("groups instances by date", () => {
-    const instances = [
-      {
-        id: "instance-1",
-        event_id: "event-1",
-        venue_id: "venue-1",
-        start_datetime: "2024-02-01T10:00:00.000Z",
-        end_datetime: "2024-02-01T12:00:00.000Z",
-      },
-      {
-        id: "instance-2",
-        event_id: "event-1",
-        venue_id: "venue-1",
-        start_datetime: "2024-02-01T14:00:00.000Z",
-        end_datetime: "2024-02-01T16:00:00.000Z",
-      },
-      {
-        id: "instance-3",
-        event_id: "event-1",
-        venue_id: "venue-1",
-        start_datetime: "2024-02-15T10:00:00.000Z",
-        end_datetime: "2024-02-15T12:00:00.000Z",
-      },
-    ]
-
-    const grouped = groupEventInstancesByDate(instances)
-
-    expect(Object.keys(grouped)).toHaveLength(2)
-    expect(grouped["2024-02-01"]).toHaveLength(2)
-    expect(grouped["2024-02-15"]).toHaveLength(1)
-  })
-
-  test("handles empty array", () => {
-    expect(groupEventInstancesByDate([])).toEqual({})
-  })
-
-  test("handles different time zones", () => {
-    const instances = [
-      {
-        id: "instance-1",
-        event_id: "event-1",
-        venue_id: "venue-1",
-        start_datetime: "2024-02-01T23:00:00.000Z", // Late UTC becomes next day in some timezones
-        end_datetime: "2024-02-02T01:00:00.000Z",
-      },
-    ]
-
-    const grouped = groupEventInstancesByDate(instances)
-
-    expect(Object.keys(grouped)).toHaveLength(1)
-    expect(grouped["2024-02-01"]).toHaveLength(1)
-  })
-})
+// Removed deprecated tests for groupEventInstancesByDate per request.

@@ -5,12 +5,10 @@ import { DateTimePickerField } from "@/components/DateTimePicker"
 import { Dropdown } from "@/components/Dropdown"
 import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
-import type { TxKeyPath } from "@/i18n"
-import { translate } from "@/i18n/translate"
 import type { IVenue } from "@/models/VenueModels"
-
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+import { safeTranslate } from "@/utils/safeTranslate"
 
 export interface BusinessEventInstanceFormData {
   id?: string // Optional for new instances, required for existing ones
@@ -121,9 +119,10 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
         options={venueOptions}
         value={instance.venue_id}
         onValueChange={handleVenueChange}
+        status={errors[`instance_${index}_venue_id`] ? "error" : undefined}
         helper={
           errors[`instance_${index}_venue_id`]
-            ? translate(errors[`instance_${index}_venue_id`] as TxKeyPath)
+            ? safeTranslate(errors[`instance_${index}_venue_id`])
             : undefined
         }
         containerStyle={themed($fieldContainer)}
@@ -139,7 +138,7 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
           status={errors[`instance_${index}_start_datetime`] ? "error" : undefined}
           error={
             errors[`instance_${index}_start_datetime`]
-              ? translate(errors[`instance_${index}_start_datetime`] as TxKeyPath)
+              ? safeTranslate(errors[`instance_${index}_start_datetime`])
               : undefined
           }
           containerStyle={themed($dateTimeFieldLeft)}
@@ -154,7 +153,7 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
           status={errors[`instance_${index}_end_datetime`] ? "error" : undefined}
           error={
             errors[`instance_${index}_end_datetime`]
-              ? translate(errors[`instance_${index}_end_datetime`] as TxKeyPath)
+              ? safeTranslate(errors[`instance_${index}_end_datetime`])
               : undefined
           }
           containerStyle={themed($dateTimeFieldRight)}
@@ -170,7 +169,7 @@ export const BusinessEventInstanceFormSection: FC<BusinessEventInstanceFormSecti
         status={errors[`instance_${index}_max_attendees`] ? "error" : undefined}
         helper={
           errors[`instance_${index}_max_attendees`]
-            ? translate(errors[`instance_${index}_max_attendees`] as TxKeyPath)
+            ? safeTranslate(errors[`instance_${index}_max_attendees`])
             : undefined
         }
         containerStyle={themed($fieldContainer)}

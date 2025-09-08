@@ -1,5 +1,5 @@
-import React, { FC, useState, useCallback, useEffect, useMemo } from "react"
-import { View, ViewStyle, TextStyle, ScrollView, Alert, Platform } from "react-native"
+import React, { FC, useState, useCallback, useEffect } from "react"
+import { View, ViewStyle, TextStyle, ScrollView, Alert } from "react-native"
 import { observer } from "mobx-react-lite"
 import type { ImagePickerAsset } from "expo-image-picker"
 
@@ -11,11 +11,14 @@ import { Text } from "@/components/Text"
 import { TextField } from "@/components/TextField"
 import type { TxKeyPath } from "@/i18n"
 import { translate } from "@/i18n/translate"
+import { safeTranslate } from "@/utils/safeTranslate"
 import { useStores } from "@/models"
 
 import { validateEventRequest, validateEventInstanceRequest } from "@/services/event"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+
+// (Moved) safeTranslate imported from utils to avoid duplication
 
 export interface BusinessEventFormData {
   title: string
@@ -74,6 +77,17 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Helper to clear specific field error
+  const clearFieldError = useCallback((fieldKey: string) => {
+    setErrors((prev) => {
+      if (fieldKey in prev) {
+        const { [fieldKey]: _, ...rest } = prev
+        return rest
+      }
+      return prev
+    })
+  }, [])
+
   // Load venues when component mounts and business profile is available
   useEffect(() => {
     const businessId = businessProfileStore.profile?.id
@@ -93,6 +107,25 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
     }
   }, [initialData])
 
+  // Auto-assign first venue id to any blank instances (create mode only)
+  const firstVenueId = venueStore.venues[0]?.id
+
+  useEffect(() => {
+    if (isEditing) return
+    if (!firstVenueId) return
+    setInstances((prev) => {
+      let changed = false
+      const updated = prev.map((inst) => {
+        if (!inst.venue_id) {
+          changed = true
+          return { ...inst, venue_id: firstVenueId }
+        }
+        return inst
+      })
+      return changed ? updated : prev
+    })
+  }, [isEditing, firstVenueId, venueStore.venues.length])
+
   // Create empty instance helper with stable temporary ID
   function createEmptyInstance(): BusinessEventInstanceFormData {
     return {
@@ -107,10 +140,15 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   // Add new event instance
   const addInstance = useCallback(() => {
     if (instances.length < 10) {
-      // Limit based on EVENT_CONSTANTS.INSTANCES.MAX_COUNT
-      setInstances((prev) => [...prev, createEmptyInstance()])
+      setInstances((prev) => {
+        const newInst = createEmptyInstance()
+        if (!isEditing && firstVenueId) {
+          newInst.venue_id = firstVenueId
+        }
+        return [...prev, newInst]
+      })
     }
-  }, [instances.length])
+  }, [instances.length, isEditing, firstVenueId])
 
   // Remove event instance
   const removeInstance = useCallback(
@@ -128,8 +166,16 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       setInstances((prev) =>
         prev.map((instance, i) => (i === index ? { ...instance, ...updates } : instance)),
       )
+
+      // Clear errors for updated fields
+      Object.keys(updates).forEach((field) => {
+        const errorKey = `instance_${index}_${field}`
+        if (errors[errorKey]) {
+          clearFieldError(errorKey)
+        }
+      })
     },
-    [],
+    [errors, clearFieldError],
   )
 
   // Validate form
@@ -198,9 +244,12 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
           labelTx="businessEvent:titleLabel"
           placeholderTx="businessEvent:titlePlaceholder"
           value={title}
-          onChangeText={setTitle}
+          onChangeText={(text) => {
+            setTitle(text)
+            if (errors.title) clearFieldError("title")
+          }}
           status={errors.title ? "error" : undefined}
-          helper={errors.title ? translate(errors.title as TxKeyPath) : undefined}
+          helper={errors.title ? safeTranslate(errors.title) : undefined}
           containerStyle={themed($fieldContainer)}
         />
 
@@ -208,11 +257,14 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
           labelTx="businessEvent:descriptionLabel"
           placeholderTx="businessEvent:descriptionPlaceholder"
           value={description}
-          onChangeText={setDescription}
+          onChangeText={(text) => {
+            setDescription(text)
+            if (errors.description) clearFieldError("description")
+          }}
           multiline
           numberOfLines={4}
           status={errors.description ? "error" : undefined}
-          helper={errors.description ? translate(errors.description as TxKeyPath) : undefined}
+          helper={errors.description ? safeTranslate(errors.description) : undefined}
           containerStyle={themed($fieldContainer)}
         />
 
@@ -263,7 +315,12 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       {/* Error Message */}
       {errorMessage && (
         <View style={themed($errorContainer)}>
-          <Text preset="formHelper" tx={errorMessage as TxKeyPath} style={themed($errorText)} />
+          <Text
+            preset="formHelper"
+            tx={errorMessage.includes(":") ? (errorMessage as TxKeyPath) : undefined}
+            text={!errorMessage.includes(":") ? errorMessage : undefined}
+            style={themed($errorText)}
+          />
         </View>
       )}
 

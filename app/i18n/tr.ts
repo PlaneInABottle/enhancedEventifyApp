@@ -56,7 +56,8 @@ const tr = {
     removeImage: "Kaldır",
     imageSelectionFailed: "Görsel seçilemedi. Lütfen tekrar deneyin.",
     permissionRequired: "İzin Gerekli",
-    photoLibraryPermissionMessage: "Etkinliklerinize görsel eklemek için fotoğraf galerinize erişim izni gerekiyor.",
+    photoLibraryPermissionMessage:
+      "Etkinliklerinize görsel eklemek için fotoğraf galerinize erişim izni gerekiyor.",
 
     // Actions
     createEvent: "Etkinlik Oluştur",
@@ -184,6 +185,28 @@ const tr = {
     descriptionTooLong: "Açıklama 500 karakterden az olmalıdır",
     descriptionTooShort: "Açıklama çok kısa",
     fetchVenuesFailed: "Mekanlar yüklenemedi",
+    // Etkinlik doğrulama hataları
+    titleRequired: "Etkinlik başlığı gereklidir",
+    titleTooShort: "Etkinlik başlığı en az 3 karakter olmalıdır",
+    titleTooLong: "Etkinlik başlığı 100 karakteri geçemez",
+    eventDescriptionTooLong: "Açıklama 1000 karakteri geçemez",
+    noInstances: "En az bir etkinlik oturumu gereklidir",
+    tooManyInstances: "Çok fazla etkinlik oturumu (maksimum 50)",
+    invalidInstances: "Bir veya daha fazla etkinlik oturumu geçersiz",
+    venueRequired: "Mekan gereklidir",
+    startDateRequired: "Başlangıç tarihi ve saati gereklidir",
+    endDateRequired: "Bitiş tarihi ve saati gereklidir",
+    invalidDateRange: "Bitiş tarihi başlangıç tarihinden sonra olmalıdır",
+    invalidDateFormat: "Geçersiz tarih formatı",
+    pastStartDate: "Başlangıç tarihi gelecekte olmalıdır",
+    maxAttendeesTooSmall: "Maksimum katılımcı en az 1 olmalıdır",
+    maxAttendeesTooLarge: "Maksimum katılımcı 10.000'i geçemez",
+    eventNotFound: "Etkinlik bulunamadı",
+    eventInstanceNotFound: "Etkinlik oturumu bulunamadı",
+    businessNotFound: "İşletme bulunamadı",
+    businessNotVerified: "İşletme doğrulanmamış",
+    unauthorizedAccess: "Bu işlemi yapmaya yetkiniz yok",
+    databaseError: "Bir veritabanı hatası oluştu",
   },
   venuesScreen: {
     title: "Mekanlar",

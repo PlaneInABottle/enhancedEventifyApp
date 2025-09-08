@@ -280,18 +280,22 @@ describe("BusinessEventForm", () => {
       fireEvent.press(submitButton)
 
       await waitFor(() => {
-        expect(defaultProps.onSubmit).toHaveBeenCalledWith({
-          title: "Valid Event Title",
-          description: "Valid description",
-          instances: [
-            expect.objectContaining({
-              venue_id: "venue-1",
-              start_datetime: futureInstance.start_datetime,
-              end_datetime: futureInstance.end_datetime,
-              max_attendees: 50,
-            }),
-          ],
-        })
+        expect(defaultProps.onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: "Valid Event Title",
+            description: "Valid description",
+            imageAsset: null,
+            existingImageUrl: null,
+            instances: [
+              expect.objectContaining({
+                venue_id: "venue-1",
+                start_datetime: futureInstance.start_datetime,
+                end_datetime: futureInstance.end_datetime,
+                max_attendees: 50,
+              }),
+            ],
+          }),
+        )
       })
       expect(Alert.alert).not.toHaveBeenCalled()
     })
@@ -332,11 +336,22 @@ describe("BusinessEventForm", () => {
       // Submit and verify original instance data is preserved
       fireEvent.press(screen.getByText("Create Event"))
 
-      expect(onSubmit).toHaveBeenCalledWith({
-        title: "Test Event",
-        description: "Test Description",
-        instances: [futureInstance],
-      })
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Test Event",
+          description: "Test Description",
+          imageAsset: null,
+          existingImageUrl: null,
+          instances: [
+            expect.objectContaining({
+              venue_id: futureInstance.venue_id,
+              start_datetime: futureInstance.start_datetime,
+              end_datetime: futureInstance.end_datetime,
+              max_attendees: futureInstance.max_attendees,
+            }),
+          ],
+        }),
+      )
     })
   })
 })

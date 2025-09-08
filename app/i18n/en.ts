@@ -56,7 +56,8 @@ const en = {
     removeImage: "Remove",
     imageSelectionFailed: "Failed to select image. Please try again.",
     permissionRequired: "Permission Required",
-    photoLibraryPermissionMessage: "We need access to your photo library to add images to your events.",
+    photoLibraryPermissionMessage:
+      "We need access to your photo library to add images to your events.",
 
     // Actions
     createEvent: "Create Event",
@@ -183,6 +184,28 @@ const en = {
     descriptionTooLong: "Description must be less than 500 characters",
     descriptionTooShort: "Description is too short",
     fetchVenuesFailed: "Failed to load venues",
+    // Event validation errors
+    titleRequired: "Event title is required",
+    titleTooShort: "Event title must be at least 3 characters",
+    titleTooLong: "Event title cannot exceed 100 characters",
+    eventDescriptionTooLong: "Description cannot exceed 1000 characters",
+    noInstances: "At least one event instance is required",
+    tooManyInstances: "Too many event instances (maximum 50)",
+    invalidInstances: "One or more event instances are invalid",
+    venueRequired: "Venue is required",
+    startDateRequired: "Start date & time is required",
+    endDateRequired: "End date & time is required",
+    invalidDateRange: "End date must be after start date",
+    invalidDateFormat: "Invalid date format",
+    pastStartDate: "Start date must be in the future",
+    maxAttendeesTooSmall: "Max attendees must be at least 1",
+    maxAttendeesTooLarge: "Max attendees cannot exceed 10,000",
+    eventNotFound: "Event not found",
+    eventInstanceNotFound: "Event instance not found",
+    businessNotFound: "Business not found",
+    businessNotVerified: "Business is not verified",
+    unauthorizedAccess: "You are not authorized to perform this action",
+    databaseError: "A database error occurred",
   },
   venuesScreen: {
     title: "Venues",
