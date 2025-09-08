@@ -1,5 +1,5 @@
 import React, { FC, useState, useCallback, useEffect } from "react"
-import { ViewStyle, Alert } from "react-native"
+import { ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 
 import { BusinessEventForm, BusinessEventFormData } from "@/components/BusinessEventForm"
@@ -12,6 +12,7 @@ import type { IBusinessEvent } from "@/models/BusinessEventModels"
 
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+import { Alert } from "@/utils/alert"
 
 import type { BusinessEventStackScreenProps } from "@/navigators/BusinessEventNavigator"
 
