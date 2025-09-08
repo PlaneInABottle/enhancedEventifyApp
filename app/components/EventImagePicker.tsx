@@ -81,7 +81,7 @@ export const EventImagePicker: FC<EventImagePickerProps> = observer(function Eve
   return (
     <View style={[themed($container), style]}>
       <Text preset="formLabel" tx="businessEvent:eventImage" style={themed($label)} />
-      
+
       {hasImage ? (
         <View style={themed($imageContainer)}>
           <Image source={{ uri: imageUri }} style={themed($image)} />
@@ -162,8 +162,9 @@ const $imageContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 })
 
 const $image: ThemedStyle<ImageStyle> = () => ({
-  width: "100%",
-  aspectRatio: 16 / 9, // Maintain 16:9 aspect ratio to match picker setting
+  width: 650, // Bigger for better visibility while staying reasonable
+  aspectRatio: 16 / 9, // Maintain 16:9 aspect ratio - height will be ~180px
+  alignSelf: "center", // Center the image since it's not full width
   borderRadius: 8,
   marginBottom: 12,
   resizeMode: "cover", // Cover ensures good fit without distortion

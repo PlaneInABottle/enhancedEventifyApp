@@ -22,6 +22,7 @@ export interface BusinessEventFormData {
   description: string
   instances: BusinessEventInstanceFormData[]
   imageAsset: ImagePickerAsset | null
+  existingImageUrl?: string | null // For edit mode - existing image URL
 }
 
 interface BusinessEventFormProps {
@@ -66,6 +67,9 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
   const [selectedImage, setSelectedImage] = useState<ImagePickerAsset | null>(
     initialData?.imageAsset || null,
   )
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
+    initialData?.existingImageUrl || null,
+  )
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -85,6 +89,7 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       setDescription(initialData.description || "")
       setInstances(initialData.instances || [createEmptyInstance()])
       setSelectedImage(initialData.imageAsset || null)
+      setExistingImageUrl(initialData.existingImageUrl || null)
     }
   }, [initialData])
 
@@ -179,8 +184,9 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
       description,
       instances,
       imageAsset: selectedImage,
+      existingImageUrl,
     })
-  }, [title, description, instances, selectedImage, onSubmit, validateForm])
+  }, [title, description, instances, selectedImage, existingImageUrl, onSubmit, validateForm])
 
   return (
     <ScrollView style={themed($container)}>
@@ -211,8 +217,14 @@ export const BusinessEventForm: FC<BusinessEventFormProps> = observer(function B
         />
 
         <EventImagePicker
-          imageUri={selectedImage?.uri}
-          onImageSelected={setSelectedImage}
+          imageUri={selectedImage?.uri || existingImageUrl}
+          onImageSelected={(asset) => {
+            setSelectedImage(asset)
+            if (asset) {
+              // When user selects new image, clear existing URL
+              setExistingImageUrl(null)
+            }
+          }}
           disabled={isSubmitting}
         />
       </View>

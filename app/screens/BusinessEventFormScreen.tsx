@@ -123,6 +123,8 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
               end_datetime: instance.end_datetime,
               max_attendees: instance.max_attendees,
             })),
+            imageAsset: null, // New image selections will be handled separately
+            existingImageUrl: event.imageUrl, // Pass existing image URL for display
           })
         }
       }
@@ -150,7 +152,8 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
               result = await event.update({
                 title: formData.title,
                 description: formData.description,
-                imageAsset: formData.imageAsset,
+                imageAsset: formData.imageAsset, // Only set if user selected new image
+                removeImage: !formData.imageAsset && !formData.existingImageUrl, // Remove if no image selected
               })
 
               if (result.success) {
