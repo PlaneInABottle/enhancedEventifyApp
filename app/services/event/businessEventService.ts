@@ -27,11 +27,9 @@ import type {
   EventResult,
   EventInstanceResult,
   EventListResult,
-  EventInstanceListResult,
   CreateEventResult,
   EventWithDetails,
   EventInstanceWithVenue,
-  EventWithInstancesAndMedia,
 } from "./businessEventTypes"
 
 // ============================================================================

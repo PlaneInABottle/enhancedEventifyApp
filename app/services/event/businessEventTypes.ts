@@ -85,12 +85,6 @@ export interface EventListResult {
   error?: string
 }
 
-export interface EventInstanceListResult {
-  success: boolean
-  eventInstances?: EventInstanceWithVenue[]
-  error?: string
-}
-
 export interface CreateEventResult {
   success: boolean
   event?: Event
@@ -117,16 +111,6 @@ export interface EventInstanceWithVenue extends EventInstance {
     latitude: number | null
     longitude: number | null
   }
-}
-
-export interface EventWithInstancesAndMedia extends Event {
-  instances: EventInstanceWithVenue[]
-  media: Array<{
-    id: string
-    file_url: string
-    file_type: string
-    alt_text: string | null
-  }>
 }
 
 // ============================================================================
