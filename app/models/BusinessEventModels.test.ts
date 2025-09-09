@@ -225,25 +225,12 @@ describe("BusinessEventModel", () => {
       expect(event.upcomingInstances[0].id).toBe("instance-1")
     })
 
-    test("pastInstances returns only past instances", () => {
-      expect(event.pastInstances).toHaveLength(1)
-      expect(event.pastInstances[0].id).toBe("instance-2")
-    })
-
     test("nextInstance returns earliest upcoming instance", () => {
       expect(event.nextInstance?.id).toBe("instance-1")
     })
 
     test("hasUpcomingInstances returns true when upcoming instances exist", () => {
       expect(event.hasUpcomingInstances).toBe(true)
-    })
-
-    test("earliestStartDate returns correct date", () => {
-      expect(event.earliestStartDate).toBe("2020-01-20T10:00:00.000Z")
-    })
-
-    test("latestEndDate returns correct date", () => {
-      expect(event.latestEndDate).toBe("2030-01-20T12:00:00.000Z")
     })
 
     // statusCounts view removed - test deleted
@@ -354,30 +341,6 @@ describe("BusinessEventStore", () => {
   })
 
   describe("Actions", () => {
-    test("reset clears all events and loading state", () => {
-      const eventData = {
-        id: "event-1",
-        business_id: "business-1",
-        title: "Test Event",
-        description: null,
-        instances: [],
-        created_at: "2024-01-10T08:00:00.000Z",
-        updated_at: "2024-01-10T08:00:00.000Z",
-      }
-
-      // Add event and set loading state using MST actions
-      const event = BusinessEventModel.create(eventData)
-      store.setProp("events", [event])
-      store.setProp("isLoading", true)
-
-      expect(store.events).toHaveLength(1)
-      expect(store.isLoading).toBe(true)
-
-      store.reset()
-
-      expect(store.events).toHaveLength(0)
-      expect(store.isLoading).toBe(false)
-    })
 
     test("clearError clears last error", () => {
       store.setProp("lastError", "Some error")

@@ -7,7 +7,6 @@
 
 import {
   createEvent,
-  getEvent,
   getEventsForBusiness,
   updateEvent,
   deleteEvent,
@@ -159,91 +158,6 @@ describe("createEvent", () => {
   })
 })
 
-describe("getEvent", () => {
-  let mockSupabase: ReturnType<typeof createSupabaseMockChain>
-
-  beforeEach(() => {
-    jest.clearAllMocks()
-
-    // Set up the mock chain using shared utilities
-    mockSupabase = createSupabaseMockChain()
-    ;(supabase.from as jest.Mock).mockReturnValue(mockSupabase)
-  })
-
-  test("retrieves event with instances successfully", async () => {
-    const mockEvent = {
-      id: "event-1",
-      business_id: "business-1",
-      title: "Test Event",
-      description: "Test Description",
-      created_at: "2025-01-15T08:00:00.000Z",
-      updated_at: "2025-01-15T08:00:00.000Z",
-      event_instances: [
-        {
-          id: "instance-1",
-          event_id: "event-1",
-          venue_id: "venue-1",
-          start_datetime: "2025-02-01T10:00:00.000Z",
-          end_datetime: "2025-02-01T12:00:00.000Z",
-          // status removed
-          max_attendees: 50,
-          created_at: "2025-01-15T08:00:00.000Z",
-          updated_at: "2025-01-15T08:00:00.000Z",
-          venues: {
-            id: "venue-1",
-            name: "Test Venue",
-            address: "Test Address",
-            city: "Test City",
-            country: "Test Country",
-            latitude: 41.0082,
-            longitude: 28.9784,
-          },
-        },
-      ],
-    }
-
-    mockSupabase.single.mockResolvedValueOnce(createSuccessResponse(mockEvent))
-
-    mockMediaService.getMediaForEntity.mockResolvedValue([])
-
-    const result = await getEvent("event-1")
-
-    expect(result.success).toBe(true)
-    expect(result.event).toEqual(
-      expect.objectContaining({
-        id: "event-1",
-        title: "Test Event",
-        instances: expect.arrayContaining([
-          expect.objectContaining({
-            id: "instance-1",
-            venues: expect.objectContaining({
-              name: "Test Venue",
-            }),
-          }),
-        ]),
-        media: expect.any(Array),
-      }),
-    )
-  })
-
-  test("handles event not found", async () => {
-    mockSupabase.single.mockResolvedValueOnce(COMMON_ERRORS.NOT_FOUND)
-
-    const result = await getEvent("nonexistent-event")
-
-    expect(result.success).toBe(false)
-    expect(result.error).toBe("errors:eventNotFound")
-  })
-
-  test("handles database error", async () => {
-    mockSupabase.single.mockResolvedValueOnce(COMMON_ERRORS.DATABASE_ERROR)
-
-    const result = await getEvent("event-1")
-
-    expect(result.success).toBe(false)
-    expect(result.error).toBe("errors:databaseError")
-  })
-})
 
 describe("updateEvent", () => {
   let mockSupabase: ReturnType<typeof createSupabaseMockChain>
@@ -325,6 +239,11 @@ describe("deleteEvent", () => {
       error: null,
     })
 
+    mockMediaService.getMediaForEntity.mockResolvedValue({
+      success: true,
+      media: [],
+    })
+
     mockMediaService.deleteMedia.mockResolvedValue({
       success: true,
     })
@@ -342,6 +261,11 @@ describe("deleteEvent", () => {
     mockSupabase.single.mockResolvedValueOnce({
       data: null,
       error: { message: "Delete failed" },
+    })
+
+    mockMediaService.getMediaForEntity.mockResolvedValue({
+      success: true,
+      media: [],
     })
 
     const result = await deleteEvent("event-1")

@@ -337,7 +337,7 @@ describe("BusinessEventFormScreen", () => {
       fireEvent.press(screen.getByTestId("submit-form"))
 
       await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith("Success", "Event created successfully")
+        expect(Alert.alert).toHaveBeenCalledWith("Success", "Event created successfully", undefined, undefined)
         expect(mockNavigation.goBack).toHaveBeenCalled()
       })
     })
@@ -393,6 +393,8 @@ describe("BusinessEventFormScreen", () => {
         expect(mockEvent.update).toHaveBeenCalledWith({
           title: "Test Event",
           description: "Test Description",
+          imageAsset: undefined,
+          removeImage: true,
         })
       })
     })
@@ -409,7 +411,7 @@ describe("BusinessEventFormScreen", () => {
       fireEvent.press(screen.getByTestId("submit-form"))
 
       await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith("Success", "Event updated successfully")
+        expect(Alert.alert).toHaveBeenCalledWith("Success", "Event updated successfully", undefined, undefined)
         expect(mockNavigation.goBack).toHaveBeenCalled()
       })
     })

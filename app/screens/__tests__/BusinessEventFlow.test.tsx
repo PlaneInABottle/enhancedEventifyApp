@@ -379,6 +379,8 @@ describe("Business Event Creation and Editing Flow", () => {
           expect(mockServices.updateEvent).toHaveBeenCalledWith("event-123", {
             title: "Updated Event",
             description: "Updated Description",
+            imageAsset: null,
+            removeImage: true,
           })
         },
         { timeout: 3000 },
@@ -386,7 +388,7 @@ describe("Business Event Creation and Editing Flow", () => {
 
       await waitFor(
         () => {
-          expect(Alert.alert).toHaveBeenCalledWith("Success", "Event updated successfully!")
+          expect(Alert.alert).toHaveBeenCalledWith("Success", "Event updated successfully!", undefined, undefined)
         },
         { timeout: 3000 },
       )

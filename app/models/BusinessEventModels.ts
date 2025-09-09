@@ -281,6 +281,13 @@ export const BusinessEventStore = types
         self.setProp("isLoading", false)
       }
     }),
+    // ========================================================================
+    // UTILITY ACTIONS
+    // ========================================================================
+
+    clearError() {
+      self.setProp("lastError", null)
+    },
 
   }))
 
