@@ -229,7 +229,38 @@ describe("validateEventInstanceRequest", () => {
     const result = validateEventInstanceRequest(request)
 
     expect(result.isValid).toBe(false)
-    expect(result.errors.dateRange).toBe("errors:invalidDateRange")
+    expect(result.errors.end_datetime).toBe("errors:invalidDateRange")
+  })
+
+  test("validates past start date", () => {
+    const pastDate = new Date()
+    pastDate.setHours(pastDate.getHours() - 2) // 2 hours ago
+    const endDate = new Date()
+    endDate.setHours(endDate.getHours() + 1) // 1 hour from now
+
+    const request = {
+      venue_id: "venue-1",
+      start_datetime: pastDate.toISOString(),
+      end_datetime: endDate.toISOString(),
+    }
+
+    const result = validateEventInstanceRequest(request)
+
+    expect(result.isValid).toBe(false)
+    expect(result.errors.start_datetime).toBe("errors:pastStartDate")
+  })
+
+  test("validates invalid date format", () => {
+    const request = {
+      venue_id: "venue-1",
+      start_datetime: "invalid-date",
+      end_datetime: "2024-02-01T12:00:00.000Z",
+    }
+
+    const result = validateEventInstanceRequest(request)
+
+    expect(result.isValid).toBe(false)
+    expect(result.errors.start_datetime).toBe("errors:invalidDateFormat")
   })
 
   test("validates negative max attendees", () => {

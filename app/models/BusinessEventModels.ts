@@ -15,7 +15,6 @@ import {
   deleteEventInstance,
 } from "@/services/event/businessEventService"
 import type {
-  Event,
   EventInstance,
   CreateEventRequest,
   CreateEventInstanceRequest,
@@ -120,7 +119,6 @@ export const BusinessEventModel = types
   })
   .actions(withSetPropAction)
   .views((self) => ({
-    // All computed fields - no manual synchronization needed!
     get instanceCount() {
       return self.instances.length
     },
@@ -174,7 +172,6 @@ export const BusinessEventModel = types
     addNewInstance: flow(function* (instanceData: CreateEventInstanceRequest) {
       const result = yield createEventInstance(self.id, instanceData)
       if (result.success && result.eventInstance) {
-        // Add to instances array - computed fields update automatically
         self.instances.push(result.eventInstance as EventInstance)
         return { success: true, eventInstance: result.eventInstance }
       }
@@ -227,19 +224,8 @@ export const BusinessEventStore = types
       try {
         const result = yield createEvent(businessId, eventData)
 
-        if (result.success && result.event && result.eventInstances) {
-          // Create event with instances - let MST handle the computed fields
-          const eventModel = BusinessEventModel.create({
-            ...result.event,
-            instances: result.eventInstances.map((instance: EventInstance) => ({
-              ...instance,
-              venue: undefined, // Will be populated when needed
-            })),
-            imageUrl: undefined, // Will be set after image upload
-          })
-
-          self.events.push(eventModel)
-          return { success: true, event: eventModel }
+        if (result.success && result.event) {
+          return { success: true, eventId: result.event.id }
         } else {
           self.setProp("lastError", result.error || "errors:createEventFailed")
           return { success: false, error: result.error }
@@ -261,8 +247,7 @@ export const BusinessEventStore = types
         const result = yield getEventsForBusiness(businessId)
 
         if (result.success && result.events) {
-          // Use applySnapshot to safely replace events array
-          // This prevents "no longer part of state tree" errors
+          // Replace events array with fresh data from server
           const eventsSnapshot = result.events.map((eventData: EventWithDetails) => ({
             ...eventData,
             imageUrl: eventData.imageUrl || undefined,
@@ -295,6 +280,6 @@ export const BusinessEventStore = types
 // TYPES
 // ============================================================================
 
-export interface IBusinessEventStore extends Instance<typeof BusinessEventStore> {}
-export interface IBusinessEvent extends Instance<typeof BusinessEventModel> {}
-export interface IBusinessEventInstance extends Instance<typeof BusinessEventInstanceModel> {}
+export interface IBusinessEventStore extends Instance<typeof BusinessEventStore> { }
+export interface IBusinessEvent extends Instance<typeof BusinessEventModel> { }
+export interface IBusinessEventInstance extends Instance<typeof BusinessEventInstanceModel> { }

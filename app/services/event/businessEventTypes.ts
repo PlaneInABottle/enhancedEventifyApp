@@ -168,7 +168,6 @@ export interface EventInstanceValidationResult {
     start_datetime?: string
     end_datetime?: string
     max_attendees?: string
-    dateRange?: string
   }
 }
 

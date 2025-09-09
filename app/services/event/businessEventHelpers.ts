@@ -82,17 +82,24 @@ export function validateEventInstanceRequest(
     errors.end_datetime = "errors:endDateRequired"
   }
 
-  // Validate date range
+  // Validate date range and assign errors to specific fields
   if (request.start_datetime && request.end_datetime) {
     const startDate = new Date(request.start_datetime)
     const endDate = new Date(request.end_datetime)
 
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      errors.dateRange = "errors:invalidDateFormat"
-    } else if (endDate <= startDate) {
-      errors.dateRange = "errors:invalidDateRange"
-    } else if (startDate <= new Date()) {
-      errors.dateRange = "errors:pastStartDate"
+    if (isNaN(startDate.getTime())) {
+      errors.start_datetime = "errors:invalidDateFormat"
+    }
+    if (isNaN(endDate.getTime())) {
+      errors.end_datetime = "errors:invalidDateFormat"
+    }
+    
+    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+      if (endDate <= startDate) {
+        errors.end_datetime = "errors:invalidDateRange"
+      } else if (startDate <= new Date()) {
+        errors.start_datetime = "errors:pastStartDate"
+      }
     }
   }
 
