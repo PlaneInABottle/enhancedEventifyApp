@@ -1,5 +1,14 @@
 import React, { FC, useState, useCallback, useEffect, useMemo } from "react"
-import { View, ViewStyle, TextStyle, Modal, ScrollView, Pressable, Platform } from "react-native"
+import { 
+  View, 
+  ViewStyle, 
+  TextStyle, 
+  Modal, 
+  ScrollView, 
+  TouchableWithoutFeedback, 
+  KeyboardAvoidingView, 
+  Platform 
+} from "react-native"
 
 import { Button } from "@/components/Button"
 import { Dropdown } from "@/components/Dropdown"
@@ -82,10 +91,10 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
           // Extract coordinates from GeoJSON format
           coordinates:
             venue.address?.coordinates?.coordinates
-              ? { 
-                  latitude: venue.address.coordinates.coordinates[1], 
-                  longitude: venue.address.coordinates.coordinates[0] 
-                }
+              ? {
+                latitude: venue.address.coordinates.coordinates[1],
+                longitude: venue.address.coordinates.coordinates[0]
+              }
               : undefined,
         },
       }
@@ -234,155 +243,170 @@ export const VenueEditModal: FC<VenueEditModalProps> = (props) => {
         onRequestClose={onClose}
         statusBarTranslucent={Platform.OS === "android"}
       >
-        <Pressable style={themed($modalOverlay)} onPress={onClose} testID="modal-overlay">
-          <Pressable style={themed($modalContent)} onPress={(e) => e.stopPropagation()}>
-            {/* Header */}
-            <View style={themed($modalHeader)}>
-              <Text preset="heading" tx={venue ? "venueModal:editTitle" : "venueModal:addTitle"} />
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <TouchableWithoutFeedback onPress={onClose} testID="modal-overlay">
+            <View style={themed($modalOverlay)}>
+              <TouchableWithoutFeedback onPress={() => {}} testID="modal-content">
+                <View style={themed($modalContent)}>
+          {/* Header */}
+          <View style={themed($modalHeader)}>
+            <Text preset="heading" tx={venue ? "venueModal:editTitle" : "venueModal:addTitle"} />
+          </View>
+
+          {/* Form Content */}
+          <ScrollView 
+            style={{ flex: 1 }} 
+            contentContainerStyle={themed($formContainer)}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            bounces={true}
+          >
+            {/* Basic Info Section */}
+            <View style={themed($section)}>
+              <Text
+                preset="subheading"
+                tx="venueModal:basicInformation"
+                style={themed($sectionTitle)}
+              />
+
+              <TextField
+                labelTx="venueModal:venueName"
+                placeholderTx="venueModal:venueNamePlaceholder"
+                value={formData.name}
+                onChangeText={(text) => updateFormField("name", text)}
+                autoCapitalize="words"
+                returnKeyType="next"
+                containerStyle={themed($fieldContainer)}
+                status={errors.name ? "error" : undefined}
+                helperTx={errors.name as TxKeyPath | undefined}
+              />
+
+              <TextField
+                labelTx="venueModal:description"
+                placeholderTx="venueModal:descriptionPlaceholder"
+                value={formData.description}
+                onChangeText={(text) => updateFormField("description", text)}
+                multiline
+                numberOfLines={3}
+                autoCapitalize="sentences"
+                containerStyle={themed($fieldContainer)}
+                status={errors.description ? "error" : undefined}
+                helperTx={errors.description as TxKeyPath | undefined}
+              />
+
+              <TextField
+                labelTx="venueModal:capacity"
+                placeholderTx="venueModal:capacityPlaceholder"
+                value={formData.capacity}
+                onChangeText={(text) => updateFormField("capacity", text.replace(/[^0-9]/g, ""))}
+                keyboardType="numeric"
+                returnKeyType="next"
+                containerStyle={themed($fieldContainer)}
+                status={errors.capacity ? "error" : undefined}
+                helperTx={errors.capacity as TxKeyPath | undefined}
+              />
             </View>
 
-            {/* Form Content */}
-            <ScrollView style={themed($formContainer)} showsVerticalScrollIndicator={false}>
-              {/* Basic Info Section */}
-              <View style={themed($section)}>
-                <Text
-                  preset="subheading"
-                  tx="venueModal:basicInformation"
-                  style={themed($sectionTitle)}
+            {/* Address Section */}
+            <View style={themed($section)}>
+              <Text preset="subheading" tx="venueModal:address" style={themed($sectionTitle)} />
+
+              <TextField
+                labelTx="venueModal:fullAddress"
+                placeholderTx="venueModal:fullAddressPlaceholder"
+                value={formData.address.full_address}
+                onChangeText={(text) => updateAddressField("full_address", text)}
+                autoCapitalize="words"
+                returnKeyType="next"
+                containerStyle={themed($fieldContainer)}
+                status={errors.address?.full_address ? "error" : undefined}
+                helperTx={errors.address?.full_address as TxKeyPath | undefined}
+              />
+
+              <Dropdown
+                labelTx="venueModal:city"
+                placeholderTx="venueModal:cityPlaceholder"
+                options={cityOptions}
+                value={formData.address.city}
+                onValueChange={(city) => updateAddressField("city", city)}
+                containerStyle={themed($fieldContainer)}
+              />
+
+              <TextField
+                labelTx="venueModal:postalCode"
+                placeholderTx="venueModal:postalCodePlaceholder"
+                value={formData.address.postal_code}
+                onChangeText={(text) =>
+                  updateAddressField("postal_code", text.replace(/[^0-9]/g, ""))
+                }
+                keyboardType="numeric"
+                maxLength={5}
+                returnKeyType="done"
+                containerStyle={themed($fieldContainer)}
+                status={errors.address?.postal_code ? "error" : undefined}
+                helperTx={errors.address?.postal_code as TxKeyPath | undefined}
+              />
+
+              {/* Location Picker Section */}
+              <View style={themed($locationSection)}>
+                <Button
+                  tx="venueModal:pickLocationOnMap"
+                  preset="default"
+                  onPress={handleLocationPickerOpen}
+                  style={themed($locationButton)}
                 />
 
-                <TextField
-                  labelTx="venueModal:venueName"
-                  placeholderTx="venueModal:venueNamePlaceholder"
-                  value={formData.name}
-                  onChangeText={(text) => updateFormField("name", text)}
-                  autoCapitalize="words"
-                  returnKeyType="next"
-                  containerStyle={themed($fieldContainer)}
-                  status={errors.name ? "error" : undefined}
-                  helperTx={errors.name as TxKeyPath | undefined}
-                />
-
-                <TextField
-                  labelTx="venueModal:description"
-                  placeholderTx="venueModal:descriptionPlaceholder"
-                  value={formData.description}
-                  onChangeText={(text) => updateFormField("description", text)}
-                  multiline
-                  numberOfLines={3}
-                  autoCapitalize="sentences"
-                  containerStyle={themed($fieldContainer)}
-                  status={errors.description ? "error" : undefined}
-                  helperTx={errors.description as TxKeyPath | undefined}
-                />
-
-                <TextField
-                  labelTx="venueModal:capacity"
-                  placeholderTx="venueModal:capacityPlaceholder"
-                  value={formData.capacity}
-                  onChangeText={(text) => updateFormField("capacity", text.replace(/[^0-9]/g, ""))}
-                  keyboardType="numeric"
-                  returnKeyType="next"
-                  containerStyle={themed($fieldContainer)}
-                  status={errors.capacity ? "error" : undefined}
-                  helperTx={errors.capacity as TxKeyPath | undefined}
-                />
-              </View>
-
-              {/* Address Section */}
-              <View style={themed($section)}>
-                <Text preset="subheading" tx="venueModal:address" style={themed($sectionTitle)} />
-
-                <TextField
-                  labelTx="venueModal:fullAddress"
-                  placeholderTx="venueModal:fullAddressPlaceholder"
-                  value={formData.address.full_address}
-                  onChangeText={(text) => updateAddressField("full_address", text)}
-                  autoCapitalize="words"
-                  returnKeyType="next"
-                  containerStyle={themed($fieldContainer)}
-                  status={errors.address?.full_address ? "error" : undefined}
-                  helperTx={errors.address?.full_address as TxKeyPath | undefined}
-                />
-
-                <Dropdown
-                  labelTx="venueModal:city"
-                  placeholderTx="venueModal:cityPlaceholder"
-                  options={cityOptions}
-                  value={formData.address.city}
-                  onValueChange={(city) => updateAddressField("city", city)}
-                  containerStyle={themed($fieldContainer)}
-                />
-
-                <TextField
-                  labelTx="venueModal:postalCode"
-                  placeholderTx="venueModal:postalCodePlaceholder"
-                  value={formData.address.postal_code}
-                  onChangeText={(text) =>
-                    updateAddressField("postal_code", text.replace(/[^0-9]/g, ""))
-                  }
-                  keyboardType="numeric"
-                  maxLength={5}
-                  returnKeyType="done"
-                  containerStyle={themed($fieldContainer)}
-                  status={errors.address?.postal_code ? "error" : undefined}
-                  helperTx={errors.address?.postal_code as TxKeyPath | undefined}
-                />
-
-                {/* Location Picker Section */}
-                <View style={themed($locationSection)}>
-                  <Button
-                    tx="venueModal:pickLocationOnMap"
-                    preset="default"
-                    onPress={handleLocationPickerOpen}
-                    style={themed($locationButton)}
+                {formData.address.coordinates && (
+                  <Text
+                    tx="venueModal:selectedCoordinates"
+                    txOptions={{
+                      latitude: formData.address.coordinates.latitude.toFixed(6),
+                      longitude: formData.address.coordinates.longitude.toFixed(6),
+                    }}
+                    style={themed($coordinatesDisplay)}
+                    preset="formHelper"
                   />
-
-                  {formData.address.coordinates && (
-                    <Text
-                      tx="venueModal:selectedCoordinates"
-                      txOptions={{
-                        latitude: formData.address.coordinates.latitude.toFixed(6),
-                        longitude: formData.address.coordinates.longitude.toFixed(6),
-                      }}
-                      style={themed($coordinatesDisplay)}
-                      preset="formHelper"
-                    />
-                  )}
-                </View>
+                )}
               </View>
-            </ScrollView>
+            </View>
+          </ScrollView>
 
-            {/* Error Message */}
-            {errorMessage && (
-              <View style={themed($errorContainer)}>
-                <Text
-                  tx={errorMessage as TxKeyPath}
-                  style={themed($errorText)}
-                  preset="formHelper"
-                />
-              </View>
-            )}
-
-            {/* Action Buttons */}
-            <View style={themed($buttonContainer)}>
-              <Button
-                preset="default"
-                tx="common:cancel"
-                onPress={onClose}
-                style={themed($cancelButton)}
-                disabled={isSubmitting}
-              />
-              <Button
-                preset="filled"
-                tx={isSubmitting ? "common:loading" : "venueModal:saveChanges"}
-                onPress={handleSave}
-                style={themed($saveButton)}
-                disabled={isSubmitting}
+          {/* Error Message */}
+          {errorMessage && (
+            <View style={themed($errorContainer)}>
+              <Text
+                tx={errorMessage as TxKeyPath}
+                style={themed($errorText)}
+                preset="formHelper"
               />
             </View>
-          </Pressable>
-        </Pressable>
+          )}
+
+          {/* Action Buttons */}
+          <View style={themed($buttonContainer)}>
+            <Button
+              preset="default"
+              tx="common:cancel"
+              onPress={onClose}
+              style={themed($cancelButton)}
+              disabled={isSubmitting}
+            />
+            <Button
+              preset="filled"
+              tx={isSubmitting ? "common:loading" : "venueModal:saveChanges"}
+              onPress={handleSave}
+              style={themed($saveButton)}
+              disabled={isSubmitting}
+            />
+          </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
 
       <LocationPickerModal
@@ -412,7 +436,8 @@ const $modalContent: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   borderRadius: spacing.md,
   width: "100%",
   maxWidth: 500,
-  maxHeight: "90%",
+  height: "90%",
+  flexDirection: "column",
   shadowColor: colors.palette.neutral800,
   shadowOffset: { width: 0, height: 4 },
   shadowOpacity: 0.3,
