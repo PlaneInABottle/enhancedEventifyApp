@@ -376,9 +376,10 @@ describe("BusinessEventStore", () => {
       const result = await store.createEvent("business-1", eventData)
 
       expect(result.success).toBe(true)
+      expect(result.eventId).toBe("event-new")
       expect(mockServices.createEvent).toHaveBeenCalledWith("business-1", eventData)
-      expect(store.events).toHaveLength(1)
-      expect(store.events[0].id).toBe("event-new")
+      // Store should remain empty - createEvent no longer adds to local store
+      expect(store.events).toHaveLength(0)
     })
 
     test("fetchEvents calls service and populates store on success", async () => {

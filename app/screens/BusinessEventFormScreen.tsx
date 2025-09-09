@@ -183,6 +183,11 @@ export const BusinessEventFormScreen: FC<BusinessEventFormScreenProps> = observe
           }
 
           if (result.success) {
+            // For new events, refresh the list to get complete data from server
+            if (!isEditing) {
+              await businessEventStore.fetchEvents(businessProfileStore.profile.id)
+            }
+            
             // Navigate back to event list
             navigation.goBack()
 

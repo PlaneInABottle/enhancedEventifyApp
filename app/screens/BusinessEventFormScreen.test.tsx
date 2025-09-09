@@ -34,6 +34,7 @@ jest.mock("@/i18n/translate", () => ({
 const createMockBusinessEventStore = () => ({
   getEventById: jest.fn(),
   createEvent: jest.fn(),
+  fetchEvents: jest.fn(),
 })
 
 const createMockBusinessProfileStore = () => ({
