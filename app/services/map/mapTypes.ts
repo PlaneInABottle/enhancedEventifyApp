@@ -4,7 +4,7 @@
  * Type definitions for map-related API operations
  */
 
-// Raw response from Supabase get_events_in_bounds function
+// Raw response from Supabase get_events_in_bounds_with_media function
 export interface RawMapEventInstance {
   instance_id: string
   event_id: string
@@ -15,6 +15,7 @@ export interface RawMapEventInstance {
   max_attendees: number | null
   event_title: string
   event_description: string | null
+  event_image_url?: string | null
   venue_name: string
   venue_capacity: number | null
   coordinates: {

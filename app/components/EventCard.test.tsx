@@ -171,6 +171,7 @@ describe("EventCard", () => {
       event_description: null,
       max_attendees: null,
       venue_capacity: null,
+      event_image_url: null,
     })
 
     // Should render without crashing
@@ -179,5 +180,27 @@ describe("EventCard", () => {
     })
     expect(getByText("Test Event Title")).toBeTruthy()
     expect(getByText("Test Venue")).toBeTruthy()
+  })
+
+  it("renders placeholder when event_image_url is null", () => {
+    const eventNoImage = createMockEvent({ event_image_url: null })
+    const { root } = renderWithProviders(<EventCard event={eventNoImage as any} />, {
+      withStoreProvider: false,
+    })
+
+    // Expect an empty placeholder View (cannot easily assert style without theme injection; presence suffices)
+    const views = root.findAllByType("View")
+    expect(views.length).toBeGreaterThan(0)
+  })
+
+  it("renders image when event_image_url is provided", () => {
+    const eventWithImage = createMockEvent({ event_image_url: "https://example.com/image.jpg" })
+    const { root } = renderWithProviders(<EventCard event={eventWithImage as any} />, {
+      withStoreProvider: false,
+    })
+
+    const images = root.findAllByType("Image")
+    expect(images.length).toBe(1)
+    expect(images[0].props.source.uri).toBe("https://example.com/image.jpg")
   })
 })

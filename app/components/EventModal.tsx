@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react"
 import {
   View,
   Modal,
@@ -9,14 +9,14 @@ import {
   Platform,
   Image,
   ImageStyle,
-} from 'react-native'
-import { observer } from 'mobx-react-lite'
+} from "react-native"
+import { observer } from "mobx-react-lite"
 
-import { Text } from './Text'
-import { Button } from './Button'
-import { useAppTheme } from '@/theme/context'
-import type { ThemedStyle } from '@/theme/types'
-import type { MapEventInstanceModel } from '@/models/MapModels'
+import { Text } from "./Text"
+import { Button } from "./Button"
+import { useAppTheme } from "@/theme/context"
+import type { ThemedStyle } from "@/theme/types"
+import type { MapEventInstanceModel } from "@/models/MapModels"
 
 type MapEventInstance = typeof MapEventInstanceModel.Type
 
@@ -24,20 +24,20 @@ const formatDateTime = (startTime: string, endTime: string) => {
   const start = new Date(startTime)
   const end = new Date(endTime)
   const startDate = start.toLocaleDateString(undefined, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
   const startTimeStr = start.toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
   })
   const endTimeStr = end.toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: "2-digit",
+    minute: "2-digit",
   })
-  
+
   return { date: startDate, timeRange: `${startTimeStr} - ${endTimeStr}` }
 }
 
@@ -83,8 +83,8 @@ export const EventModal = observer(function EventModal(props: EventModalProps) {
       <View style={themed($container)}>
         <View style={themed($header)}>
           <Text preset="heading" tx="eventModal:title" />
-          <TouchableOpacity 
-            onPress={onClose} 
+          <TouchableOpacity
+            onPress={onClose}
             style={themed($closeButton)}
             accessibilityLabel="Close event modal"
             accessibilityRole="button"
@@ -123,9 +123,7 @@ export const EventModal = observer(function EventModal(props: EventModalProps) {
             <Text style={themed($venueText)}>{event.venue_name}</Text>
             <Text style={themed($addressText)}>{event.full_address}</Text>
             {event.venue_capacity && (
-              <Text style={themed($capacityText)}>
-                Capacity: {event.venue_capacity} people
-              </Text>
+              <Text style={themed($capacityText)}>Capacity: {event.venue_capacity} people</Text>
             )}
           </View>
 
@@ -133,10 +131,9 @@ export const EventModal = observer(function EventModal(props: EventModalProps) {
           <View style={themed($descriptionSection)}>
             <Text preset="formLabel" tx="eventModal:description" style={themed($sectionLabel)} />
             <Text style={themed($descriptionText)}>
-              {event.event_description || 'No description available'}
+              {event.event_description || "No description available"}
             </Text>
           </View>
-
         </ScrollView>
 
         <View style={themed($footer)}>
@@ -167,13 +164,13 @@ const $container: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $header: ThemedStyle<ViewStyle> = (theme) => ({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
   padding: theme.spacing.lg,
   borderBottomWidth: 1,
   borderBottomColor: theme.colors.border,
-  ...(Platform.OS === 'web'
+  ...(Platform.OS === "web"
     ? { boxShadow: `0 1px 3px rgba(0, 0, 0, 0.1)` }
     : {
         shadowColor: theme.colors.palette.neutral800,
@@ -201,12 +198,12 @@ const $content: ThemedStyle<ViewStyle> = (theme) => ({
 const $imageContainer: ThemedStyle<ViewStyle> = (theme) => ({
   marginBottom: theme.spacing.lg,
   borderRadius: theme.spacing.sm,
-  overflow: 'hidden',
+  overflow: "hidden",
 })
 
 const $eventImage: ThemedStyle<ImageStyle> = (theme) => ({
-  width: '100%',
-  height: 200,
+  width: "100%",
+  aspectRatio: 16 / 9,
   backgroundColor: theme.colors.palette.neutral200,
 })
 
@@ -228,7 +225,7 @@ const $dateTimeSection: ThemedStyle<ViewStyle> = (theme) => ({
 
 const $dateText: ThemedStyle<TextStyle> = (theme) => ({
   fontSize: 16,
-  fontWeight: '600',
+  fontWeight: "600",
   color: theme.colors.text,
   marginBottom: theme.spacing.xs,
 })
@@ -245,7 +242,7 @@ const $venueSection: ThemedStyle<ViewStyle> = (theme) => ({
 
 const $venueText: ThemedStyle<TextStyle> = (theme) => ({
   fontSize: 16,
-  fontWeight: '600',
+  fontWeight: "600",
   color: theme.colors.text,
   marginBottom: theme.spacing.xs,
 })
@@ -272,9 +269,8 @@ const $descriptionText: ThemedStyle<TextStyle> = (theme) => ({
   color: theme.colors.text,
 })
 
-
 const $footer: ThemedStyle<ViewStyle> = (theme) => ({
-  flexDirection: 'row',
+  flexDirection: "row",
   padding: theme.spacing.lg,
   borderTopWidth: 1,
   borderTopColor: theme.colors.border,

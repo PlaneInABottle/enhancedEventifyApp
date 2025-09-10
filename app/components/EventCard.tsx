@@ -1,5 +1,13 @@
 import { FC } from "react"
-import { View, ViewStyle, TextStyle, Platform, TouchableOpacity, Image, ImageStyle } from "react-native"
+import {
+  View,
+  ViewStyle,
+  TextStyle,
+  Platform,
+  TouchableOpacity,
+  Image,
+  ImageStyle,
+} from "react-native"
 
 import { ReportButton } from "@/components/ReportButton"
 import { Text } from "@/components/Text"
@@ -23,8 +31,8 @@ export const EventCard: FC<EventCardProps> = ({ event, onPress }) => {
   }
 
   return (
-    <TouchableOpacity 
-      style={themed($container)} 
+    <TouchableOpacity
+      style={themed($container)}
       onPress={handlePress}
       accessibilityRole="button"
       accessibilityLabel={`View details for ${event.event_title}`}
@@ -79,12 +87,12 @@ const $container: ThemedStyle<ViewStyle> = (theme) => ({
   ...(Platform.OS === "web"
     ? { boxShadow: `0 2px 8px rgba(0, 0, 0, 0.08)` }
     : {
-        shadowColor: theme.colors.palette.neutral800,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 4,
-      }),
+      shadowColor: theme.colors.palette.neutral800,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 4,
+    }),
 })
 
 const $imagePlaceholder: ThemedStyle<ViewStyle> = (theme) => ({
@@ -93,7 +101,8 @@ const $imagePlaceholder: ThemedStyle<ViewStyle> = (theme) => ({
 })
 
 const $eventImage: ThemedStyle<ImageStyle> = (theme) => ({
-  height: 120,
+  width: "100%",
+  aspectRatio: 16 / 4,
   backgroundColor: theme.colors.palette.neutral200,
 })
 

@@ -50,13 +50,13 @@ export async function getMapBounds(mapRef: any): Promise<MapBounds> {
  */
 export async function getEventsInBounds(bounds: MapBounds): Promise<MapEventsResult> {
   try {
-    const { data, error } = await supabase.rpc("get_events_in_bounds", {
+    const { data, error } = await supabase.rpc("get_events_in_bounds_with_media", {
       north: bounds.north,
       south: bounds.south,
       east: bounds.east,
       west: bounds.west,
-      start_date: bounds.startDate,
-      end_date: bounds.endDate,
+      start_date: bounds.startDate ?? null,
+      end_date: bounds.endDate ?? null,
     })
 
     if (error) {

@@ -51,7 +51,7 @@ export const MapEventInstanceModel = types
     max_attendees: types.maybeNull(types.number),
     event_title: types.string,
     event_description: types.maybeNull(types.string),
-    event_image_url: types.optional(types.maybeNull(types.string), null),
+    event_image_url: types.maybeNull(types.string),
     venue_name: types.string,
     venue_capacity: types.maybeNull(types.number),
     coordinates: CoordinatesModel,
