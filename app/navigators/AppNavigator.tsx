@@ -15,6 +15,7 @@ import { EnhancedEventifyWelcomeScreen } from "@/screens/EnhancedEventifyWelcome
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { LoginScreen } from "@/screens/LoginScreen"
 import { SignUpScreen } from "@/screens/SignUpScreen"
+import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen"
 import { useAppTheme } from "@/theme/context"
 
 import { BusinessNavigator, BusinessTabParamList } from "./BusinessNavigator"
@@ -33,6 +34,7 @@ import { UserNavigator, UserTabParamList } from "./UserNavigator"
 export type AppStackParamList = {
   Login: undefined
   SignUp: undefined
+  ForgotPassword: undefined
   Welcome: undefined
   User: NavigatorScreenParams<UserTabParamList>
   Business: NavigatorScreenParams<BusinessTabParamList>
@@ -91,6 +93,7 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="Welcome" component={EnhancedEventifyWelcomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         </>
       )}
 

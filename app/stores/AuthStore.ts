@@ -4,7 +4,7 @@ import { supabase } from "@/clients/supabase/SupabaseClient"
 import { withSetPropAction } from "@/models/helpers/withSetPropAction"
 import { getRootStore } from "@/models/helpers/getRootStore"
 import { UserProfileModel, BusinessProfileModel } from "@/models/ProfileModels"
-import { signIn, signUp, buildUserFromSession } from "@/services/auth"
+import { signIn, signUp, buildUserFromSession, requestPasswordReset } from "@/services/auth"
 import type { AuthUser, SignInCredentials, SignUpCredentials } from "@/services/auth"
 
 /**
@@ -42,12 +42,12 @@ export const AuthStore = types
     // Clear all user-specific data across stores
     _clearAllUserData() {
       const rootStore = getRootStore(self)
-      
+
       // Clear auth state
       self.setProp("user", null)
       self.setProp("isAuthenticated", false)
       self.setProp("lastError", null)
-      
+
       // Reset all stores to initial state (clears loading states, data, and errors)
       rootStore.resetAllStores()
     },
@@ -188,12 +188,30 @@ export const AuthStore = types
       }
     }),
 
+    requestPasswordReset: flow(function* (email: string) {
+      self.setProp("isLoading", true)
+      self.setProp("lastError", null)
+      try {
+        const result = yield requestPasswordReset(email)
+        if (!result.success) {
+          self.setProp("lastError", result.error || "errors:unknownError")
+        }
+        return result
+      } catch (error) {
+        console.error("AuthStore.requestPasswordReset error:", error)
+        self.setProp("lastError", "errors:unknownError")
+        return { success: false, error: "errors:unknownError" }
+      } finally {
+        self.setProp("isLoading", false)
+      }
+    }),
+
     signOut: flow(function* () {
       self.setProp("isLoading", true)
 
       try {
         const result = yield supabase.auth.signOut()
-        
+
         // Handle case where session is already missing or any signOut error
         if (result.error) {
           // Manually trigger the same cleanup as SIGNED_OUT event
@@ -214,7 +232,6 @@ export const AuthStore = types
       self.setProp("lastError", null)
     },
 
-
     // ========================================================================
     // INTERNAL SESSION MANAGEMENT
     // ========================================================================
@@ -229,22 +246,25 @@ export const AuthStore = types
           // For initial session, validate with Supabase before trusting locally stored session
           if (session && session.access_token && !session.error) {
             // Validate session with Supabase before trusting it
-            supabase.auth.getUser().then((userResult) => {
-              if (userResult.error || !userResult.data.user) {
-                // Session validation failed, clear auth state
-                self._clearAllUserData()
-              } else {
-                // Session validated, build user
-                const authUser = buildUserFromSession(session)
-                if (authUser) {
-                  self.setProp("user", authUser)
-                  self.setProp("isAuthenticated", true)
+            supabase.auth
+              .getUser()
+              .then((userResult) => {
+                if (userResult.error || !userResult.data.user) {
+                  // Session validation failed, clear auth state
+                  self._clearAllUserData()
+                } else {
+                  // Session validated, build user
+                  const authUser = buildUserFromSession(session)
+                  if (authUser) {
+                    self.setProp("user", authUser)
+                    self.setProp("isAuthenticated", true)
+                  }
                 }
-              }
-            }).catch((error) => {
-              // Session validation error, clear auth state
-              self._clearAllUserData()
-            })
+              })
+              .catch((error) => {
+                // Session validation error, clear auth state
+                self._clearAllUserData()
+              })
           } else {
             // Invalid or expired session - clear auth state
             self._clearAllUserData()
@@ -279,7 +299,7 @@ export const AuthStore = types
 // TYPES
 // ============================================================================
 
-export interface AuthStore extends Instance<typeof AuthStore> { }
-export interface AuthUserType extends Instance<typeof AuthUserModel> { }
-export interface UserProfileType extends Instance<typeof UserProfileModel> { }
-export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> { }
+export interface AuthStore extends Instance<typeof AuthStore> {}
+export interface AuthUserType extends Instance<typeof AuthUserModel> {}
+export interface UserProfileType extends Instance<typeof UserProfileModel> {}
+export interface BusinessProfileType extends Instance<typeof BusinessProfileModel> {}

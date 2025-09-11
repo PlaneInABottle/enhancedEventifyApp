@@ -2,7 +2,7 @@ import { supabase } from "@/clients/supabase/SupabaseClient"
 import * as validationUtils from "@/utils/validation"
 
 import * as authHelpers from "./authHelpers"
-import { signIn, signUp } from "./authService"
+import { signIn, signUp, requestPasswordReset } from "./authService"
 
 /**
  * Unit tests for authentication service
@@ -14,6 +14,7 @@ jest.mock("@/clients/supabase/SupabaseClient", () => ({
     auth: {
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
+      resetPasswordForEmail: jest.fn(),
     },
   },
 }))
@@ -350,6 +351,67 @@ describe("authService", () => {
           },
         },
       })
+    })
+  })
+
+  describe("requestPasswordReset", () => {
+    const email = "reset@example.com"
+
+    it("returns error when email validation fails", async () => {
+      mockValidationUtils.validateEmail.mockReturnValue({
+        success: false,
+        error: "errors:invalidEmail",
+      })
+
+      const result = await requestPasswordReset(email)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:invalidEmail")
+      expect(mockSupabase.auth.resetPasswordForEmail).not.toHaveBeenCalled()
+    })
+
+    it("calls supabase and returns success on valid email", async () => {
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockSupabase.auth.resetPasswordForEmail.mockResolvedValue({ data: {}, error: null })
+
+      const result = await requestPasswordReset(email)
+
+      expect(mockValidationUtils.validateEmail).toHaveBeenCalledWith(email)
+      expect(mockSupabase.auth.resetPasswordForEmail).toHaveBeenCalledWith(email, {
+        redirectTo: undefined,
+      })
+      expect(result.success).toBe(true)
+      expect(result.error).toBeUndefined()
+    })
+
+    it("maps supabase error via mapAuthError", async () => {
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      const supabaseError = { message: "Too many requests", status: 429 }
+      mockSupabase.auth.resetPasswordForEmail.mockResolvedValue({
+        data: null,
+        error: supabaseError,
+      })
+      mockAuthHelpers.mapAuthError.mockReturnValue({
+        type: "too_many_requests",
+        message: "errors:tooManyRequests",
+        originalError: supabaseError as any,
+      })
+
+      const result = await requestPasswordReset(email)
+
+      expect(mockAuthHelpers.mapAuthError).toHaveBeenCalledWith(supabaseError)
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:tooManyRequests")
+    })
+
+    it("handles unexpected exception", async () => {
+      mockValidationUtils.validateEmail.mockReturnValue({ success: true })
+      mockSupabase.auth.resetPasswordForEmail.mockRejectedValue(new Error("network"))
+
+      const result = await requestPasswordReset(email)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:unknownError")
     })
   })
 })

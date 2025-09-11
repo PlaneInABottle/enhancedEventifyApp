@@ -107,6 +107,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen({
       />
 
       <Button
+        testID="forgot-password-link"
+        tx="loginScreen:forgotPassword"
+        style={themed($forgotPasswordLink)}
+        preset="default"
+        onPress={() => navigation.navigate("ForgotPassword")}
+        disabled={authenticationStore.isLoading}
+      />
+
+      <Button
         testID="login-button"
         tx={authenticationStore.isLoading ? "loginScreen:signingIn" : "loginScreen:tapToLogIn"}
         style={themed($tapButton)}
@@ -171,4 +180,8 @@ const $loadingIndicator: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 
 const $signUpLink: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginTop: spacing.md,
+})
+
+const $forgotPasswordLink: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginTop: spacing.xs,
 })

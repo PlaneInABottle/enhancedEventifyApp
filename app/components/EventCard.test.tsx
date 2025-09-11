@@ -1,5 +1,6 @@
 import React from "react"
 import { EventCard } from "./EventCard"
+import { Image } from "react-native"
 import { MapEventInstanceModel } from "@/models/MapModels"
 import { renderWithProviders, setupComponentTest } from "../../test/helpers/componentTestHelpers"
 
@@ -199,8 +200,11 @@ describe("EventCard", () => {
       withStoreProvider: false,
     })
 
-    const images = root.findAllByType("Image")
-    expect(images.length).toBe(1)
-    expect(images[0].props.source.uri).toBe("https://example.com/image.jpg")
+    // The themed style function wraps Image, so ensure at least one Image with matching source exists
+    const images = root.findAllByType(require("react-native").Image)
+    const match = images.find(
+      (img: any) => img.props.source?.uri === "https://example.com/image.jpg",
+    )
+    expect(match).toBeTruthy()
   })
 })

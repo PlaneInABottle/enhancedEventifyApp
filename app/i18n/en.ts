@@ -235,6 +235,17 @@ const en = {
     selectedCoordinates: "Location: {{latitude}}, {{longitude}}",
     saveChanges: "Save Changes",
   },
+  forgotPassword: {
+    title: "Forgot Password",
+    enterEmail: "Enter your email to reset your password",
+    checkEmail: "If an account exists, a reset link was sent",
+    emailLabel: "Email",
+    emailPlaceholder: "Enter your email",
+    sendButton: "Send Reset Email",
+    sending: "Sending...",
+    backToLogin: "Back to Login",
+    cancel: "Cancel",
+  },
   loginScreen: {
     logIn: "Log In",
     enterDetails:
@@ -247,6 +258,7 @@ const en = {
     signingIn: "Signing in...",
     hint: "Hint: you can use any email address and your favorite password :)",
     dontHaveAccount: "Don't have an account? Sign Up",
+    forgotPassword: "Forgot Password?",
   },
   demoNavigator: {
     componentsTab: "Components",

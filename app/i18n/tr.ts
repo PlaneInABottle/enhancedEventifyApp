@@ -236,6 +236,17 @@ const tr = {
     selectedCoordinates: "Konum: {{latitude}}, {{longitude}}",
     saveChanges: "Değişiklikleri Kaydet",
   },
+  forgotPassword: {
+    title: "Şifreyi Sıfırla",
+    enterEmail: "Şifrenizi sıfırlamak için e-postanızı girin",
+    checkEmail: "Hesap varsa sıfırlama bağlantısı gönderildi",
+    emailLabel: "E-posta",
+    emailPlaceholder: "E-postanızı girin",
+    sendButton: "Sıfırlama E-postası Gönder",
+    sending: "Gönderiliyor...",
+    backToLogin: "Girişe Dön",
+    cancel: "İptal",
+  },
   loginScreen: {
     logIn: "Giriş Yap",
     enterDetails:
@@ -248,6 +259,7 @@ const tr = {
     signingIn: "Giriş yapılıyor...",
     hint: "İpucu: herhangi bir e-posta adresi ve favori şifrenizi kullanabilirsiniz :)",
     dontHaveAccount: "Hesabınız yok mu? Kayıt Ol",
+    forgotPassword: "Şifrenizi mi unuttunuz?",
   },
   demoNavigator: {
     componentsTab: "Bileşenler",

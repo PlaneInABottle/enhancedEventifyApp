@@ -241,3 +241,34 @@ export async function signUp(credentials: SignUpCredentials): Promise<SignUpResu
     }
   }
 }
+
+// ============================================================================
+// PASSWORD RESET FUNCTIONALITY (Phase 1 - Request Reset Email Only)
+// ============================================================================
+
+/**
+ * Requests a password reset email to be sent to the user.
+ * Phase 1: Only sends the email, no token handling yet.
+ */
+export async function requestPasswordReset(email: string): Promise<AuthResult> {
+  try {
+    const emailValidation = validateEmail(email)
+    if (!emailValidation.success) {
+      return { success: false, error: emailValidation.error }
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: undefined, // Will configure deep link in Phase 2
+    })
+
+    if (error) {
+      const customError = mapAuthError(error)
+      return { success: false, error: customError.message }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error("Unexpected error during password reset request:", error)
+    return { success: false, error: "errors:unknownError" }
+  }
+}

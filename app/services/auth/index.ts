@@ -24,4 +24,4 @@ export type {
 export { mapAuthError } from "./authHelpers"
 
 // Service functions
-export { signIn, signUp, buildUserFromSession } from "./authService"
+export { signIn, signUp, buildUserFromSession, requestPasswordReset } from "./authService"

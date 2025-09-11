@@ -26,6 +26,7 @@ jest.mock("@/services/auth", () => ({
   signIn: jest.fn(),
   signUp: jest.fn(),
   buildUserFromSession: jest.fn(),
+  requestPasswordReset: jest.fn(),
 }))
 
 describe("AuthStore", () => {
@@ -324,6 +325,43 @@ describe("AuthStore", () => {
 
       expect(store.user).toEqual(expectedUser)
       expect(store.isAuthenticated).toBe(true)
+    })
+  })
+
+  describe("requestPasswordReset", () => {
+    it("sets isLoading during flow and clears on success", async () => {
+      const { requestPasswordReset } = require("@/services/auth")
+      requestPasswordReset.mockResolvedValue({ success: true })
+
+      const promise = store.requestPasswordReset("user@example.com")
+      expect(store.isLoading).toBe(true)
+      const result = await promise
+
+      expect(store.isLoading).toBe(false)
+      expect(store.lastError).toBeNull()
+      expect(result.success).toBe(true)
+    })
+
+    it("sets lastError on failure", async () => {
+      const { requestPasswordReset } = require("@/services/auth")
+      requestPasswordReset.mockResolvedValue({ success: false, error: "errors:invalidEmail" })
+
+      const result = await store.requestPasswordReset("bad-email")
+
+      expect(store.isLoading).toBe(false)
+      expect(store.lastError).toBe("errors:invalidEmail")
+      expect(result.success).toBe(false)
+    })
+
+    it("handles unexpected exception", async () => {
+      const { requestPasswordReset } = require("@/services/auth")
+      requestPasswordReset.mockRejectedValue(new Error("network"))
+
+      const result = await store.requestPasswordReset("user@example.com")
+
+      expect(store.isLoading).toBe(false)
+      expect(store.lastError).toBe("errors:unknownError")
+      expect(result.success).toBe(false)
     })
   })
 
