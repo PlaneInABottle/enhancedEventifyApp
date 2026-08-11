@@ -2,7 +2,7 @@ import { supabase } from "@/clients/supabase/SupabaseClient"
 import * as validationUtils from "@/utils/validation"
 
 import * as authHelpers from "./authHelpers"
-import { signIn, signUp, requestPasswordReset } from "./authService"
+import { signIn, signUp, requestPasswordReset, updatePassword } from "./authService"
 
 /**
  * Unit tests for authentication service
@@ -15,6 +15,7 @@ jest.mock("@/clients/supabase/SupabaseClient", () => ({
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
       resetPasswordForEmail: jest.fn(),
+      updateUser: jest.fn(),
     },
   },
 }))
@@ -409,6 +410,104 @@ describe("authService", () => {
       mockSupabase.auth.resetPasswordForEmail.mockRejectedValue(new Error("network"))
 
       const result = await requestPasswordReset(email)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:unknownError")
+    })
+  })
+
+  describe("updatePassword", () => {
+    const newPassword = "newPassword123"
+
+    it("returns password mismatch error without calling supabase", async () => {
+      const result = await updatePassword(newPassword, "differentPassword")
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:passwordMismatch")
+      expect(mockValidationUtils.validatePassword).not.toHaveBeenCalled()
+      expect(mockSupabase.auth.updateUser).not.toHaveBeenCalled()
+    })
+
+    it("returns error when password validation fails", async () => {
+      mockValidationUtils.validatePassword.mockReturnValue({
+        success: false,
+        error: "errors:passwordRequired",
+      })
+
+      const result = await updatePassword(newPassword)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:passwordRequired")
+      expect(mockSupabase.auth.updateUser).not.toHaveBeenCalled()
+    })
+
+    it("calls supabase and returns success on valid password", async () => {
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockSupabase.auth.updateUser.mockResolvedValue({ data: { user: {} }, error: null })
+
+      const result = await updatePassword(newPassword)
+
+      expect(mockValidationUtils.validatePassword).toHaveBeenCalledWith(newPassword)
+      expect(mockSupabase.auth.updateUser).toHaveBeenCalledWith({ password: newPassword })
+      expect(result.success).toBe(true)
+      expect(result.error).toBeUndefined()
+    })
+
+    it("maps expired token error to unknown error", async () => {
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      const supabaseError = { message: "JWT expired", status: 401 }
+      mockSupabase.auth.updateUser.mockResolvedValue({
+        data: { user: null },
+        error: supabaseError,
+      })
+
+      const result = await updatePassword(newPassword)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:unknownError")
+      expect(mockAuthHelpers.mapAuthError).not.toHaveBeenCalled()
+    })
+
+    it("maps rate limit error to too many requests", async () => {
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      const supabaseError = { message: "Request rate limit reached", status: 429 }
+      mockSupabase.auth.updateUser.mockResolvedValue({
+        data: { user: null },
+        error: supabaseError,
+      })
+
+      const result = await updatePassword(newPassword)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:tooManyRequests")
+      expect(mockAuthHelpers.mapAuthError).not.toHaveBeenCalled()
+    })
+
+    it("maps supabase error via mapAuthError", async () => {
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      const supabaseError = { message: "Invalid login credentials", status: 400 }
+      mockSupabase.auth.updateUser.mockResolvedValue({
+        data: { user: null },
+        error: supabaseError,
+      })
+      mockAuthHelpers.mapAuthError.mockReturnValue({
+        type: "invalid_credentials",
+        message: "errors:invalidCredentials",
+        originalError: supabaseError,
+      })
+
+      const result = await updatePassword(newPassword)
+
+      expect(mockAuthHelpers.mapAuthError).toHaveBeenCalledWith(supabaseError)
+      expect(result.success).toBe(false)
+      expect(result.error).toBe("errors:invalidCredentials")
+    })
+
+    it("handles unexpected exception", async () => {
+      mockValidationUtils.validatePassword.mockReturnValue({ success: true })
+      mockSupabase.auth.updateUser.mockRejectedValue(new Error("network"))
+
+      const result = await updatePassword(newPassword)
 
       expect(result.success).toBe(false)
       expect(result.error).toBe("errors:unknownError")

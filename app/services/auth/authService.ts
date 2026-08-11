@@ -272,3 +272,48 @@ export async function requestPasswordReset(email: string): Promise<AuthResult> {
     return { success: false, error: "errors:unknownError" }
   }
 }
+
+/**
+ * Updates the currently authenticated user's password.
+ * Phase 2: Called after Supabase PASSWORD_RECOVERY flow navigates user into the app.
+ *
+ * @param newPassword - The new password to set
+ * @param confirmPassword - Optional confirmation to verify match client-side
+ * @returns AuthResult with success or translation key error
+ */
+export async function updatePassword(
+  newPassword: string,
+  confirmPassword?: string,
+): Promise<AuthResult> {
+  try {
+    // Confirm match if confirmation supplied
+    if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+      return { success: false, error: "errors:passwordMismatch" }
+    }
+
+    // Validate strength/requirements
+    const passwordValidation = validatePassword(newPassword)
+    if (!passwordValidation.success) {
+      return { success: false, error: passwordValidation.error }
+    }
+
+    // Perform update via Supabase
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) {
+      const msg = error.message.toLowerCase()
+      if (msg.includes("expired")) {
+        return { success: false, error: "errors:unknownError" } // Will refine with specific token key once added
+      }
+      if (msg.includes("rate") || msg.includes("request")) {
+        return { success: false, error: "errors:tooManyRequests" }
+      }
+      const customError = mapAuthError(error as any)
+      return { success: false, error: customError.message }
+    }
+
+    return { success: true }
+  } catch (e) {
+    console.error("Unexpected error during password update:", e)
+    return { success: false, error: "errors:unknownError" }
+  }
+}
